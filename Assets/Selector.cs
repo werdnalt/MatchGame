@@ -103,9 +103,12 @@ public class Selector : MonoBehaviour
 
     private void MoveSelector(int xAdjustment, int yAdjustment)
     {
-        leftBlockCoordinates = new BoardManager.Coordinates(leftBlockCoordinates.x + xAdjustment, leftBlockCoordinates.y + yAdjustment);
-        rightBlockCoordinates = new BoardManager.Coordinates(rightBlockCoordinates.x + xAdjustment, rightBlockCoordinates.y + yAdjustment);
-        Highlight();
+        if (!BoardManager.Instance.isRefilling)
+        {
+            leftBlockCoordinates = new BoardManager.Coordinates(leftBlockCoordinates.x + xAdjustment, leftBlockCoordinates.y + yAdjustment);
+            rightBlockCoordinates = new BoardManager.Coordinates(rightBlockCoordinates.x + xAdjustment, rightBlockCoordinates.y + yAdjustment);
+            Highlight();
+        }
     }
 
     private void Highlight()

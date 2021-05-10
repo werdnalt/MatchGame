@@ -11,10 +11,11 @@ public class BoardManager : MonoBehaviour
     public int numColumns; 
     // A list of all possible blocks that can be spawned on the board
     public List<GameObject> blocks = new List<GameObject>();
-
     // A 2D array that contains all of the possible positions a block can be spawned
     public Vector2[,] spawnPositions;
     // A 2D array that contains the blocks that comprise the board
+    public bool isRefilling;
+
     private GameObject[,] board;
     private float blockSize;
 
@@ -34,6 +35,7 @@ public class BoardManager : MonoBehaviour
     {
         spawnPositions = new Vector2[numColumns, numRows];
         board = new GameObject[numColumns, numRows];
+        isRefilling = false;
 
         if (Instance == null) Instance = this;
 
@@ -154,67 +156,117 @@ public class BoardManager : MonoBehaviour
                 if (currBlockGameObject)
                 {
                     Coordinates currCoords = new Coordinates(column, row);
+                    List<Coordinates> blockCoordinates = new List<Coordinates>();
                     Block block = currBlockGameObject.GetComponent<Block>();
+;                   
+                    CheckHorizontal(block, currCoords, blockCoordinates);
+                    if (blockCoordinates.Count >= 3)
+                    {
+                        HandleMatch(blockCoordinates);
+                        goto MatchFound;
+                    } 
 
-                    List<GameObject> horizontalBlocks = new List<GameObject>();
-                    CheckHorizontal(block, currCoords, horizontalBlocks);
-                    if (horizontalBlocks.Count >= 3) HandleMatch(horizontalBlocks);
+                    blockCoordinates.Clear();
 
-
-                    List<GameObject> verticalBlocks = new List<GameObject>();
-                    CheckVertical(block, currCoords, verticalBlocks);
-                    if (verticalBlocks.Count >= 3) HandleMatch(verticalBlocks);
+                    CheckVertical(block, currCoords, blockCoordinates);
+                    if (blockCoordinates.Count >= 3)
+                    {
+                        HandleMatch(blockCoordinates);
+                        goto MatchFound;
+                    } 
                 }
             }
         }
+
+        MatchFound:
+            return;
     }
 
-    private void CheckHorizontal(Block block, Coordinates toCheck, List<GameObject> horizontalBlocks)
+    private void CheckHorizontal(Block block, Coordinates toCheck, List<Coordinates> horizontalBlocks)
     {
-        horizontalBlocks.Add(block.gameObject);
+        horizontalBlocks.Add(toCheck);
         if (toCheck.x + 1 < numColumns)
         {
             Coordinates coordsOfComparison = new Coordinates(toCheck.x + 1, toCheck.y);
             Block toCompare = board[coordsOfComparison.x, coordsOfComparison.y].GetComponent<Block>();
-            if (block.blockType == toCompare.blockType)
+            if (block.blockType == toCompare.blockType && toCompare)
             {
                 CheckHorizontal(toCompare, coordsOfComparison, horizontalBlocks);
             }
         }
     }
 
-    private void CheckVertical(Block block, Coordinates toCheck, List<GameObject> verticalBlocks)
+    private void CheckVertical(Block block, Coordinates toCheck, List<Coordinates> verticalBlocks)
     {
-        verticalBlocks.Add(block.gameObject);
+        verticalBlocks.Add(toCheck);
         if (toCheck.y + 1 < numRows)
         {
             Coordinates coordsOfComparison = new Coordinates(toCheck.x, toCheck.y + 1);
             Block toCompare = board[coordsOfComparison.x, coordsOfComparison.y].GetComponent<Block>();
-            if (block.blockType == toCompare.blockType)
+            if (block.blockType == toCompare.blockType && toCompare)
             {
                 CheckVertical(toCompare, coordsOfComparison, verticalBlocks);
             }
         }
     }
 
-    private void HandleMatch(List<GameObject> blocksInRun)
+    private void RefillBoard(List<Coordinates> toRefill)
     {
-        switch (blocksInRun.Count)
-        {
-            case 3:
-                Debug.Log("OHHHYEAH!!");
-                break;
-                    
-            case 4:
-                break;
-
-            case 5:
-                break;
+        Debug.Log("Refilling Board");
+        foreach (Coordinates coords in toRefill)
+        {   
+            int column = coords.x;
+            // for each cell going up the grid
+            for (int row = coords.y; row < numRows; row++)
+            {
+                // if the cell is empty
+                if (board[column, row] == null)
+                {
+                    bool replacementNeeded = true;
+                    Coordinates refilling = new Coordinates(column, row);
+                    Vector3 moveTo = Camera.main.ScreenToWorldPoint(new Vector3(spawnPositions[column, row].x, spawnPositions[column, row].y, 1)); 
+                    // iterate through the cells above it to find the next non-empty cell
+                    for (int searchRow = row + 1; searchRow < numRows; searchRow++)
+                    {
+                        // if you find a cell that isn't empty, replace the empty cell with its block
+                        if (board[column, searchRow] != null && replacementNeeded)
+                        {
+                            Debug.Log("Found a block to fill the space at " + column + ", " + row);
+                            GameObject block = board[column, searchRow];
+                            board[column, searchRow] = null;
+                            board[refilling.x, refilling.y] = block;
+                            block.transform.position = moveTo;
+                            //Vector2.Lerp(block.transform.position, (spawnPositions[column, row]), Time.deltaTime);
+                            replacementNeeded = false;
+                        }
+                    }
+                    if (replacementNeeded)
+                    {
+                        Debug.Log("Spawned a block to fill the space at " + column + ", " + row);
+                        GameObject createdBlock = Instantiate(GetRandomBlock(null, null), Camera.main.ScreenToWorldPoint(spawnPositions[column, numRows - 1]), Quaternion.identity, this.transform);
+                        board[refilling.x, refilling.y] = createdBlock;
+                        createdBlock.transform.position = moveTo;
+                        // Vector2.Lerp(createdBlock.transform.position, Camera.main.ScreenToWorldPoint(spawnPositions[column, row]), Time.deltaTime);
+                    }
+                }
+            }
         }
+        isRefilling = false;
+        CheckMatch();
+    }
 
-        foreach (GameObject go in blocksInRun)
+    private void HandleMatch(List<Coordinates> blocksInRun)
+    {
+        Debug.Log("Handling match");
+        Block type = board[blocksInRun[0].x, blocksInRun[0].y].GetComponent<Block>();
+        MatchHandler.Instance.ResolveEffect(type, blocksInRun.Count);
+
+        foreach (Coordinates coords in blocksInRun)
         {
-            Destroy(go);
+            GameObject block = board[coords.x, coords.y];
+            board[coords.x, coords.y] = null;
+            Destroy(block);
         }
+        RefillBoard(blocksInRun);
     }
 }

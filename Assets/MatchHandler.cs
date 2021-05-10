@@ -6,7 +6,7 @@ public class MatchHandler : MonoBehaviour
 {
     public static MatchHandler Instance;
 
-    void Start()
+    void Awake()
     {
         if (Instance == null) Instance = this;
     }

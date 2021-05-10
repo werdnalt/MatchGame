@@ -612,7 +612,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numRows: 12
-  numColumns: 20
+  numColumns: 8
   blocks:
   - {fileID: 4315451369684117524, guid: ac6783e32d8a1274fb4485c4bd9dd827, type: 3}
   - {fileID: 7469624158725595897, guid: d28ea3b0603a4474496910cdda1dec4d, type: 3}
@@ -620,6 +620,7 @@ MonoBehaviour:
   - {fileID: 9109302945351905378, guid: 58d54e4831d84174f9b1b80e7a32ff6e, type: 3}
   - {fileID: 5335042735140827574, guid: fb130bcd7f4efb946ac9c05c9c475661, type: 3}
   - {fileID: 3114578211497745195, guid: 855bde5de1bdb3349971f6b82ca0fc4f, type: 3}
+  isRefilling: 0
 --- !u!224 &2034415746
 RectTransform:
   m_ObjectHideFlags: 0
