@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using TMPro;
 
 public class BoardManager : MonoBehaviour
 {
@@ -15,9 +16,14 @@ public class BoardManager : MonoBehaviour
     public Vector2[,] spawnPositions;
     // A 2D array that contains the blocks that comprise the board
     public bool isRefilling;
+    public TextMeshProUGUI accumulatedPointsText;
 
     private GameObject[,] board;
     private float blockSize;
+
+    private int combo = 0;
+    private int accumulatedPoints = 0;
+    private List<int> accumulatedScores = new List<int>();
 
     public struct Coordinates 
     {
@@ -34,6 +40,7 @@ public class BoardManager : MonoBehaviour
 
     void Awake()
     {
+        accumulatedPointsText.gameObject.SetActive(false);
         spawnPositions = new Vector2[numColumns, numRows];
         board = new GameObject[numColumns, numRows];
         isRefilling = false;
@@ -148,7 +155,7 @@ public class BoardManager : MonoBehaviour
         CheckMatch();
     }
 
-    private void CheckMatch()
+    private bool CheckMatch()
     {
         for (int row = 0; row < numRows; row++)
         {
@@ -166,7 +173,7 @@ public class BoardManager : MonoBehaviour
                     if (blockCoordinates.Count >= 3)
                     {
                         StartCoroutine(MatchFound(blockCoordinates));
-                        goto MatchFound;
+                        return true;
                     } 
 
                     blockCoordinates.Clear();
@@ -175,14 +182,12 @@ public class BoardManager : MonoBehaviour
                     if (blockCoordinates.Count >= 3)
                     {
                         StartCoroutine(MatchFound(blockCoordinates));
-                        goto MatchFound;
+                        return true;
                     } 
                 }
             }
         }
-
-        MatchFound:
-            return;
+    return false;
     }
 
     private void CheckHorizontal(Block block, Coordinates toCheck, List<Coordinates> horizontalBlocks)
@@ -215,6 +220,7 @@ public class BoardManager : MonoBehaviour
 
     private void RefillBoard(List<Coordinates> toRefill)
     {
+        isRefilling = true;
         foreach (Coordinates coords in toRefill)
         {   
             int column = coords.x;
@@ -251,14 +257,13 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
-        isRefilling = false;
     }
 
     private void HandleMatch(List<Coordinates> blocksInRun)
     {
-        AudioManager.Instance.Play("chime");
         isRefilling = true;
         Block type = board[blocksInRun[0].x, blocksInRun[0].y].GetComponent<Block>();
+        HandleCombo(AccumulatePoints(type, blocksInRun.Count));
         MatchHandler.Instance.ResolveEffect(type, blocksInRun.Count);
 
         foreach (Coordinates coords in blocksInRun)
@@ -271,10 +276,94 @@ public class BoardManager : MonoBehaviour
 
     private IEnumerator MatchFound(List<Coordinates> blocksInRun)
     {
+        combo += 1;
+        Debug.Log("COMBO: " + combo);
         HandleMatch(blocksInRun);
         yield return new WaitForSeconds(1.5f);
         RefillBoard(blocksInRun);
+        if (!CheckMatch()) 
+        {
+            isRefilling = false;
+            ResolveCombo();
+        }  
+    }
+
+    private int AccumulatePoints(Block block, int runSize)
+    {
+        int pointvalue = block.pointValue;
+
+        switch (runSize)
+        {
+            case 3:
+                return pointvalue * 3;
+
+            case 4:
+                return (pointvalue * pointvalue);
+
+            case 5:
+                return (pointvalue * pointvalue * pointvalue);
+
+            default: 
+                return 0;
+        }
+
+    }
+
+    private void HandleCombo(int points)
+    {
+        if (combo == 1)
+        {
+            accumulatedPoints += points;
+            AudioManager.Instance.Play("chime");
+        } 
+
+        else if (combo == 2)
+        {
+            accumulatedPoints += points * 2;
+            AudioManager.Instance.Play("chime2");
+        } 
+
+        else if (combo == 3)
+        {
+            accumulatedPoints += points * 3;
+            AudioManager.Instance.Play("ding");
+        } 
+
+        else if (combo >= 4)
+        {
+            accumulatedPoints += points * 4;
+            AudioManager.Instance.Play("tada");
+        }
+
+        accumulatedScores.Add(points);
+        StartCoroutine(ShowAccumulatedPoints());
+    }
+
+    private IEnumerator ShowAccumulatedPoints()
+    {
+        string accumulatedPointsString = "";
+        for (int i = 0; i < accumulatedScores.Count; i++)
+        {
+            if (i == 0)
+            {
+                accumulatedPointsString += accumulatedScores[i].ToString();
+            } else {
+                int multiplier = Mathf.Clamp(i, 2, 4);
+                accumulatedPointsString += " + " + accumulatedScores[i].ToString() + " x" + multiplier;
+            }
+        }
+        accumulatedPointsText.gameObject.SetActive(true);
+        accumulatedPointsText.text = accumulatedPointsString;
+
         yield return new WaitForSeconds(1.5f);
-        CheckMatch();
+        accumulatedPointsText.gameObject.SetActive(false);
+    }
+
+    private void ResolveCombo()
+    {
+        Player.Instance.UpdateScore(accumulatedPoints);
+        accumulatedPoints = 0;
+        accumulatedScores.Clear();
+        combo = 0;
     }
 }

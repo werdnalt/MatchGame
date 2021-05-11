@@ -17,4 +17,5 @@ public class Block : MonoBehaviour
     }
 
     public Type blockType;
+    public int pointValue;
 }

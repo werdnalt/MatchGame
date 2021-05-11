@@ -8,13 +8,16 @@ public class Player : MonoBehaviour
     public static Player Instance;
     
     public int hp;
+    public int score;
     public TextMeshProUGUI hpText;
+    public TextMeshProUGUI scoreText;
 
     void Start()
     {
         if (Instance == null) Instance = this;
-        
+
         hpText.text = hp.ToString();
+        score = 0;
     }
 
     public void TakeDamage(int damage)
@@ -27,6 +30,12 @@ public class Player : MonoBehaviour
         }
 
         hpText.text = hp.ToString();
+    }
+
+    public void UpdateScore(int score)
+    {
+        this.score += score;
+        scoreText.text = score.ToString();
     }
 
 }
