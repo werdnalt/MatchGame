@@ -134,25 +134,35 @@ public class BoardManager : MonoBehaviour
 
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     { 
-        AudioManager.Instance.Play("woosh");
+        
 
         // Retrieve blocks from board based on their grid coordinates
         GameObject leftBlock = board[leftBlockCoords.x, leftBlockCoords.y];
         GameObject rightBlock = board[rightBlockCoords.x, rightBlockCoords.y];
 
-        // Swap the blocks data
-        board[leftBlockCoords.x, leftBlockCoords.y] = rightBlock;
-        board[rightBlockCoords.x, rightBlockCoords.y] = leftBlock;
+        if (leftBlock.GetComponent<Block>().blockType != Block.Type.Invincible && 
+            rightBlock.GetComponent<Block>().blockType != Block.Type.Invincible)
+            {
+                AudioManager.Instance.Play("woosh");
 
-        // Cache the value of the let block's position before it 
-        // moves to the right block's position
-        Vector3 originalPos = leftBlock.transform.position;
+                // Swap the blocks data
+                board[leftBlockCoords.x, leftBlockCoords.y] = rightBlock;
+                board[rightBlockCoords.x, rightBlockCoords.y] = leftBlock;
 
-        // Swap the gameobjects' positions
-        leftBlock.transform.position = rightBlock.transform.position;
-        rightBlock.transform.position = originalPos;
+                // Cache the value of the let block's position before it 
+                // moves to the right block's position
+                Vector3 originalPos = leftBlock.transform.position;
 
-        CheckMatch();
+                // Swap the gameobjects' positions
+                leftBlock.transform.position = rightBlock.transform.position;
+                rightBlock.transform.position = originalPos;
+
+                CheckMatch();
+            } else {
+                AudioManager.Instance.Play("error");
+            }
+
+
     }
 
     private bool CheckMatch()
@@ -277,7 +287,6 @@ public class BoardManager : MonoBehaviour
     private IEnumerator MatchFound(List<Coordinates> blocksInRun)
     {
         combo += 1;
-        Debug.Log("COMBO: " + combo);
         HandleMatch(blocksInRun);
         yield return new WaitForSeconds(1.5f);
         RefillBoard(blocksInRun);
@@ -349,7 +358,7 @@ public class BoardManager : MonoBehaviour
                 accumulatedPointsString += accumulatedScores[i].ToString();
             } else {
                 int multiplier = Mathf.Clamp(i, 2, 4);
-                accumulatedPointsString += " + " + accumulatedScores[i].ToString() + " x" + multiplier;
+                accumulatedPointsString += " + " + accumulatedScores[i].ToString() + "(x" + multiplier + ")";
             }
         }
         accumulatedPointsText.gameObject.SetActive(true);

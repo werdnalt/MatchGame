@@ -13,7 +13,9 @@ public class Block : MonoBehaviour
         Water,
         Potion,
         Enemy_Effect,
-        Invincible
+        Invincible,
+        Leaf, 
+        Coin
     }
 
     public Type blockType;

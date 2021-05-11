@@ -886,6 +886,10 @@ MonoBehaviour:
     name: ding
     volume: 1
     source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 8654f17c85b9d054488bcf07d7b4b291, type: 3}
+    name: error
+    volume: 1
+    source: {fileID: 0}
   audioEnabled: 1
 --- !u!1 &1124937856
 GameObject:
@@ -1462,6 +1466,8 @@ MonoBehaviour:
   - {fileID: 9109302945351905378, guid: 58d54e4831d84174f9b1b80e7a32ff6e, type: 3}
   - {fileID: 5335042735140827574, guid: fb130bcd7f4efb946ac9c05c9c475661, type: 3}
   - {fileID: 3114578211497745195, guid: 855bde5de1bdb3349971f6b82ca0fc4f, type: 3}
+  - {fileID: 2428940306623212466, guid: 65c97832e858db64fa2cc39b55365621, type: 3}
+  - {fileID: 5728026936969955708, guid: 79345947397e4474d9b4adb65ea36bf1, type: 3}
   isRefilling: 0
   accumulatedPointsText: {fileID: 139398192}
 --- !u!224 &2034415746
