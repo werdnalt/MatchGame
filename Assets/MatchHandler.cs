@@ -19,6 +19,10 @@ public class MatchHandler : MonoBehaviour
                 Sword(runLength);
                 break;
 
+            case Block.Type.Enemy_Effect:
+                EnemyEffect(runLength);
+                break;    
+
             case Block.Type.Arrow:
                 break;
 
@@ -41,12 +45,33 @@ public class MatchHandler : MonoBehaviour
         switch (runLength)
         {
             case 3:
+                GameManager.Instance.currentEnemy.TakeDamage(2);
                 break;
 
             case 4:
+                GameManager.Instance.currentEnemy.TakeDamage(3);
                 break;
 
             case 5:
+                GameManager.Instance.currentEnemy.TakeDamage(4);
+                break;
+        }
+    }
+
+    private void EnemyEffect(int runLength)
+    {
+        switch (runLength)
+        {
+            case 3:
+                Player.Instance.TakeDamage(2);
+                break;
+
+            case 4:
+                Player.Instance.TakeDamage(3);
+                break;
+
+            case 5:
+                Player.Instance.TakeDamage(4);
                 break;
         }
     }

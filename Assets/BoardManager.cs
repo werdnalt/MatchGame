@@ -22,6 +22,7 @@ public class BoardManager : MonoBehaviour
     public struct Coordinates 
     {
         public int x;
+
         public int y;
 
         public Coordinates(int x, int y)
@@ -126,6 +127,8 @@ public class BoardManager : MonoBehaviour
 
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     { 
+        AudioManager.Instance.Play("woosh");
+
         // Retrieve blocks from board based on their grid coordinates
         GameObject leftBlock = board[leftBlockCoords.x, leftBlockCoords.y];
         GameObject rightBlock = board[rightBlockCoords.x, rightBlockCoords.y];
@@ -162,7 +165,7 @@ public class BoardManager : MonoBehaviour
                     CheckHorizontal(block, currCoords, blockCoordinates);
                     if (blockCoordinates.Count >= 3)
                     {
-                        HandleMatch(blockCoordinates);
+                        StartCoroutine(MatchFound(blockCoordinates));
                         goto MatchFound;
                     } 
 
@@ -171,7 +174,7 @@ public class BoardManager : MonoBehaviour
                     CheckVertical(block, currCoords, blockCoordinates);
                     if (blockCoordinates.Count >= 3)
                     {
-                        HandleMatch(blockCoordinates);
+                        StartCoroutine(MatchFound(blockCoordinates));
                         goto MatchFound;
                     } 
                 }
@@ -212,7 +215,6 @@ public class BoardManager : MonoBehaviour
 
     private void RefillBoard(List<Coordinates> toRefill)
     {
-        Debug.Log("Refilling Board");
         foreach (Coordinates coords in toRefill)
         {   
             int column = coords.x;
@@ -231,7 +233,6 @@ public class BoardManager : MonoBehaviour
                         // if you find a cell that isn't empty, replace the empty cell with its block
                         if (board[column, searchRow] != null && replacementNeeded)
                         {
-                            Debug.Log("Found a block to fill the space at " + column + ", " + row);
                             GameObject block = board[column, searchRow];
                             board[column, searchRow] = null;
                             board[refilling.x, refilling.y] = block;
@@ -242,7 +243,6 @@ public class BoardManager : MonoBehaviour
                     }
                     if (replacementNeeded)
                     {
-                        Debug.Log("Spawned a block to fill the space at " + column + ", " + row);
                         GameObject createdBlock = Instantiate(GetRandomBlock(null, null), Camera.main.ScreenToWorldPoint(spawnPositions[column, numRows - 1]), Quaternion.identity, this.transform);
                         board[refilling.x, refilling.y] = createdBlock;
                         createdBlock.transform.position = moveTo;
@@ -252,12 +252,12 @@ public class BoardManager : MonoBehaviour
             }
         }
         isRefilling = false;
-        CheckMatch();
     }
 
     private void HandleMatch(List<Coordinates> blocksInRun)
     {
-        Debug.Log("Handling match");
+        AudioManager.Instance.Play("chime");
+        isRefilling = true;
         Block type = board[blocksInRun[0].x, blocksInRun[0].y].GetComponent<Block>();
         MatchHandler.Instance.ResolveEffect(type, blocksInRun.Count);
 
@@ -267,6 +267,14 @@ public class BoardManager : MonoBehaviour
             board[coords.x, coords.y] = null;
             Destroy(block);
         }
+    }
+
+    private IEnumerator MatchFound(List<Coordinates> blocksInRun)
+    {
+        HandleMatch(blocksInRun);
+        yield return new WaitForSeconds(1.5f);
         RefillBoard(blocksInRun);
+        yield return new WaitForSeconds(1.5f);
+        CheckMatch();
     }
 }

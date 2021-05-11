@@ -105,6 +105,7 @@ public class Selector : MonoBehaviour
     {
         if (!BoardManager.Instance.isRefilling)
         {
+            AudioManager.Instance.Play("click");
             leftBlockCoordinates = new BoardManager.Coordinates(leftBlockCoordinates.x + xAdjustment, leftBlockCoordinates.y + yAdjustment);
             rightBlockCoordinates = new BoardManager.Coordinates(rightBlockCoordinates.x + xAdjustment, rightBlockCoordinates.y + yAdjustment);
             Highlight();
