@@ -252,8 +252,9 @@ public class BoardManager : MonoBehaviour
                             GameObject block = board[column, searchRow];
                             board[column, searchRow] = null;
                             board[refilling.x, refilling.y] = block;
-                            block.transform.position = moveTo;
-                            //Vector2.Lerp(block.transform.position, (spawnPositions[column, row]), Time.deltaTime);
+                            //block.transform.position = moveTo;
+                            StartCoroutine(MoveBlock(block, block.transform.position, moveTo, .2f));
+                            //Vector2.Lerp(block.transform.position, moveTo, .5f);
                             replacementNeeded = false;
                         }
                     }
@@ -262,11 +263,26 @@ public class BoardManager : MonoBehaviour
                         GameObject createdBlock = Instantiate(GetRandomBlock(null, null), Camera.main.ScreenToWorldPoint(spawnPositions[column, numRows - 1]), Quaternion.identity, this.transform);
                         board[refilling.x, refilling.y] = createdBlock;
                         createdBlock.transform.position = moveTo;
+                        StartCoroutine(MoveBlock(createdBlock, createdBlock.transform.position, moveTo, .2f));
                         // Vector2.Lerp(createdBlock.transform.position, Camera.main.ScreenToWorldPoint(spawnPositions[column, row]), Time.deltaTime);
                     }
                 }
             }
         }
+    }
+
+    private IEnumerator MoveBlock(GameObject block, Vector2 startingPos, Vector2 endingPos, float duration)
+    {
+        float time = 0;
+        
+        while (time < duration)
+        {
+            block.transform.position = Vector2.Lerp(startingPos, endingPos, time/duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        block.transform.position = endingPos;
     }
 
     private void HandleMatch(List<Coordinates> blocksInRun)

@@ -104,13 +104,13 @@ public class Selector : MonoBehaviour
     private void MoveSelector(int xAdjustment, int yAdjustment)
     {
         //if NOT refilling, run this code
-     //if (!BoardManager.Instance.isRefilling)
-     //{
+     if (!BoardManager.Instance.isRefilling)
+     {
             AudioManager.Instance.Play("click");
             leftBlockCoordinates = new BoardManager.Coordinates(leftBlockCoordinates.x + xAdjustment, leftBlockCoordinates.y + yAdjustment);
             rightBlockCoordinates = new BoardManager.Coordinates(rightBlockCoordinates.x + xAdjustment, rightBlockCoordinates.y + yAdjustment);
             Highlight();
-      //}
+      }
     }
 
     private void Highlight()
