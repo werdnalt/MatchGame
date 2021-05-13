@@ -7,6 +7,8 @@ public class Selector : MonoBehaviour
 {
     public GameObject selectorBlock;
 
+    UnityEvent Selector_Just_Moved;
+
     private string Name;
     private BoardManager.Coordinates leftBlockCoordinates;
     private BoardManager.Coordinates rightBlockCoordinates;
@@ -106,7 +108,8 @@ public class Selector : MonoBehaviour
         //if NOT refilling, run this code
      if (!BoardManager.Instance.isRefilling)
      {
-            AudioManager.Instance.Play("click");
+            //AudioManager.Instance.Play("click");
+            Selector_Just_Moved.invoke();
             leftBlockCoordinates = new BoardManager.Coordinates(leftBlockCoordinates.x + xAdjustment, leftBlockCoordinates.y + yAdjustment);
             rightBlockCoordinates = new BoardManager.Coordinates(rightBlockCoordinates.x + xAdjustment, rightBlockCoordinates.y + yAdjustment);
             Highlight();
