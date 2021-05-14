@@ -41,5 +41,6 @@ public class Enemy : MonoBehaviour
     private void Death()
     {
         Debug.Log("damn u died");
+        GameManager.Instance.LevelComplete();
     }
 }

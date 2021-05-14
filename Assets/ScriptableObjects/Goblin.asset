@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Goblin
   m_EditorClassIdentifier: 
   type: 1
-  hp: 20
+  hp: 5
   attackTime: 10
