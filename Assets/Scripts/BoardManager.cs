@@ -40,7 +40,6 @@ public class BoardManager : MonoBehaviour
 
     void Awake()
     {
-        accumulatedPointsText.gameObject.SetActive(false);
         spawnPositions = new Vector2[numColumns, numRows];
         board = new GameObject[numColumns, numRows];
         isRefilling = false;

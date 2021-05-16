@@ -268,6 +268,7 @@ GameObject:
   - component: {fileID: 396688114}
   - component: {fileID: 396688113}
   - component: {fileID: 396688112}
+  - component: {fileID: 396688115}
   m_Layer: 0
   m_Name: Level Intermission UI
   m_TagString: Untagged
@@ -360,6 +361,20 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
+--- !u!114 &396688115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396688110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fe97202672c5e144b46a7f1e829ce53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topButtonText: {fileID: 1942322162}
+  playerScore: {fileID: 577458607}
 --- !u!1 &440766499
 GameObject:
   m_ObjectHideFlags: 0
@@ -576,7 +591,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 469995653}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 396688115}
+        m_TargetAssemblyTypeName: LevelIntermission, Assembly-CSharp
+        m_MethodName: LoadMainMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &469995653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -918,6 +945,9 @@ GameObject:
   - component: {fileID: 991053920}
   - component: {fileID: 991053919}
   - component: {fileID: 991053921}
+  - component: {fileID: 991053922}
+  - component: {fileID: 991053923}
+  - component: {fileID: 991053924}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -937,11 +967,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30338cdf8991a124495bfab71f7825ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemies: []
-  currentEnemy: {fileID: 0}
-  enemyHealthText: {fileID: 0}
-  enemySpawn: {fileID: 0}
-  LevelIntermissionUI: {fileID: 396688110}
+  levelIntermissionUI: {fileID: 396688110}
+  currentLevel: 0
+  levels: []
 --- !u!4 &991053920
 Transform:
   m_ObjectHideFlags: 0
@@ -971,6 +999,72 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentLevel: 0
   maxLevel: 0
+--- !u!114 &991053922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991053918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51f5cb6c76b3c9c4eb7731c0d272e350, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &991053923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991053918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a465beccbc4ceb645a259d03e75ce3d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - clip: {fileID: 8300000, guid: 98521b3adf919c647b866bb64300de79, type: 3}
+    name: chime
+    volume: 1
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 12f9e3abb8b9d4e4f8d890f0f1d21106, type: 3}
+    name: click
+    volume: 1
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 98ca180912f1ca34299f2c8aa7398b33, type: 3}
+    name: woosh
+    volume: 1
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: b7ff4609c40f3164eabac5469b8a8225, type: 3}
+    name: chime2
+    volume: 1
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: df727ed8384221f47bd648d4216ce019, type: 3}
+    name: tada
+    volume: 1
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 5b0c9fa7f7f042147a4e06f7bcecefaa, type: 3}
+    name: ding
+    volume: 1
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 8654f17c85b9d054488bcf07d7b4b291, type: 3}
+    name: error
+    volume: 1
+    source: {fileID: 0}
+  audioEnabled: 1
+--- !u!114 &991053924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991053918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd0d70722f5c83340829ebcd45352643, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1236507970
 GameObject:
   m_ObjectHideFlags: 0
@@ -1439,8 +1533,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: RPuzzleG
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 71b1539a39ebd8b428b9392d6727701d, type: 2}
+  m_sharedMaterial: {fileID: -4134465953157821848, guid: 71b1539a39ebd8b428b9392d6727701d, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1704,7 +1798,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: LEVEL A
+  m_text: LEVEL COMPLETE!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2250,7 +2344,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2102232928}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 396688115}
+        m_TargetAssemblyTypeName: LevelIntermission, Assembly-CSharp
+        m_MethodName: LoadNextLevel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2102232928
 MonoBehaviour:
   m_ObjectHideFlags: 0

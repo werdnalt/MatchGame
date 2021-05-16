@@ -45,15 +45,15 @@ public class MatchHandler : MonoBehaviour
         switch (runLength)
         {
             case 3:
-                GameManager.Instance.currentEnemy.TakeDamage(2);
+                LevelManager.Instance.currentEnemy.TakeDamage(2);
                 break;
 
             case 4:
-                GameManager.Instance.currentEnemy.TakeDamage(3);
+                LevelManager.Instance.currentEnemy.TakeDamage(3);
                 break;
 
             case 5:
-                GameManager.Instance.currentEnemy.TakeDamage(4);
+                LevelManager.Instance.currentEnemy.TakeDamage(4);
                 break;
         }
     }

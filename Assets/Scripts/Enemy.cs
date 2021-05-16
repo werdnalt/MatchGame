@@ -21,7 +21,7 @@ public class Enemy : MonoBehaviour
             this.attackTime = enemyHydrator.attackTime;
         }
 
-        healthText = GameManager.Instance.enemyHealthText;
+        healthText = LevelManager.Instance.enemyHealthText;
         healthText.text = hp.ToString();
     }
 

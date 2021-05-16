@@ -7,35 +7,45 @@ public class Player : MonoBehaviour
 {
     public static Player Instance;
     
-    public int hp;
+    public int maxHP;
     public int score;
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI scoreText;
 
+    private int currHP;
+
     void Start()
     {
+        EventManager.Instance.onNextLevel += Reset;
+
+        currHP = maxHP;
         if (Instance == null) Instance = this;
 
-        hpText.text = hp.ToString();
+        hpText.text = currHP.ToString();
         score = 0;
     }
 
     public void TakeDamage(int damage)
     {
-        if (hp - damage >= 0) 
+        if (currHP - damage >= 0) 
         {
-            hp -= damage;
+            currHP -= damage;
         } else {
-            hp = 0;
+            currHP = 0;
         }
 
-        hpText.text = hp.ToString();
+        hpText.text = currHP.ToString();
     }
 
     public void UpdateScore(int score)
     {
         this.score += score;
         scoreText.text = score.ToString();
+    }
+
+    public void Reset(int level)
+    {
+        currHP = maxHP;
     }
 
 }

@@ -3,7 +3,14 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Enemy_Health
+  - Player_Health
+  - Combo_Text
+  - Score_Text
+  - Player_Spawn
+  - Enemy_Spawn
+  - Background
   layers:
   - Default
   - TransparentFX
