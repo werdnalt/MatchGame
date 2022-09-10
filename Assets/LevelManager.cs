@@ -33,7 +33,6 @@ public class LevelManager : MonoBehaviour
         scoreText = GameObject.FindGameObjectWithTag("Score_Text").GetComponent<TextMeshProUGUI>();
         playerSpawnPoint = GameObject.FindGameObjectWithTag("Player_Spawn").transform.position;
         enemySpawnPoint = GameObject.FindGameObjectWithTag("Enemy_Spawn").transform.position;
-        backgroundImage = GameObject.FindGameObjectWithTag("Background").GetComponent<Image>();
 
         if (Instance == null) Instance = this;
 
@@ -48,14 +47,13 @@ public class LevelManager : MonoBehaviour
     // Setup the background image and enemy
     public void Setup()
     {
-        if (levelDict.ContainsKey(GameManager.Instance.currentLevel))
-        {
-            currLevel = levelDict[GameManager.Instance.currentLevel];
-        } else 
-        {
-            Debug.Log("No level loaded in for level " + GameManager.Instance.currentLevel);
-        }
-        backgroundImage.sprite = currLevel.backgroundImage;
-        currentEnemy = Instantiate(currLevel.enemy, enemySpawnPoint, Quaternion.identity);
+        // if (levelDict.ContainsKey(GameManager.Instance.currentLevel))
+        // {
+        //     currLevel = levelDict[GameManager.Instance.currentLevel];
+        // } else 
+        // {
+        //     Debug.Log("No level loaded in for level " + GameManager.Instance.currentLevel);
+        // }
+        //currentEnemy = Instantiate(currLevel.enemy, enemySpawnPoint, Quaternion.identity);
     }
 }

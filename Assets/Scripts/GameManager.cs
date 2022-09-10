@@ -19,7 +19,9 @@ public class GameManager : MonoBehaviour
 
         DontDestroyOnLoad(this.gameObject);
 
-        EventManager.Instance.onNextLevel += NextLevel;
+        // EventManager.Instance.onNextLevel += NextLevel;
+        // EventManager.Instance.onMainMenu += HideIntermissionUI;
+        // EventManager.Instance.onGameComplete += HideIntermissionUI;
     }
 
     public void LevelComplete()
@@ -34,6 +36,11 @@ public class GameManager : MonoBehaviour
     }
 
     public void NextLevel(int level)
+    {
+        levelIntermissionUI.gameObject.SetActive(false);
+    }
+
+    public void HideIntermissionUI()
     {
         levelIntermissionUI.gameObject.SetActive(false);
     }

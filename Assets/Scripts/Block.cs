@@ -1,23 +1,34 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Block : MonoBehaviour
 {
     public enum Type
     {
         Sword,
-        Arrow,
+        Bow,
         Shield,
-        Fire,
-        Water,
+        Fireball,
+        Star,
         Potion,
-        Enemy_Effect,
-        Invincible,
         Leaf, 
-        Coin
+        Coin,
+        Invincible,
+        Enemy_Effect,
+        Skull
     }
 
     public Type blockType;
     public int pointValue;
+    [SerializeField] private SpriteRenderer _blockIcon;
+
+    private void Start()
+    {
+        _blockIcon = GetComponent<SpriteRenderer>();
+        Sprite loadedIcon = Resources.Load<Sprite>(blockType.ToString());
+        _blockIcon.sprite = loadedIcon ? loadedIcon : Resources.Load<Sprite>("default");
+    }
 }

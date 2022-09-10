@@ -17,4 +17,16 @@ public class EventManager : MonoBehaviour
     {
         onNextLevel?.Invoke(level);
     }
+
+    public event Action onGameComplete;
+    public void GameComplete()
+    {
+        onGameComplete?.Invoke();
+    }
+
+    public event Action onMainMenu;
+    public void MainMenu()
+    {
+        onMainMenu?.Invoke();
+    }
 }

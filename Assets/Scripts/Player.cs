@@ -16,7 +16,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        EventManager.Instance.onNextLevel += Reset;
+        //EventManager.Instance.onNextLevel += Reset;
 
         currHP = maxHP;
         if (Instance == null) Instance = this;

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,15 +10,20 @@ public class BoardManager : MonoBehaviour
 
     public int numRows;
     public int numColumns; 
+    
     // A list of all possible blocks that can be spawned on the board
-    public List<GameObject> blocks = new List<GameObject>();
+    public List<GameObject> blockGameObjects = new List<GameObject>();
+    
     // A 2D array that contains all of the possible positions a block can be spawned
-    public Vector2[,] spawnPositions;
+    public Vector2[,] BlockPositions;
+    
     // A 2D array that contains the blocks that comprise the board
+    private GameObject[,] _board;
+    
     public bool isRefilling;
     public TextMeshProUGUI accumulatedPointsText;
 
-    private GameObject[,] board;
+
     private float blockSize;
 
     private int combo = 0;
@@ -38,10 +43,18 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    public enum Direction
+    {
+        Up, 
+        Down,
+        Left,
+        Right
+    }
+
     void Awake()
     {
-        spawnPositions = new Vector2[numColumns, numRows];
-        board = new GameObject[numColumns, numRows];
+        BlockPositions = new Vector2[numColumns, numRows];
+        _board = new GameObject[numColumns, numRows];
         isRefilling = false;
 
         if (Instance == null) Instance = this;
@@ -53,13 +66,15 @@ public class BoardManager : MonoBehaviour
     // populate it with a Block.
     private void InitializeBoard()
     {
-        int offset = 250;
+        int offset = 0;
 
         // Choose a starting position to begin populating spawn coordinates
         float startXPos = transform.position.x + offset;
         float startYPos = transform.position.y + offset;
 
-        blockSize = blocks[0].GetComponent<RectTransform>().rect.height;
+        blockSize = .9f;
+        Debug.Log(blockSize);
+        //blockSize = 90;
         
         // populate array with spawn positions
         for (int currentRow = 0; currentRow < numRows; currentRow++)
@@ -67,7 +82,7 @@ public class BoardManager : MonoBehaviour
             for (int currentColumn = 0; currentColumn < numColumns; currentColumn++)
             {
                 Vector2 pos = new Vector2(startXPos + (blockSize * currentColumn), startYPos + (blockSize * currentRow));
-                spawnPositions[currentColumn, currentRow] = pos;
+                BlockPositions[currentColumn, currentRow] = pos;
             }
         }
 
@@ -77,8 +92,8 @@ public class BoardManager : MonoBehaviour
             for (int currentColumn = 0; currentColumn < numColumns; currentColumn++)
             {
                 // get the x and y spawn coordinates 
-                float spawnX = spawnPositions[currentColumn, currentRow].x;
-                float spawnY = spawnPositions[currentColumn, currentRow].y;
+                float spawnX = BlockPositions[currentColumn, currentRow].x;
+                float spawnY = BlockPositions[currentColumn, currentRow].y;
 
                 Block leftBlock = null;
                 Block bottomBlock = null;
@@ -86,12 +101,12 @@ public class BoardManager : MonoBehaviour
                 // Don't spawn either of these blocks -- this will prevent starting with matches
                 if (currentColumn - 1 >= 0)
                 {
-                    leftBlock = board[currentColumn - 1, currentRow].GetComponent<Block>();
+                    leftBlock = _board[currentColumn - 1, currentRow].GetComponent<Block>();
                 }
 
                 if (currentRow - 1 >= 0)
                 {
-                    bottomBlock = board[currentColumn, currentRow - 1].GetComponent<Block>();
+                    bottomBlock = _board[currentColumn, currentRow - 1].GetComponent<Block>();
                 }
 
                 // create Vector3 coordinate at which to spawn the block
@@ -99,8 +114,8 @@ public class BoardManager : MonoBehaviour
 
                 GameObject toInstantiate = GetRandomBlock(except: leftBlock, or: bottomBlock);
 
-                GameObject block = Instantiate(toInstantiate, Camera.main.ScreenToWorldPoint(spawnPos), Quaternion.identity, this.transform);
-                board[currentColumn, currentRow] = block;
+                GameObject block = Instantiate(toInstantiate, spawnPos, Quaternion.identity, this.transform);
+                _board[currentColumn, currentRow] = block;
             }
         }
 
@@ -109,8 +124,8 @@ public class BoardManager : MonoBehaviour
 
     private GameObject GetRandomBlock(Block except, Block or)
     {
-        int randomNum = Random.Range(0, blocks.Count);
-        GameObject blockToReturn = blocks[randomNum];
+        int randomNum = Random.Range(0, blockGameObjects.Count);
+        GameObject blockToReturn = blockGameObjects[randomNum];
 
         if (except)
         {
@@ -136,19 +151,20 @@ public class BoardManager : MonoBehaviour
         
 
         // Retrieve blocks from board based on their grid coordinates
-        GameObject leftBlock = board[leftBlockCoords.x, leftBlockCoords.y];
-        GameObject rightBlock = board[rightBlockCoords.x, rightBlockCoords.y];
+        GameObject leftBlock = _board[leftBlockCoords.x, leftBlockCoords.y];
+        GameObject rightBlock = _board[rightBlockCoords.x, rightBlockCoords.y];
 
         if (leftBlock.GetComponent<Block>().blockType != Block.Type.Invincible && 
             rightBlock.GetComponent<Block>().blockType != Block.Type.Invincible)
             {
-                AudioManager.Instance.Play("woosh");
+//                AudioManager.Instance.Play("woosh");
+
 
                 // Swap the blocks data
-                board[leftBlockCoords.x, leftBlockCoords.y] = rightBlock;
-                board[rightBlockCoords.x, rightBlockCoords.y] = leftBlock;
+                _board[leftBlockCoords.x, leftBlockCoords.y] = rightBlock;
+                _board[rightBlockCoords.x, rightBlockCoords.y] = leftBlock;
 
-                // Cache the value of the let block's position before it 
+                // Cache the value of the left block's position before it 
                 // moves to the right block's position
                 Vector3 originalPos = leftBlock.transform.position;
 
@@ -158,10 +174,8 @@ public class BoardManager : MonoBehaviour
 
                 CheckMatch();
             } else {
-                AudioManager.Instance.Play("error");
+                //AudioManager.Instance.Play("error");
             }
-
-
     }
 
     private bool CheckMatch()
@@ -170,7 +184,7 @@ public class BoardManager : MonoBehaviour
         {
             for (int column = 0; column < numColumns; column++)
             {
-                GameObject currBlockGameObject = board[column, row];
+                GameObject currBlockGameObject = _board[column, row];
 
                 if (currBlockGameObject)
                 {
@@ -205,7 +219,7 @@ public class BoardManager : MonoBehaviour
         if (toCheck.x + 1 < numColumns)
         {
             Coordinates coordsOfComparison = new Coordinates(toCheck.x + 1, toCheck.y);
-            Block toCompare = board[coordsOfComparison.x, coordsOfComparison.y].GetComponent<Block>();
+            Block toCompare = _board[coordsOfComparison.x, coordsOfComparison.y].GetComponent<Block>();
             if (block.blockType == toCompare.blockType && toCompare)
             {
                 CheckHorizontal(toCompare, coordsOfComparison, horizontalBlocks);
@@ -219,7 +233,7 @@ public class BoardManager : MonoBehaviour
         if (toCheck.y + 1 < numRows)
         {
             Coordinates coordsOfComparison = new Coordinates(toCheck.x, toCheck.y + 1);
-            Block toCompare = board[coordsOfComparison.x, coordsOfComparison.y].GetComponent<Block>();
+            Block toCompare = _board[coordsOfComparison.x, coordsOfComparison.y].GetComponent<Block>();
             if (block.blockType == toCompare.blockType && toCompare)
             {
                 CheckVertical(toCompare, coordsOfComparison, verticalBlocks);
@@ -237,20 +251,20 @@ public class BoardManager : MonoBehaviour
             for (int row = coords.y; row < numRows; row++)
             {
                 // if the cell is empty
-                if (board[column, row] == null)
+                if (_board[column, row] == null)
                 {
                     bool replacementNeeded = true;
                     Coordinates refilling = new Coordinates(column, row);
-                    Vector3 moveTo = Camera.main.ScreenToWorldPoint(new Vector3(spawnPositions[column, row].x, spawnPositions[column, row].y, 1)); 
+                    Vector3 moveTo = Camera.main.ScreenToWorldPoint(new Vector3(BlockPositions[column, row].x, BlockPositions[column, row].y, 1)); 
                     // iterate through the cells above it to find the next non-empty cell
                     for (int searchRow = row + 1; searchRow < numRows; searchRow++)
                     {
                         // if you find a cell that isn't empty, replace the empty cell with its block
-                        if (board[column, searchRow] != null && replacementNeeded)
+                        if (_board[column, searchRow] != null && replacementNeeded)
                         {
-                            GameObject block = board[column, searchRow];
-                            board[column, searchRow] = null;
-                            board[refilling.x, refilling.y] = block;
+                            GameObject block = _board[column, searchRow];
+                            _board[column, searchRow] = null;
+                            _board[refilling.x, refilling.y] = block;
                             //block.transform.position = moveTo;
                             StartCoroutine(MoveBlock(block, block.transform.position, moveTo, .2f));
                             //Vector2.Lerp(block.transform.position, moveTo, .5f);
@@ -259,8 +273,8 @@ public class BoardManager : MonoBehaviour
                     }
                     if (replacementNeeded)
                     {
-                        GameObject createdBlock = Instantiate(GetRandomBlock(null, null), Camera.main.ScreenToWorldPoint(spawnPositions[column, numRows - 1]), Quaternion.identity, this.transform);
-                        board[refilling.x, refilling.y] = createdBlock;
+                        GameObject createdBlock = Instantiate(GetRandomBlock(null, null), Camera.main.ScreenToWorldPoint(BlockPositions[column, numRows - 1]), Quaternion.identity, this.transform);
+                        _board[refilling.x, refilling.y] = createdBlock;
                         createdBlock.transform.position = moveTo;
                         StartCoroutine(MoveBlock(createdBlock, createdBlock.transform.position, moveTo, .2f));
                         // Vector2.Lerp(createdBlock.transform.position, Camera.main.ScreenToWorldPoint(spawnPositions[column, row]), Time.deltaTime);
@@ -274,27 +288,27 @@ public class BoardManager : MonoBehaviour
     {
         float time = 0;
         
-        while (time < duration)
+        while (time < duration && block)
         {
             block.transform.position = Vector2.Lerp(startingPos, endingPos, time/duration);
             time += Time.deltaTime;
             yield return null;
         }
 
-        block.transform.position = endingPos;
+        if (block) block.transform.position = endingPos;
     }
 
     private void HandleMatch(List<Coordinates> blocksInRun)
     {
         isRefilling = true;
-        Block type = board[blocksInRun[0].x, blocksInRun[0].y].GetComponent<Block>();
+        Block type = _board[blocksInRun[0].x, blocksInRun[0].y].GetComponent<Block>();
         HandleCombo(AccumulatePoints(type, blocksInRun.Count));
         MatchHandler.Instance.ResolveEffect(type, blocksInRun.Count);
 
         foreach (Coordinates coords in blocksInRun)
         {
-            GameObject block = board[coords.x, coords.y];
-            board[coords.x, coords.y] = null;
+            GameObject block = _board[coords.x, coords.y];
+            _board[coords.x, coords.y] = null;
             Destroy(block);
         }
     }
@@ -338,25 +352,25 @@ public class BoardManager : MonoBehaviour
         if (combo == 1)
         {
             accumulatedPoints += points;
-            AudioManager.Instance.Play("chime");
+            //AudioManager.Instance.Play("chime");
         } 
 
         else if (combo == 2)
         {
             accumulatedPoints += points * 2;
-            AudioManager.Instance.Play("chime2");
+            //AudioManager.Instance.Play("chime2");
         } 
 
         else if (combo == 3)
         {
             accumulatedPoints += points * 3;
-            AudioManager.Instance.Play("ding");
+            //AudioManager.Instance.Play("ding");
         } 
 
         else if (combo >= 4)
         {
             accumulatedPoints += points * 4;
-            AudioManager.Instance.Play("tada");
+            //AudioManager.Instance.Play("tada");
         }
 
         accumulatedScores.Add(points);
@@ -389,5 +403,23 @@ public class BoardManager : MonoBehaviour
         accumulatedPoints = 0;
         accumulatedScores.Clear();
         combo = 0;
+    }
+
+    private GameObject GetBlockGameObject(Coordinates blockCoords)
+    {
+        return _board[blockCoords.x, blockCoords.y];
+    }
+
+    // Pass in the coordinates of the two blocks the selector is highlighting.
+    // This will then return the transform in the middle of the two where the selector gameobject should be rendered
+    public Vector2 GetSelectorPosition(Coordinates leftBlock, Coordinates rightBlock)
+    {
+        GameObject lBlock = GetBlockGameObject(leftBlock);
+        GameObject rBlock = GetBlockGameObject(rightBlock);
+
+        Vector2 middlePos;
+        float x = rBlock.transform.position.x - ((rBlock.transform.position.x - lBlock.transform.position.x) / 2);
+        middlePos = new Vector2(x, lBlock.transform.position.y);
+        return middlePos;
     }
 }

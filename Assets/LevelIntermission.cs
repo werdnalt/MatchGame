@@ -15,16 +15,15 @@ public class LevelIntermission : MonoBehaviour
         if (GameManager.Instance.currentLevel == GameManager.Instance.levels.Count)
         {
             EventManager.Instance.NextLevel(GameManager.Instance.currentLevel);
-            GetComponent<Renderer>().enabled = false;
         } else {
+            EventManager.Instance.GameComplete();
             SceneManager.LoadScene("GameCompleteScene");
         }
-
-        // else, load the gamecomplete scene
     }
 
     public void LoadMainMenu()
     {
+        EventManager.Instance.MainMenu();
         SceneManager.LoadScene("MainMenuScene");
     }
 
