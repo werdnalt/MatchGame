@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,6 +12,17 @@ public class GameManager : MonoBehaviour
     public GameObject levelIntermissionUI;
     public int currentLevel;
     public List<Level> levels = new List<Level>();
+
+    private Dictionary<int, Player> _playersByIndex = new Dictionary<int, Player>();
+
+    public Scenes currentScene;
+
+    public enum Scenes
+    {
+        CharacterSelect,
+        Play,
+        MainMenu,
+    }
     
     void Start()
     {
@@ -43,5 +56,20 @@ public class GameManager : MonoBehaviour
     public void HideIntermissionUI()
     {
         levelIntermissionUI.gameObject.SetActive(false);
+    }
+
+    void OnPlayerJoined(PlayerInput playerInput)
+    {
+        _playersByIndex.Add(playerInput.playerIndex, playerInput.GetComponent<Player>());
+
+        if (currentScene == Scenes.CharacterSelect)
+        {
+            CharacterSelection.Instance.ActivateCharacterSelectorUI(playerInput.playerIndex);
+        }
+    }
+
+    public Player GetPlayerByIndex(int playerIndex)
+    {
+        return _playersByIndex[playerIndex];
     }
 }

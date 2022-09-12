@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using TMPro;
+using Random = UnityEngine.Random;
 
 public class BoardManager : MonoBehaviour
 {
@@ -60,6 +62,11 @@ public class BoardManager : MonoBehaviour
         if (Instance == null) Instance = this;
 
         InitializeBoard();
+    }
+
+    private void Start()
+    {
+        EventManager.Instance.LevelLoaded();
     }
 
     // Iterate through each row of the board one by one. For each column in the row, 
@@ -147,9 +154,7 @@ public class BoardManager : MonoBehaviour
     }
 
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
-    { 
-        
-
+    {
         // Retrieve blocks from board based on their grid coordinates
         GameObject leftBlock = _board[leftBlockCoords.x, leftBlockCoords.y];
         GameObject rightBlock = _board[rightBlockCoords.x, rightBlockCoords.y];
@@ -176,6 +181,16 @@ public class BoardManager : MonoBehaviour
             } else {
                 //AudioManager.Instance.Play("error");
             }
+    }
+
+    public void ReplaceBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords, GameObject newBlockPrefab)
+    {
+        // Retrieve blocks from board based on their grid coordinates
+        GameObject leftBlock = _board[leftBlockCoords.x, leftBlockCoords.y];
+        GameObject rightBlock = _board[rightBlockCoords.x, rightBlockCoords.y];
+
+        leftBlock = newBlockPrefab;
+        rightBlock = newBlockPrefab;
     }
 
     private bool CheckMatch()
@@ -255,7 +270,7 @@ public class BoardManager : MonoBehaviour
                 {
                     bool replacementNeeded = true;
                     Coordinates refilling = new Coordinates(column, row);
-                    Vector3 moveTo = Camera.main.ScreenToWorldPoint(new Vector3(BlockPositions[column, row].x, BlockPositions[column, row].y, 1)); 
+                    Vector3 moveTo = (new Vector3(BlockPositions[column, row].x, BlockPositions[column, row].y, 1)); 
                     // iterate through the cells above it to find the next non-empty cell
                     for (int searchRow = row + 1; searchRow < numRows; searchRow++)
                     {
@@ -273,7 +288,7 @@ public class BoardManager : MonoBehaviour
                     }
                     if (replacementNeeded)
                     {
-                        GameObject createdBlock = Instantiate(GetRandomBlock(null, null), Camera.main.ScreenToWorldPoint(BlockPositions[column, numRows - 1]), Quaternion.identity, this.transform);
+                        GameObject createdBlock = Instantiate(GetRandomBlock(null, null), (BlockPositions[column, numRows - 1]), Quaternion.identity, this.transform);
                         _board[refilling.x, refilling.y] = createdBlock;
                         createdBlock.transform.position = moveTo;
                         StartCoroutine(MoveBlock(createdBlock, createdBlock.transform.position, moveTo, .2f));
@@ -300,22 +315,27 @@ public class BoardManager : MonoBehaviour
 
     private void HandleMatch(List<Coordinates> blocksInRun)
     {
+        MatchHandler.Instance.ShowMatchDisplayerUI();
         isRefilling = true;
         Block type = _board[blocksInRun[0].x, blocksInRun[0].y].GetComponent<Block>();
         HandleCombo(AccumulatePoints(type, blocksInRun.Count));
-        MatchHandler.Instance.ResolveEffect(type, blocksInRun.Count);
+        MatchHandler.Instance.QueueEffect(type, blocksInRun.Count);
 
         foreach (Coordinates coords in blocksInRun)
         {
             GameObject block = _board[coords.x, coords.y];
             _board[coords.x, coords.y] = null;
-            Destroy(block);
         }
     }
 
     private IEnumerator MatchFound(List<Coordinates> blocksInRun)
     {
         combo += 1;
+        foreach (var block in blocksInRun)
+        {
+            GameObject blockGO = GetBlockGameObject(block);
+            blockGO.GetComponent<Block>().Match();
+        }
         HandleMatch(blocksInRun);
         yield return new WaitForSeconds(1.5f);
         RefillBoard(blocksInRun);
@@ -399,10 +419,13 @@ public class BoardManager : MonoBehaviour
 
     private void ResolveCombo()
     {
-        Player.Instance.UpdateScore(accumulatedPoints);
+        //Player.Instance.UpdateScore(accumulatedPoints);
         accumulatedPoints = 0;
         accumulatedScores.Clear();
         combo = 0;
+        
+        // TODO: Hide Display Card
+        MatchHandler.Instance.HideMatchDisplayerUI();
     }
 
     private GameObject GetBlockGameObject(Coordinates blockCoords)
@@ -412,14 +435,14 @@ public class BoardManager : MonoBehaviour
 
     // Pass in the coordinates of the two blocks the selector is highlighting.
     // This will then return the transform in the middle of the two where the selector gameobject should be rendered
-    public Vector2 GetSelectorPosition(Coordinates leftBlock, Coordinates rightBlock)
+    public Vector3 GetSelectorPosition(Coordinates leftBlock, Coordinates rightBlock)
     {
         GameObject lBlock = GetBlockGameObject(leftBlock);
         GameObject rBlock = GetBlockGameObject(rightBlock);
 
         Vector2 middlePos;
         float x = rBlock.transform.position.x - ((rBlock.transform.position.x - lBlock.transform.position.x) / 2);
-        middlePos = new Vector2(x, lBlock.transform.position.y);
+        middlePos = new Vector3(x, lBlock.transform.position.y, -50);
         return middlePos;
     }
 }

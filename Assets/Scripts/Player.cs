@@ -2,50 +2,67 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
-    public static Player Instance;
+    public Selector selector;
     
-    public int maxHP;
-    public int score;
-    public TextMeshProUGUI hpText;
-    public TextMeshProUGUI scoreText;
-
-    private int currHP;
+    public CharacterSelector characterSelector;
+    public CharacterUI characterUI;
+    private CharacterBehaviour _characterBehaviour;
 
     void Start()
     {
-        //EventManager.Instance.onNextLevel += Reset;
+        DontDestroyOnLoad(this.gameObject);
 
-        currHP = maxHP;
-        if (Instance == null) Instance = this;
-
-        hpText.text = currHP.ToString();
-        score = 0;
+        _characterBehaviour = GetComponent<CharacterBehaviour>();
+        EventManager.Instance.onLevelLoad += AddSelector;
     }
 
-    public void TakeDamage(int damage)
+    private void AddSelector()
     {
-        if (currHP - damage >= 0) 
+        selector.Setup();
+    }
+
+    void OnStart(InputValue inputValue)
+    {
+        if (SceneManager.GetActiveScene().name == "ChooseCharacterScene")
         {
-            currHP -= damage;
-        } else {
-            currHP = 0;
+            SceneManager.LoadSceneAsync("PlayScene");
         }
-
-        hpText.text = currHP.ToString();
     }
-
-    public void UpdateScore(int score)
+    
+    void OnNavigate(InputValue inputValue)
     {
-        this.score += score;
-        scoreText.text = score.ToString();
+        Debug.Log("MOVE");
+        Vector2 movement = inputValue.Get<Vector2>();
+        Debug.Log(movement);
+
+        if (GameManager.Instance.currentScene == GameManager.Scenes.CharacterSelect)
+        {
+            // move down
+            if (movement.y < 0)
+            {
+                characterSelector.ScrollDown();
+            }
+            
+            // move up
+            if (movement.y > 0)
+            {
+                characterSelector.ScrollUp();
+            }
+        }
     }
 
-    public void Reset(int level)
+    void OnSelect()
     {
-        currHP = maxHP;
+        characterSelector.SelectCharacter();
     }
 
+    void OnDeselect()
+    {
+        characterSelector.DeselectCharacter();
+    }
 }

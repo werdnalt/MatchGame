@@ -10,6 +10,7 @@ public class EventManager : MonoBehaviour
     void Awake()
     {
         if (Instance == null) Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public event Action<int> onNextLevel;
@@ -28,5 +29,17 @@ public class EventManager : MonoBehaviour
     public void MainMenu()
     {
         onMainMenu?.Invoke();
+    }
+    
+    public event Action onGameStart;
+    public void StartGame()
+    {
+        onGameStart?.Invoke();
+    }
+    
+    public event Action onLevelLoad;
+    public void LevelLoaded()
+    {
+        onLevelLoad.Invoke();
     }
 }

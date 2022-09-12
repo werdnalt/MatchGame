@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using Debug = UnityEngine.Debug;
 
 public class Selector : MonoBehaviour
 {
@@ -18,7 +20,7 @@ public class Selector : MonoBehaviour
     private int numColumns;
 
     public GameObject p1SelectorPrefab;
-    public GameObject p2SelectorGameobject;
+    public GameObject p2SelectorPrefab;
 
     private GameObject _selectorObject;
 
@@ -26,12 +28,9 @@ public class Selector : MonoBehaviour
     private GameObject _rightBlock;
 
     // Start is called before the first frame update
-    void Start()
+    public void Setup()
     {
         CreateAndSetSelector();
-
-        
-        
         
         numRows = BoardManager.Instance.numRows;
         numColumns = BoardManager.Instance.numColumns;
@@ -45,6 +44,8 @@ public class Selector : MonoBehaviour
         } else {
             Debug.Log("Right block position is out of bounds. Add more columns");
         }
+        
+        Debug.Log("PLAYER INDEX: " + GetComponent<PlayerInput>().playerIndex);
 
         //InitializeSelectorBlocks();
         //Highlight();
@@ -52,7 +53,16 @@ public class Selector : MonoBehaviour
 
     void CreateAndSetSelector()
     {
-        _selectorObject = Instantiate(p1SelectorPrefab);
+        int id = GetComponent<PlayerInput>().playerIndex;
+        if (id == 0)
+        {
+            _selectorObject = Instantiate(p1SelectorPrefab);
+        }
+        else
+        {
+            _selectorObject = Instantiate(p2SelectorPrefab);
+        }
+        
         leftBlockCoordinates = new BoardManager.Coordinates(0, 0);
         rightBlockCoordinates = new BoardManager.Coordinates(0, 1);
         SetSelectorPosition();
@@ -137,5 +147,11 @@ public class Selector : MonoBehaviour
             BoardManager.Instance.GetSelectorPosition(leftBlockCoordinates, rightBlockCoordinates);
     }
 
-
+    public BoardManager.Coordinates[] GetSelectedBlocks()
+    {
+        BoardManager.Coordinates[] selectedBlocks = new BoardManager.Coordinates[2];
+        selectedBlocks[0] = leftBlockCoordinates;
+        selectedBlocks[1] = rightBlockCoordinates;
+        return selectedBlocks;
+    }
 }
