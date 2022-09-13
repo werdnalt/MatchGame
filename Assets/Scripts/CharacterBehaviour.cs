@@ -77,4 +77,9 @@ public class CharacterBehaviour : MonoBehaviour
     {
         _characterUI = characterUI;
     }
+
+    public void SetCharacter(Character character)
+    {
+        this.character = character;
+    }
 }

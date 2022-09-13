@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6193873628701169585}
   - component: {fileID: -5392929243832141697}
   - component: {fileID: 1266973872018359919}
+  - component: {fileID: -6010474621618404176}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -127,9 +128,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fcb0b8659fb7fc498f0cbc8a3563c84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selector: {fileID: 0}
+  selector: {fileID: -6010474621618404176}
   characterSelector: {fileID: 0}
   characterUI: {fileID: 0}
+  selectedCharacter: {fileID: 0}
 --- !u!114 &1266973872018359919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,3 +145,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   character: {fileID: 0}
+--- !u!114 &-6010474621618404176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6193873628701169584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 008d030256e12b74198a4c34b0090dfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  p1SelectorPrefab: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}
+  p2SelectorPrefab: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}
+  p3SelectorPrefab: {fileID: 9029535746960203821, guid: c6da0d8d0c64ae34eabf4533d3980104, type: 3}
+  p4SelectorPrefab: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}

@@ -9,60 +9,22 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     
-    public GameObject levelIntermissionUI;
-    public int currentLevel;
-    public List<Level> levels = new List<Level>();
-
     private Dictionary<int, Player> _playersByIndex = new Dictionary<int, Player>();
-
-    public Scenes currentScene;
-
-    public enum Scenes
-    {
-        CharacterSelect,
-        Play,
-        MainMenu,
-    }
+    public Scene currentScene;
     
     void Start()
     {
         if (Instance == null) Instance = this;
-
-        currentLevel = 1;
-
         DontDestroyOnLoad(this.gameObject);
-
-        // EventManager.Instance.onNextLevel += NextLevel;
-        // EventManager.Instance.onMainMenu += HideIntermissionUI;
-        // EventManager.Instance.onGameComplete += HideIntermissionUI;
+        SceneManager.activeSceneChanged += OnSceneChanged;
+        currentScene = SceneManager.GetActiveScene();
     }
-
-    public void LevelComplete()
-    {
-        levelIntermissionUI.gameObject.SetActive(true);
-        levelIntermissionUI.GetComponent<LevelIntermission>().Setup();
-
-        if (currentLevel < levels.Count) 
-        {
-            currentLevel++;
-        }
-    }
-
-    public void NextLevel(int level)
-    {
-        levelIntermissionUI.gameObject.SetActive(false);
-    }
-
-    public void HideIntermissionUI()
-    {
-        levelIntermissionUI.gameObject.SetActive(false);
-    }
-
+    
     void OnPlayerJoined(PlayerInput playerInput)
     {
         _playersByIndex.Add(playerInput.playerIndex, playerInput.GetComponent<Player>());
 
-        if (currentScene == Scenes.CharacterSelect)
+        if (currentScene.name == "ChooseCharacterScene" )
         {
             CharacterSelection.Instance.ActivateCharacterSelectorUI(playerInput.playerIndex);
         }
@@ -71,5 +33,32 @@ public class GameManager : MonoBehaviour
     public Player GetPlayerByIndex(int playerIndex)
     {
         return _playersByIndex[playerIndex];
+    }
+
+    private void OnSceneChanged(Scene current, Scene next)
+    {
+        currentScene = next;
+
+        if (currentScene.name == "ChooseCharacterScene")
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (_playersByIndex.ContainsKey(i))
+                {
+                    _playersByIndex[i].GetComponent<PlayerInput>().SwitchCurrentActionMap("UI");
+                }
+            }
+        }
+        
+        if (currentScene.name == "PlayScene")
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (_playersByIndex.ContainsKey(i))
+                {
+                    _playersByIndex[i].GetComponent<PlayerInput>().SwitchCurrentActionMap("Player");
+                }
+            }
+        }
     }
 }

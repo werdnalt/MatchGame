@@ -394,27 +394,6 @@ public class BoardManager : MonoBehaviour
         }
 
         accumulatedScores.Add(points);
-        StartCoroutine(ShowAccumulatedPoints());
-    }
-
-    private IEnumerator ShowAccumulatedPoints()
-    {
-        string accumulatedPointsString = "";
-        for (int i = 0; i < accumulatedScores.Count; i++)
-        {
-            if (i == 0)
-            {
-                accumulatedPointsString += accumulatedScores[i].ToString();
-            } else {
-                int multiplier = Mathf.Clamp(i, 2, 4);
-                accumulatedPointsString += " + " + accumulatedScores[i].ToString() + "(x" + multiplier + ")";
-            }
-        }
-        accumulatedPointsText.gameObject.SetActive(true);
-        accumulatedPointsText.text = accumulatedPointsString;
-
-        yield return new WaitForSeconds(1.5f);
-        accumulatedPointsText.gameObject.SetActive(false);
     }
 
     private void ResolveCombo()
@@ -442,7 +421,8 @@ public class BoardManager : MonoBehaviour
 
         Vector2 middlePos;
         float x = rBlock.transform.position.x - ((rBlock.transform.position.x - lBlock.transform.position.x) / 2);
-        middlePos = new Vector3(x, lBlock.transform.position.y, -50);
+        float y = rBlock.transform.position.y - ((rBlock.transform.position.y - lBlock.transform.position.y) / 2);
+        middlePos = new Vector3(x, y, -50);
         return middlePos;
     }
 }

@@ -10,6 +10,7 @@ public class CharacterSelector : MonoBehaviour
 {
     public List<Character> allCharacters;
     public Character currentCharacter;
+    public int playerIndex; 
     
     [SerializeField] private Image characterImage;
     [SerializeField] private Image specialBlock;
@@ -68,7 +69,9 @@ public class CharacterSelector : MonoBehaviour
 
     public void RefreshUI()
     {
+        specialBlock.enabled = true;
         characterImage.sprite = currentCharacter.characterSprite;
+        specialBlock.sprite = currentCharacter.specialBlockSprite;
         characterName.text = currentCharacter.id;
         characterDescription.text = currentCharacter.specialBlockDescription;
     }
@@ -83,6 +86,8 @@ public class CharacterSelector : MonoBehaviour
             _lockedIn = true;
 
             // lock character
+            GameManager.Instance.GetPlayerByIndex(playerIndex).selectedCharacter = currentCharacter;
+            GameManager.Instance.GetPlayerByIndex(playerIndex).GetComponent<CharacterBehaviour>().SetCharacter(currentCharacter);
         }
     }
 
@@ -108,6 +113,7 @@ public class CharacterSelector : MonoBehaviour
         if (_flash != null) StopCoroutine(_flash);
         characterImage.material.SetFloat("_GreyscaleBlend", 1);
         _lockedIn = false;
+        //GameManager.Instance.GetPlayerByIndex(playerIndex).selectedCharacter = null;
     }
 
     public void SetTag(int index)

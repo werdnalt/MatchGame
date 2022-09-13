@@ -11,11 +11,12 @@ TagManager:
   - Player_Spawn
   - Enemy_Spawn
   - Background
+  - VFX
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - VFX
   - Water
   - UI
   - 

@@ -12,7 +12,8 @@ public class Player : MonoBehaviour
     public CharacterSelector characterSelector;
     public CharacterUI characterUI;
     private CharacterBehaviour _characterBehaviour;
-
+    public Character selectedCharacter;
+    
     void Start()
     {
         DontDestroyOnLoad(this.gameObject);
@@ -40,7 +41,7 @@ public class Player : MonoBehaviour
         Vector2 movement = inputValue.Get<Vector2>();
         Debug.Log(movement);
 
-        if (GameManager.Instance.currentScene == GameManager.Scenes.CharacterSelect)
+        if (GameManager.Instance.currentScene.name == "ChooseCharacterScene")
         {
             // move down
             if (movement.y < 0)

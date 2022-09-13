@@ -13,5 +13,6 @@ public class Character : ScriptableObject
     public GameObject specialBlockPrefab;
     public CharacterUI characterUI;
     public Sprite characterSprite;
+    public Sprite specialBlockSprite;
     public string specialBlockDescription;
 }

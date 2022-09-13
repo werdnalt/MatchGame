@@ -18,9 +18,8 @@ public class CharacterSelection : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Instance.currentScene = GameManager.Scenes.CharacterSelect;
-
         if (Instance == null) Instance = this;
+        //GameManager.Instance.currentScene = GameManager.Scenes.CharacterSelect;
     }
 
     public void ActivateCharacterSelectorUI(int playerIndex)
@@ -31,6 +30,7 @@ public class CharacterSelection : MonoBehaviour
         GameManager.Instance.GetPlayerByIndex(playerIndex).characterSelector = characterSelector;
         characterSelector.SetTag(playerIndex);
         characterSelector.RefreshUI();
+        characterSelector.playerIndex = playerIndex;
     }
 
     public void DeactivateCharacterSelectorUI(int playerIndex)

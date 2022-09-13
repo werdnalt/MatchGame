@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
@@ -8,24 +9,41 @@ using Debug = UnityEngine.Debug;
 
 public class Selector : MonoBehaviour
 {
-    public GameObject selectorBlock;
-
     private string Name;
-    private BoardManager.Coordinates leftBlockCoordinates;
-    private BoardManager.Coordinates rightBlockCoordinates;
-    private BoardManager.Coordinates prevLeftBlockCoordinates;
-    private BoardManager.Coordinates prevRightBlockCoordinates;
-    private GameObject[,] selectorBlocks;
+    private BoardManager.Coordinates pivotBlockCoordinates;
+    private BoardManager.Coordinates rotatingBlockCoordinates;
+    private BoardManager.Coordinates prevPivotBlockCoordinates;
+    private BoardManager.Coordinates prevRotatingBlockCoordinates;
+    
     private int numRows;
     private int numColumns;
+    private DirectionFromPivot _directionFromPivot;
 
     public GameObject p1SelectorPrefab;
     public GameObject p2SelectorPrefab;
-
+    public GameObject p3SelectorPrefab;
+    public GameObject p4SelectorPrefab;
+    
     private GameObject _selectorObject;
 
-    private GameObject _leftBlock;
-    private GameObject _rightBlock;
+    private GameObject _pivotBlock;
+    private GameObject _rotatingBlock;
+
+    public enum Direction
+    {
+        Up,
+        Down,
+        Left,
+        Right
+    }
+
+    public enum DirectionFromPivot
+    {
+        North,
+        East,
+        South,
+        West
+    }
 
     // Start is called before the first frame update
     public void Setup()
@@ -34,13 +52,13 @@ public class Selector : MonoBehaviour
         
         numRows = BoardManager.Instance.numRows;
         numColumns = BoardManager.Instance.numColumns;
+        _directionFromPivot = DirectionFromPivot.East;
 
-        selectorBlocks = new GameObject[numColumns, numRows];
 
-        leftBlockCoordinates = new BoardManager.Coordinates(numColumns / 2, numRows / 2);
-        if (leftBlockCoordinates.x + 1 <= BoardManager.Instance.numColumns)
+        pivotBlockCoordinates = new BoardManager.Coordinates(numColumns / 2, numRows / 2);
+        if (pivotBlockCoordinates.x + 1 <= BoardManager.Instance.numColumns)
         {
-            rightBlockCoordinates = new BoardManager.Coordinates(leftBlockCoordinates.x + 1, leftBlockCoordinates.y);
+            rotatingBlockCoordinates = new BoardManager.Coordinates(pivotBlockCoordinates.x + 1, pivotBlockCoordinates.y);
         } else {
             Debug.Log("Right block position is out of bounds. Add more columns");
         }
@@ -54,17 +72,26 @@ public class Selector : MonoBehaviour
     void CreateAndSetSelector()
     {
         int id = GetComponent<PlayerInput>().playerIndex;
-        if (id == 0)
+        switch (id)
         {
-            _selectorObject = Instantiate(p1SelectorPrefab);
-        }
-        else
-        {
-            _selectorObject = Instantiate(p2SelectorPrefab);
+            case 0:
+                _selectorObject = Instantiate(p1SelectorPrefab);
+                break;
+            // case 1:
+            //     _selectorObject = Instantiate(p1SelectorPrefab);
+            //     break;
+            // case 2:
+            //     _selectorObject = Instantiate(p1SelectorPrefab);
+            //     break;
+            // case 3:
+            //     _selectorObject = Instantiate(p1SelectorPrefab);
+            //     break;
+            
+                    
         }
         
-        leftBlockCoordinates = new BoardManager.Coordinates(0, 0);
-        rightBlockCoordinates = new BoardManager.Coordinates(0, 1);
+        pivotBlockCoordinates = new BoardManager.Coordinates(0, 0);
+        rotatingBlockCoordinates = new BoardManager.Coordinates(0, 1);
         SetSelectorPosition();
     }
     
@@ -82,7 +109,7 @@ public class Selector : MonoBehaviour
             {
                 // Check to make sure left selector isn't going off the left 
                 // side of the grid
-                if (leftBlockCoordinates.x > 0)
+                if (CanMove(Direction.Left))
                 {
                     MoveSelector(-1, 0);
                 }
@@ -92,13 +119,12 @@ public class Selector : MonoBehaviour
             {
                 // Check to make sure right selector isn't going off
                 // right side of grid
-                if (rightBlockCoordinates.x + 1 < numColumns)
+                if (CanMove(Direction.Right))
                 {
                     MoveSelector(1, 0);
                 }
             }
         }
-        
         else if (absY > absX)
         {
             // move down
@@ -106,7 +132,7 @@ public class Selector : MonoBehaviour
             {
                 // Check to make sure both selectors aren't going off
                 // bottom side of grid
-                if (leftBlockCoordinates.y > 0)
+                if (CanMove(Direction.Down))
                 {
                     MoveSelector(0, -1);
                 }
@@ -116,17 +142,117 @@ public class Selector : MonoBehaviour
             {
                 // Check to make sure both selectors aren't going off
                 // the top of the grid
-                if (leftBlockCoordinates.y + 1 < numRows)
+                if (CanMove(Direction.Up))
                 {
                     MoveSelector(0, 1);
                 }
             }
         }
     }
+    
+        void OnRotateClockwise(InputValue inputValue)
+        {
+            switch (_directionFromPivot)
+            {
+                case DirectionFromPivot.East:
+                    if (CanMove(Direction.Down))
+                    {
+                        rotatingBlockCoordinates =
+                            new BoardManager.Coordinates(pivotBlockCoordinates.x, pivotBlockCoordinates.y - 1);
+                        RotateSelector();
+                        SetSelectorPosition();
+                        _directionFromPivot = DirectionFromPivot.South;
+                    }
+                    break;
+                
+                case DirectionFromPivot.West:
+                    if (CanMove(Direction.Up))
+                    {
+                        rotatingBlockCoordinates =
+                            new BoardManager.Coordinates(pivotBlockCoordinates.x, pivotBlockCoordinates.y + 1);
+                        RotateSelector();
+                        SetSelectorPosition();
+                        _directionFromPivot = DirectionFromPivot.North;
+                    }
+                    break;
+                
+                case DirectionFromPivot.North:
+                    if (CanMove(Direction.Right))
+                    {
+                        rotatingBlockCoordinates =
+                            new BoardManager.Coordinates(pivotBlockCoordinates.x + 1, pivotBlockCoordinates.y);
+                        RotateSelector();
+                        SetSelectorPosition();
+                        _directionFromPivot = DirectionFromPivot.East;
+                    }
+                    break;
+                
+                case DirectionFromPivot.South:
+                    if (CanMove(Direction.Left))
+                    {
+                        rotatingBlockCoordinates =
+                            new BoardManager.Coordinates(pivotBlockCoordinates.x - 1, pivotBlockCoordinates.y);
+                        RotateSelector();
+                        SetSelectorPosition();
+                        _directionFromPivot = DirectionFromPivot.West;
+                    }
+                    break;
+            }
+        }
+        
+void OnRotateCounterClockwise(InputValue inputValue)
+        {
+            switch (_directionFromPivot)
+            {
+                case DirectionFromPivot.East:
+                    if (CanMove(Direction.Up))
+                    {
+                        rotatingBlockCoordinates =
+                            new BoardManager.Coordinates(pivotBlockCoordinates.x, pivotBlockCoordinates.y + 1);
+                        RotateSelector();
+                        SetSelectorPosition();
+                        _directionFromPivot = DirectionFromPivot.North;
+                    }
+                    break;
+                
+                case DirectionFromPivot.West:
+                    if (CanMove(Direction.Down))
+                    {
+                        rotatingBlockCoordinates =
+                            new BoardManager.Coordinates(pivotBlockCoordinates.x, pivotBlockCoordinates.y - 1);
+                        RotateSelector();
+                        SetSelectorPosition();
+                        _directionFromPivot = DirectionFromPivot.South;
+                    }
+                    break;
+                
+                case DirectionFromPivot.North:
+                    if (CanMove(Direction.Left))
+                    {
+                        rotatingBlockCoordinates =
+                            new BoardManager.Coordinates(pivotBlockCoordinates.x - 1, pivotBlockCoordinates.y);
+                        RotateSelector();
+                        SetSelectorPosition();
+                        _directionFromPivot = DirectionFromPivot.West;
+                    }
+                    break;
+                
+                case DirectionFromPivot.South:
+                    if (CanMove(Direction.Right))
+                    {
+                        rotatingBlockCoordinates =
+                            new BoardManager.Coordinates(pivotBlockCoordinates.x + 1, pivotBlockCoordinates.y);
+                        RotateSelector();
+                        SetSelectorPosition();
+                        _directionFromPivot = DirectionFromPivot.East;
+                    }
+                    break;
+            }
+        }
 
     void OnSelect(InputValue inputValue)
     {
-        BoardManager.Instance.SwapBlocks(leftBlockCoordinates, rightBlockCoordinates);
+        BoardManager.Instance.SwapBlocks(pivotBlockCoordinates, rotatingBlockCoordinates);
     }
 
     private void MoveSelector(int xAdjustment, int yAdjustment)
@@ -135,8 +261,8 @@ public class Selector : MonoBehaviour
      if (!BoardManager.Instance.isRefilling)
      {
 //            AudioManager.Instance.Play("click");
-            leftBlockCoordinates = new BoardManager.Coordinates(leftBlockCoordinates.x + xAdjustment, leftBlockCoordinates.y + yAdjustment);
-            rightBlockCoordinates = new BoardManager.Coordinates(rightBlockCoordinates.x + xAdjustment, rightBlockCoordinates.y + yAdjustment);
+            pivotBlockCoordinates = new BoardManager.Coordinates(pivotBlockCoordinates.x + xAdjustment, pivotBlockCoordinates.y + yAdjustment);
+            rotatingBlockCoordinates = new BoardManager.Coordinates(rotatingBlockCoordinates.x + xAdjustment, rotatingBlockCoordinates.y + yAdjustment);
             SetSelectorPosition();
       }
     }
@@ -144,14 +270,46 @@ public class Selector : MonoBehaviour
     private void SetSelectorPosition()
     {
         _selectorObject.transform.position =
-            BoardManager.Instance.GetSelectorPosition(leftBlockCoordinates, rightBlockCoordinates);
+            BoardManager.Instance.GetSelectorPosition(pivotBlockCoordinates, rotatingBlockCoordinates);
+    }
+
+    private void RotateSelector()
+    {
+        _selectorObject.transform.RotateAround(transform.position, Vector3.forward, 90);
     }
 
     public BoardManager.Coordinates[] GetSelectedBlocks()
     {
         BoardManager.Coordinates[] selectedBlocks = new BoardManager.Coordinates[2];
-        selectedBlocks[0] = leftBlockCoordinates;
-        selectedBlocks[1] = rightBlockCoordinates;
+        selectedBlocks[0] = pivotBlockCoordinates;
+        selectedBlocks[1] = rotatingBlockCoordinates;
         return selectedBlocks;
+    }
+
+    private bool CanMove(Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.Up:
+                int largestY = Math.Max(pivotBlockCoordinates.y, rotatingBlockCoordinates.y);
+                if (largestY + 1 < numRows) return true;
+                break;
+            
+            case Direction.Down:
+                int smallestY = Math.Min(pivotBlockCoordinates.y, rotatingBlockCoordinates.y);
+                if (smallestY > 0) return true;
+                break;
+            
+            case Direction.Left:
+                int smallestX = Math.Min(pivotBlockCoordinates.x, rotatingBlockCoordinates.x);
+                if (smallestX > 0) return true;
+                break;
+            
+            case Direction.Right:
+                int largestX = Math.Max(pivotBlockCoordinates.x, rotatingBlockCoordinates.x);
+                if (largestX + 1 < numColumns) return true;
+                break;
+        }
+        return false;
     }
 }
