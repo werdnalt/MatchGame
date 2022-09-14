@@ -40,6 +40,12 @@ public class EventManager : MonoBehaviour
     public event Action onLevelLoad;
     public void LevelLoaded()
     {
-        onLevelLoad.Invoke();
+        onLevelLoad?.Invoke();
+    }
+    
+    public event Action onBoardReady;
+    public void BoardReady()
+    {
+        onBoardReady?.Invoke();
     }
 }

@@ -22,9 +22,11 @@ public class Block : MonoBehaviour
         Sticky,
         Bomb,
         Wall,
-        Boulder
+        Boulder,
+        Rubble
     }
 
+    protected float timeSpawned;
     public Type blockType;
     public int pointValue;
     [SerializeField] private SpriteRenderer _blockIcon;
@@ -32,6 +34,7 @@ public class Block : MonoBehaviour
 
     private void Start()
     {
+        timeSpawned = Time.time;
         _blockIcon = GetComponent<SpriteRenderer>();
         _renderer = GetComponent<Renderer>();
         Sprite loadedIcon = Resources.Load<Sprite>(blockType.ToString());
@@ -65,11 +68,24 @@ public class Block : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void LongFlash()
+    {
+        StartCoroutine(ILongFlash());
+    }
+    
+    private IEnumerator ILongFlash()
+    {
+        float flashDuration = .6f;
+        _blockIcon.material.SetFloat("_HitEffectBlend", 1);
+        yield return new WaitForSeconds(flashDuration);
+        _blockIcon.material.SetFloat("_HitEffectBlend", 0);
+    }
+
     public void OnSelectorHover()
     {
         if (blockType == Type.Bomb)
         {
-            
+            Debug.Log("KABOOM");
         }
 
         if (blockType == Type.Sticky)

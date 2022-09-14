@@ -9,9 +9,13 @@ using Random = UnityEngine.Random;
 public class BoardManager : MonoBehaviour
 {
     public static BoardManager Instance;
+    public GameObject smokePrefab;
+    public GameObject rubbleBlock;
 
     public int numRows;
-    public int numColumns; 
+    public int numColumns;
+
+    public GameObject BoardGameObject;
     
     // A list of all possible blocks that can be spawned on the board
     public List<GameObject> blockGameObjects = new List<GameObject>();
@@ -42,6 +46,18 @@ public class BoardManager : MonoBehaviour
         {
             this.x = x;
             this.y = y;
+        }
+
+        public bool Equals(Coordinates other)
+        {
+            if (other.x == x || other.y == y)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
@@ -125,8 +141,7 @@ public class BoardManager : MonoBehaviour
                 _board[currentColumn, currentRow] = block;
             }
         }
-
-        CheckMatch();
+        EventManager.Instance.BoardReady();
     }
 
     private GameObject GetRandomBlock(Block except, Block or)
@@ -153,7 +168,7 @@ public class BoardManager : MonoBehaviour
         return blockToReturn;
     }
 
-    public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
+    public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords, int playerIndex)
     {
         // Retrieve blocks from board based on their grid coordinates
         GameObject leftBlock = _board[leftBlockCoords.x, leftBlockCoords.y];
@@ -174,10 +189,8 @@ public class BoardManager : MonoBehaviour
                 Vector3 originalPos = leftBlock.transform.position;
 
                 // Swap the gameobjects' positions
-                leftBlock.transform.position = rightBlock.transform.position;
-                rightBlock.transform.position = originalPos;
-
-                CheckMatch();
+                StartCoroutine(LerpBlocks(leftBlock, rightBlock));
+                CheckMatch(playerIndex);
             } else {
                 //AudioManager.Instance.Play("error");
             }
@@ -188,12 +201,19 @@ public class BoardManager : MonoBehaviour
         // Retrieve blocks from board based on their grid coordinates
         GameObject leftBlock = _board[leftBlockCoords.x, leftBlockCoords.y];
         GameObject rightBlock = _board[rightBlockCoords.x, rightBlockCoords.y];
+        
+        _board[leftBlockCoords.x, leftBlockCoords.y] = Instantiate(newBlockPrefab, BoardGameObject.transform);
+        _board[rightBlockCoords.x, rightBlockCoords.y] = Instantiate(newBlockPrefab, BoardGameObject.transform);
 
-        leftBlock = newBlockPrefab;
-        rightBlock = newBlockPrefab;
+        _board[leftBlockCoords.x, leftBlockCoords.y].transform.position = leftBlock.transform.position;
+        Destroy(leftBlock);
+        
+        _board[rightBlockCoords.x, rightBlockCoords.y].transform.position = rightBlock.transform.position;
+        Destroy(rightBlock);
+        
     }
 
-    private bool CheckMatch()
+    private bool CheckMatch(int playerIndex)
     {
         for (int row = 0; row < numRows; row++)
         {
@@ -210,7 +230,7 @@ public class BoardManager : MonoBehaviour
                     CheckHorizontal(block, currCoords, blockCoordinates);
                     if (blockCoordinates.Count >= 3)
                     {
-                        StartCoroutine(MatchFound(blockCoordinates));
+                        StartCoroutine(MatchFound(blockCoordinates, playerIndex));
                         return true;
                     } 
 
@@ -219,7 +239,7 @@ public class BoardManager : MonoBehaviour
                     CheckVertical(block, currCoords, blockCoordinates);
                     if (blockCoordinates.Count >= 3)
                     {
-                        StartCoroutine(MatchFound(blockCoordinates));
+                        StartCoroutine(MatchFound(blockCoordinates, playerIndex));
                         return true;
                     } 
                 }
@@ -328,7 +348,12 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    private IEnumerator MatchFound(List<Coordinates> blocksInRun)
+    public void DestroyAndReplaceBlocks()
+    {
+        
+    }
+
+    private IEnumerator MatchFound(List<Coordinates> blocksInRun, int playerIndex)
     {
         combo += 1;
         foreach (var block in blocksInRun)
@@ -339,10 +364,10 @@ public class BoardManager : MonoBehaviour
         HandleMatch(blocksInRun);
         yield return new WaitForSeconds(1.5f);
         RefillBoard(blocksInRun);
-        if (!CheckMatch()) 
+        if (!CheckMatch(playerIndex)) 
         {
             isRefilling = false;
-            ResolveCombo();
+            ResolveCombo(playerIndex);
         }  
     }
 
@@ -396,11 +421,12 @@ public class BoardManager : MonoBehaviour
         accumulatedScores.Add(points);
     }
 
-    private void ResolveCombo()
+    private void ResolveCombo(int playerIndex)
     {
         //Player.Instance.UpdateScore(accumulatedPoints);
         accumulatedPoints = 0;
         accumulatedScores.Clear();
+        GameManager.Instance.GetPlayerByIndex(playerIndex).characterBehaviour.GainSpecialAbilityCharge(combo);
         combo = 0;
         
         // TODO: Hide Display Card
@@ -424,5 +450,101 @@ public class BoardManager : MonoBehaviour
         float y = rBlock.transform.position.y - ((rBlock.transform.position.y - lBlock.transform.position.y) / 2);
         middlePos = new Vector3(x, y, -50);
         return middlePos;
+    }
+
+    private IEnumerator LerpBlocks(GameObject block1, GameObject block2)
+    {
+        float elapsedTime = 0;
+        float waitTime = .2f;
+
+        Vector3 targetPosition1 = block2.transform.position;
+        Vector3 targetPosition2 = block1.transform.position;
+
+        Vector3 currentPos1 = block1.transform.position;
+        Vector3 currentPos2 = block2.transform.position;
+        
+        while (elapsedTime < waitTime)
+        {
+            block1.transform.position = Vector3.Lerp(currentPos1, targetPosition1, (elapsedTime / waitTime));
+            block2.transform.position = Vector3.Lerp(currentPos2, targetPosition2, (elapsedTime / waitTime));
+            elapsedTime += Time.deltaTime;
+ 
+            // Yield here
+            yield return null;
+        }  
+        // Make sure we got there
+        block1.transform.position = targetPosition1;
+        block2.transform.position = targetPosition2;
+        yield return null;
+    }
+    
+    public bool IsSelectorColliding(BoardManager.Coordinates block1, BoardManager.Coordinates block2)
+    {
+        bool isColliding = false;
+
+        foreach (var player in GameManager.Instance.playersInGame)
+        {
+            if ((block1.Equals(player.selector.pivotBlockCoordinates) || (block1.Equals(player.selector.rotatingBlockCoordinates)) || block2.Equals(player.selector.pivotBlockCoordinates) || (block2.Equals(player.selector.rotatingBlockCoordinates))))
+            {
+                isColliding = true;
+            }
+        }
+        return isColliding;
+    }
+
+    public Block GetBlock(Coordinates coordinates)
+    {
+        return GetBlockGameObject(coordinates).GetComponent<Block>();
+    }
+
+    public void CheckBlock(Coordinates coordinates)
+    {
+        Block block = GetBlockGameObject(coordinates).GetComponent<Block>();
+        
+        if (block.blockType == Block.Type.Bomb)
+        {
+            AnimateAndReplaceBlock(coordinates, block);
+        }
+
+        if (block.blockType == Block.Type.Sticky)
+        {
+            
+        }
+    }
+
+    private void SpawnSmoke(Coordinates coordinates)
+    {
+        GameObject smoke = Instantiate(smokePrefab);
+        smoke.transform.position = _board[coordinates.x, coordinates.y].transform.position;
+        StartCoroutine(ISpawnSmoke(smoke));
+    }
+
+    private IEnumerator ISpawnSmoke(GameObject smoke)
+    {
+        yield return new WaitForSeconds(.7f);
+        Destroy(smoke);
+    }
+
+    private void AnimateAndReplaceBlock(Coordinates coordinates, Block block)
+    {
+        float timeBeforeNewBlock = .6f;
+        switch (block.blockType)
+        {
+            case Block.Type.Bomb:
+                SpawnSmoke(coordinates);
+                block.LongFlash();
+                break;
+        }
+
+        StartCoroutine(ReplaceBlock(coordinates, block, timeBeforeNewBlock));
+    }
+
+    private IEnumerator ReplaceBlock(Coordinates coordinates, Block block, float time)
+    {
+        yield return new WaitForSeconds(time);
+        GameObject rubbleBlock = Instantiate(this.rubbleBlock);
+        _board[coordinates.x, coordinates.y] = rubbleBlock;
+        rubbleBlock.transform.position = block.transform.position;
+        Destroy(block.gameObject);
     }
 }

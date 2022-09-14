@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     
     private Dictionary<int, Player> _playersByIndex = new Dictionary<int, Player>();
+    public List<Player> playersInGame = new List<Player>();
     public Scene currentScene;
     
     void Start()
@@ -20,7 +21,7 @@ public class GameManager : MonoBehaviour
         currentScene = SceneManager.GetActiveScene();
     }
     
-    void OnPlayerJoined(PlayerInput playerInput)
+    public void OnPlayerJoined(PlayerInput playerInput)
     {
         _playersByIndex.Add(playerInput.playerIndex, playerInput.GetComponent<Player>());
 
@@ -61,4 +62,14 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+    
+    public void LockPlayerIntoGame(Player player)
+    {
+        if (!playersInGame.Contains(player))
+        {
+            playersInGame.Add(player);
+        }
+    }
+
+    
 }

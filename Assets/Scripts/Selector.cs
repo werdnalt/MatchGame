@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -10,8 +11,9 @@ using Debug = UnityEngine.Debug;
 public class Selector : MonoBehaviour
 {
     private string Name;
-    private BoardManager.Coordinates pivotBlockCoordinates;
-    private BoardManager.Coordinates rotatingBlockCoordinates;
+    public BoardManager.Coordinates pivotBlockCoordinates;
+    public BoardManager.Coordinates rotatingBlockCoordinates;
+    
     private BoardManager.Coordinates prevPivotBlockCoordinates;
     private BoardManager.Coordinates prevRotatingBlockCoordinates;
     
@@ -28,6 +30,9 @@ public class Selector : MonoBehaviour
 
     private GameObject _pivotBlock;
     private GameObject _rotatingBlock;
+    private float _timeOfLastSwap;
+    private float _timeBetweenSwaps = .2f;
+    private int _playerIndex;
 
     public enum Direction
     {
@@ -45,25 +50,21 @@ public class Selector : MonoBehaviour
         West
     }
 
-    // Start is called before the first frame update
+    private void Awake()
+    {
+        EventManager.Instance.onBoardReady += CreateAndSetSelector;
+        _timeOfLastSwap = -Mathf.Infinity;
+        _playerIndex = GetComponent<PlayerInput>().playerIndex;
+    }
+
+    private void Start()
+    {
+
+    }
+
     public void Setup()
     {
-        CreateAndSetSelector();
         
-        numRows = BoardManager.Instance.numRows;
-        numColumns = BoardManager.Instance.numColumns;
-        _directionFromPivot = DirectionFromPivot.East;
-
-
-        pivotBlockCoordinates = new BoardManager.Coordinates(numColumns / 2, numRows / 2);
-        if (pivotBlockCoordinates.x + 1 <= BoardManager.Instance.numColumns)
-        {
-            rotatingBlockCoordinates = new BoardManager.Coordinates(pivotBlockCoordinates.x + 1, pivotBlockCoordinates.y);
-        } else {
-            Debug.Log("Right block position is out of bounds. Add more columns");
-        }
-        
-        Debug.Log("PLAYER INDEX: " + GetComponent<PlayerInput>().playerIndex);
 
         //InitializeSelectorBlocks();
         //Highlight();
@@ -71,27 +72,29 @@ public class Selector : MonoBehaviour
 
     void CreateAndSetSelector()
     {
+        numRows = BoardManager.Instance.numRows;
+        numColumns = BoardManager.Instance.numColumns;
+        _directionFromPivot = DirectionFromPivot.East;
+        
         int id = GetComponent<PlayerInput>().playerIndex;
         switch (id)
         {
             case 0:
                 _selectorObject = Instantiate(p1SelectorPrefab);
                 break;
-            // case 1:
-            //     _selectorObject = Instantiate(p1SelectorPrefab);
-            //     break;
-            // case 2:
-            //     _selectorObject = Instantiate(p1SelectorPrefab);
-            //     break;
-            // case 3:
-            //     _selectorObject = Instantiate(p1SelectorPrefab);
-            //     break;
-            
-                    
+            case 1:
+                _selectorObject = Instantiate(p1SelectorPrefab);
+                break;
+            case 2:
+                _selectorObject = Instantiate(p1SelectorPrefab);
+                break;
+            case 3:
+                _selectorObject = Instantiate(p1SelectorPrefab);
+                break;
         }
         
         pivotBlockCoordinates = new BoardManager.Coordinates(0, 0);
-        rotatingBlockCoordinates = new BoardManager.Coordinates(0, 1);
+        rotatingBlockCoordinates = new BoardManager.Coordinates(1, 0);
         SetSelectorPosition();
     }
     
@@ -252,17 +255,35 @@ void OnRotateCounterClockwise(InputValue inputValue)
 
     void OnSelect(InputValue inputValue)
     {
-        BoardManager.Instance.SwapBlocks(pivotBlockCoordinates, rotatingBlockCoordinates);
+        if (BoardManager.Instance != null && CanSwap())
+        {
+            BoardManager.Instance.SwapBlocks(pivotBlockCoordinates, rotatingBlockCoordinates, _playerIndex);
+            _timeOfLastSwap = Time.time;
+        }
+    }
+
+    void OnSpecialAbility(InputValue inputValue)
+    {
+        
     }
 
     private void MoveSelector(int xAdjustment, int yAdjustment)
     {
+        BoardManager.Coordinates newCoords1 = new BoardManager.Coordinates(pivotBlockCoordinates.x + xAdjustment,
+            pivotBlockCoordinates.y + yAdjustment);
+        BoardManager.Coordinates newCoords2 = new BoardManager.Coordinates(rotatingBlockCoordinates.x + xAdjustment,
+            rotatingBlockCoordinates.y + yAdjustment);
+        
         //if NOT refilling, run this code
-     if (!BoardManager.Instance.isRefilling)
+        if (!BoardManager.Instance.isRefilling )
      {
 //            AudioManager.Instance.Play("click");
-            pivotBlockCoordinates = new BoardManager.Coordinates(pivotBlockCoordinates.x + xAdjustment, pivotBlockCoordinates.y + yAdjustment);
-            rotatingBlockCoordinates = new BoardManager.Coordinates(rotatingBlockCoordinates.x + xAdjustment, rotatingBlockCoordinates.y + yAdjustment);
+            pivotBlockCoordinates = newCoords1;
+            rotatingBlockCoordinates = newCoords2;
+
+            BoardManager.Instance.CheckBlock(pivotBlockCoordinates);
+            BoardManager.Instance.CheckBlock(rotatingBlockCoordinates);
+            
             SetSelectorPosition();
       }
     }
@@ -311,5 +332,17 @@ void OnRotateCounterClockwise(InputValue inputValue)
                 break;
         }
         return false;
+    }
+
+    private bool CanSwap()
+    {
+        if (Time.time - _timeOfLastSwap >= _timeBetweenSwaps)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

@@ -70,7 +70,7 @@ public class CharacterBehaviour : MonoBehaviour
         {
             _currentSpecialAbilityAmount += comboAmount;
         }
-        _characterUI.RefreshUI();
+        //_characterUI.RefreshUI();
     }
 
     public void SetCharacterUI(CharacterUI characterUI)

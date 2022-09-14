@@ -11,14 +11,14 @@ public class Player : MonoBehaviour
     
     public CharacterSelector characterSelector;
     public CharacterUI characterUI;
-    private CharacterBehaviour _characterBehaviour;
+    public CharacterBehaviour characterBehaviour;
     public Character selectedCharacter;
     
     void Start()
     {
         DontDestroyOnLoad(this.gameObject);
 
-        _characterBehaviour = GetComponent<CharacterBehaviour>();
+        characterBehaviour = GetComponent<CharacterBehaviour>();
         EventManager.Instance.onLevelLoad += AddSelector;
     }
 

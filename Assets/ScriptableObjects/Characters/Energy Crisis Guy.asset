@@ -16,7 +16,7 @@ MonoBehaviour:
   hp: 20
   specialAbilityRequirement: 8
   cursor: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}
-  specialBlockPrefab: {fileID: 0}
+  specialBlockPrefab: {fileID: 584440006424721952, guid: cef3ea05d63828e47bd78593aa9d0263, type: 3}
   characterUI: {fileID: 0}
   characterSprite: {fileID: 21300000, guid: bf66bc1657ab47d46a9501609c9c7df5, type: 3}
   specialBlockSprite: {fileID: 21300000, guid: de286d517f1b4fb4dace372055c3272d, type: 3}

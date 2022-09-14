@@ -29,6 +29,7 @@ public class CharacterSelector : MonoBehaviour
         _lockedIn = false;
         characterImage.material = new Material(characterImage.material);
     }
+    
 
     public void ScrollUp()
     {
@@ -88,6 +89,7 @@ public class CharacterSelector : MonoBehaviour
             // lock character
             GameManager.Instance.GetPlayerByIndex(playerIndex).selectedCharacter = currentCharacter;
             GameManager.Instance.GetPlayerByIndex(playerIndex).GetComponent<CharacterBehaviour>().SetCharacter(currentCharacter);
+            GameManager.Instance.playersInGame.Add(GameManager.Instance.GetPlayerByIndex(playerIndex));
         }
     }
 
