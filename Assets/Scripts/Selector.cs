@@ -31,7 +31,7 @@ public class Selector : MonoBehaviour
     private GameObject _pivotBlock;
     private GameObject _rotatingBlock;
     private float _timeOfLastSwap;
-    private float _timeBetweenSwaps = .2f;
+    private float _timeBetweenSwaps = .5f;
     private int _playerIndex;
 
     public enum Direction
@@ -277,7 +277,7 @@ void OnRotateCounterClockwise(InputValue inputValue)
         //if NOT refilling, run this code
         if (!BoardManager.Instance.isRefilling )
      {
-//            AudioManager.Instance.Play("click");
+            AudioManager.Instance.PlayWithRandomPitch("move");
             pivotBlockCoordinates = newCoords1;
             rotatingBlockCoordinates = newCoords2;
 
@@ -309,34 +309,38 @@ void OnRotateCounterClockwise(InputValue inputValue)
 
     private bool CanMove(Direction direction)
     {
-        switch (direction)
+        if (BoardManager.Instance.canMove)
         {
-            case Direction.Up:
-                int largestY = Math.Max(pivotBlockCoordinates.y, rotatingBlockCoordinates.y);
-                if (largestY + 1 < numRows) return true;
-                break;
+            switch (direction)
+            {
+                case Direction.Up:
+                    int largestY = Math.Max(pivotBlockCoordinates.y, rotatingBlockCoordinates.y);
+                    if (largestY + 1 < numRows) return true;
+                    break;
             
-            case Direction.Down:
-                int smallestY = Math.Min(pivotBlockCoordinates.y, rotatingBlockCoordinates.y);
-                if (smallestY > 0) return true;
-                break;
+                case Direction.Down:
+                    int smallestY = Math.Min(pivotBlockCoordinates.y, rotatingBlockCoordinates.y);
+                    if (smallestY > 0) return true;
+                    break;
             
-            case Direction.Left:
-                int smallestX = Math.Min(pivotBlockCoordinates.x, rotatingBlockCoordinates.x);
-                if (smallestX > 0) return true;
-                break;
+                case Direction.Left:
+                    int smallestX = Math.Min(pivotBlockCoordinates.x, rotatingBlockCoordinates.x);
+                    if (smallestX > 0) return true;
+                    break;
             
-            case Direction.Right:
-                int largestX = Math.Max(pivotBlockCoordinates.x, rotatingBlockCoordinates.x);
-                if (largestX + 1 < numColumns) return true;
-                break;
+                case Direction.Right:
+                    int largestX = Math.Max(pivotBlockCoordinates.x, rotatingBlockCoordinates.x);
+                    if (largestX + 1 < numColumns) return true;
+                    break;
+            }
         }
+
         return false;
     }
 
     private bool CanSwap()
     {
-        if (Time.time - _timeOfLastSwap >= _timeBetweenSwaps)
+        if (Time.time - _timeOfLastSwap >= _timeBetweenSwaps && BoardManager.Instance.canMove)
         {
             return true;
         }

@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour
 
         if (currentScene.name == "ChooseCharacterScene")
         {
+            AudioManager.Instance.PlayAndLoop("selectchar");
             for (int i = 0; i < 4; i++)
             {
                 if (_playersByIndex.ContainsKey(i))
@@ -53,6 +54,7 @@ public class GameManager : MonoBehaviour
         
         if (currentScene.name == "PlayScene")
         {
+            AudioManager.Instance.PlayAndLoop("game");
             for (int i = 0; i < 4; i++)
             {
                 if (_playersByIndex.ContainsKey(i))

@@ -11,6 +11,7 @@ public class BoardManager : MonoBehaviour
     public static BoardManager Instance;
     public GameObject smokePrefab;
     public GameObject rubbleBlock;
+    public GameObject bombPrefab;
 
     public int numRows;
     public int numColumns;
@@ -35,7 +36,9 @@ public class BoardManager : MonoBehaviour
     private int combo = 0;
     private int accumulatedPoints = 0;
     private List<int> accumulatedScores = new List<int>();
-
+    private Dictionary<int, List<Coordinates>> _selectorPositions = new Dictionary<int, List<Coordinates>>();
+    public bool canMove;
+    
     public struct Coordinates 
     {
         public int x;
@@ -50,7 +53,7 @@ public class BoardManager : MonoBehaviour
 
         public bool Equals(Coordinates other)
         {
-            if (other.x == x || other.y == y)
+            if (other.x == x && other.y == y)
             {
                 return true;
             }
@@ -69,6 +72,12 @@ public class BoardManager : MonoBehaviour
         Right
     }
 
+    public enum BlockLayout
+    {
+        Surrounding,
+        Crossing
+    }
+
     void Awake()
     {
         BlockPositions = new Vector2[numColumns, numRows];
@@ -83,6 +92,7 @@ public class BoardManager : MonoBehaviour
     private void Start()
     {
         EventManager.Instance.LevelLoaded();
+        canMove = true;
     }
 
     // Iterate through each row of the board one by one. For each column in the row, 
@@ -144,6 +154,47 @@ public class BoardManager : MonoBehaviour
         EventManager.Instance.BoardReady();
     }
 
+    public List<Coordinates> GetRandomCoordinates(int numCoords)
+    {
+        List<Coordinates> coordinatesList = new List<Coordinates>();
+        int maxAttempts = 10;
+        int attempts = 0;
+
+        while (coordinatesList.Count < numCoords && attempts < maxAttempts)
+        {
+            attempts++;
+            int randomX = Random.Range(0, numColumns);
+            int randomY = Random.Range(0, numRows);
+            Coordinates coords = new Coordinates(randomX, randomY);
+            if (!coordinatesList.Contains(coords))
+            {
+                coordinatesList.Add(coords);
+            }
+        }
+        
+        return coordinatesList;
+    }
+
+    public void ReplaceWithRandomBlock(Coordinates coordinates)
+    {
+        Block leftBlock = null;
+        Block bottomBlock = null;
+
+        // Don't spawn either of these blocks -- this will prevent starting with matches
+        if (coordinates.x - 1 >= 0)
+        {
+            leftBlock = _board[coordinates.x - 1, coordinates.y].GetComponent<Block>();
+        }
+
+        if (coordinates.y - 1 >= 0)
+        {
+            bottomBlock = _board[coordinates.x, coordinates.y - 1].GetComponent<Block>();
+        }
+
+        GameObject newBlock = GetRandomBlock(leftBlock, bottomBlock);
+        ReplaceBlock(coordinates, newBlock);
+    }
+
     private GameObject GetRandomBlock(Block except, Block or)
     {
         int randomNum = Random.Range(0, blockGameObjects.Count);
@@ -177,9 +228,8 @@ public class BoardManager : MonoBehaviour
         if (leftBlock.GetComponent<Block>().blockType != Block.Type.Invincible && 
             rightBlock.GetComponent<Block>().blockType != Block.Type.Invincible)
             {
-//                AudioManager.Instance.Play("woosh");
-
-
+               AudioManager.Instance.PlayWithRandomPitch("whoosh");
+               
                 // Swap the blocks data
                 _board[leftBlockCoords.x, leftBlockCoords.y] = rightBlock;
                 _board[rightBlockCoords.x, rightBlockCoords.y] = leftBlock;
@@ -196,6 +246,24 @@ public class BoardManager : MonoBehaviour
             }
     }
 
+    public void ReplaceBlock(Coordinates block, GameObject newBlockPrefab)
+    {
+        GameObject newBlock;
+        if (!newBlockPrefab.activeInHierarchy)
+        {
+            newBlock = Instantiate(newBlockPrefab);
+        }
+        else
+        {
+            newBlock = newBlockPrefab;
+        }
+        GameObject blockToReplace = _board[block.x, block.y];
+        _board[block.x, block.y] = newBlock;
+        newBlock.transform.SetParent(BoardGameObject.transform);
+        newBlock.transform.position = blockToReplace.transform.position;
+        Destroy(blockToReplace);
+    }
+
     public void ReplaceBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords, GameObject newBlockPrefab)
     {
         // Retrieve blocks from board based on their grid coordinates
@@ -210,6 +278,19 @@ public class BoardManager : MonoBehaviour
         
         _board[rightBlockCoords.x, rightBlockCoords.y].transform.position = rightBlock.transform.position;
         Destroy(rightBlock);
+        
+    }
+    
+    public void ReplaceBlocks(Coordinates blockCoords, GameObject newBlock)
+    {
+        // Retrieve blocks from board based on their grid coordinates
+        GameObject block = _board[blockCoords.x, blockCoords.y];
+
+        _board[blockCoords.x, blockCoords.y] = newBlock;
+        newBlock.transform.SetParent(BoardGameObject.transform);
+
+        _board[blockCoords.x, blockCoords.y].transform.position = block.transform.position;
+        Destroy(block);
         
     }
 
@@ -355,6 +436,7 @@ public class BoardManager : MonoBehaviour
 
     private IEnumerator MatchFound(List<Coordinates> blocksInRun, int playerIndex)
     {
+        canMove = false;
         combo += 1;
         foreach (var block in blocksInRun)
         {
@@ -396,24 +478,28 @@ public class BoardManager : MonoBehaviour
     {
         if (combo == 1)
         {
+            AudioManager.Instance.Play("chime");
             accumulatedPoints += points;
             //AudioManager.Instance.Play("chime");
         } 
 
         else if (combo == 2)
         {
+            AudioManager.Instance.Play("chime2");
             accumulatedPoints += points * 2;
             //AudioManager.Instance.Play("chime2");
         } 
 
         else if (combo == 3)
         {
+            AudioManager.Instance.Play("chime3");
             accumulatedPoints += points * 3;
             //AudioManager.Instance.Play("ding");
         } 
 
         else if (combo >= 4)
         {
+            AudioManager.Instance.Play("chime3");
             accumulatedPoints += points * 4;
             //AudioManager.Instance.Play("tada");
         }
@@ -431,6 +517,7 @@ public class BoardManager : MonoBehaviour
         
         // TODO: Hide Display Card
         MatchHandler.Instance.HideMatchDisplayerUI();
+        canMove = true;
     }
 
     private GameObject GetBlockGameObject(Coordinates blockCoords)
@@ -450,6 +537,37 @@ public class BoardManager : MonoBehaviour
         float y = rBlock.transform.position.y - ((rBlock.transform.position.y - lBlock.transform.position.y) / 2);
         middlePos = new Vector3(x, y, -50);
         return middlePos;
+    }
+
+    public void SetSelectorPosition(int playerIndex, Coordinates pos1, Coordinates pos2)
+    {
+        if (_selectorPositions.ContainsKey(playerIndex)) _selectorPositions.Remove(playerIndex);
+        List<Coordinates> coords = new List<Coordinates>();
+        coords.Add(pos1);
+        coords.Add(pos2);
+        _selectorPositions.Add(playerIndex, coords);
+    }
+
+    public Player GetPlayerFromPosition(Coordinates coordinates)
+    {
+        Player p = null;
+        foreach (var player in GameManager.Instance.playersInGame)
+        {
+            int playerIndex = player.playerIndex;
+            if (_selectorPositions.ContainsKey(playerIndex))
+            {
+                List<Coordinates> occupiedCoordinates = _selectorPositions[playerIndex];
+                foreach (var coords in occupiedCoordinates)
+                    {
+                        if (coords.Equals(coordinates))
+                        {
+                            p = player;
+                        }
+                    }
+            }
+        }
+
+        return p;
     }
 
     private IEnumerator LerpBlocks(GameObject block1, GameObject block2)
@@ -511,11 +629,40 @@ public class BoardManager : MonoBehaviour
             
         }
     }
-
-    private void SpawnSmoke(Coordinates coordinates)
+    
+    public void SpawnSmoke(Coordinates coordinates)
     {
         GameObject smoke = Instantiate(smokePrefab);
         smoke.transform.position = _board[coordinates.x, coordinates.y].transform.position;
+
+        smoke.GetComponent<Animator>().SetTrigger("neutral");
+        
+        StartCoroutine(ISpawnSmoke(smoke));
+    }
+
+    public void SpawnSmoke(Coordinates coordinates, int playerIndex)
+    {
+        GameObject smoke = Instantiate(smokePrefab);
+        smoke.transform.position = _board[coordinates.x, coordinates.y].transform.position;
+
+        string trigger = "blue";
+        switch (playerIndex)
+        {
+            case 1:
+                trigger = "red";
+                break;
+            case 2:
+                trigger = "blue";
+                break;
+            case 3:
+                trigger = "pink";
+                break;
+            case 4:
+                trigger = "orange";
+                break;
+        }
+        smoke.GetComponent<Animator>().SetTrigger(trigger);
+        
         StartCoroutine(ISpawnSmoke(smoke));
     }
 
@@ -546,5 +693,55 @@ public class BoardManager : MonoBehaviour
         _board[coordinates.x, coordinates.y] = rubbleBlock;
         rubbleBlock.transform.position = block.transform.position;
         Destroy(block.gameObject);
+    }
+
+    public List<Coordinates> GetNeighboringCoordinates(Coordinates coordinates, BlockLayout blockLayout)
+    {
+        List<Coordinates> neighbors = new List<Coordinates>();
+        int x = coordinates.x;
+        int y = coordinates.y;
+        if (blockLayout == BlockLayout.Surrounding)
+        {
+            // west
+            if (x - 1 >= 0) neighbors.Add(new Coordinates(x - 1, y));
+
+            // northwest
+            if (x - 1 >= 0 && y + 1 < numRows) neighbors.Add(new Coordinates(x - 1, y + 1));
+
+            // north
+            if (y + 1 < numRows) neighbors.Add(new Coordinates(x, y + 1));
+
+            // northeast
+            if (x + 1 < numColumns && y + 1 < numRows) neighbors.Add(new Coordinates(x + 1, y + 1));
+
+            // east
+            if (x + 1 < numColumns) neighbors.Add(new Coordinates(x + 1, y));
+
+            // southeast 
+            if (x + 1 < numColumns && y - 1 >= 0) neighbors.Add(new Coordinates(x + 1, y - 1));
+            
+            // south
+            if (y - 1 >= 0) neighbors.Add(new Coordinates(x, y - 1));
+            
+            // southwest
+            if (x - 1 >= 0 && y - 1 >= 0) neighbors.Add(new Coordinates(x - 1, y - 1));
+        }
+
+        else
+        {
+            for (int row = 0; row < numRows; row++)
+            {
+                Coordinates toAdd = new Coordinates(x, row);
+                neighbors.Add(toAdd);
+            }
+            
+            for (int column = 0; column < numRows; column++)
+            {
+                Coordinates toAdd = new Coordinates(column, y);
+                neighbors.Add(toAdd);
+            }
+        }
+
+        return neighbors;
     }
 }

@@ -1035,6 +1035,79 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &558386383
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 558386385}
+  - component: {fileID: 558386384}
+  m_Layer: 0
+  m_Name: Audio Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &558386384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558386383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a465beccbc4ceb645a259d03e75ce3d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - clip: {fileID: 8300000, guid: 18014bf65a4a405439de369520caf60d, type: 3}
+    name: whoosh
+    volume: 0.3
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: acc5337825cd3da49a84bdcaf47504ef, type: 3}
+    name: game
+    volume: 0.5
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: a66663689b717714286a66100947c4ac, type: 3}
+    name: selectchar
+    volume: 0.5
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: b7ff4609c40f3164eabac5469b8a8225, type: 3}
+    name: chime
+    volume: 0.5
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 5b0c9fa7f7f042147a4e06f7bcecefaa, type: 3}
+    name: chime2
+    volume: 0.5
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: df727ed8384221f47bd648d4216ce019, type: 3}
+    name: chime3
+    volume: 0.5
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 12f9e3abb8b9d4e4f8d890f0f1d21106, type: 3}
+    name: move
+    volume: 0.2
+    source: {fileID: 0}
+  audioEnabled: 0
+--- !u!4 &558386385
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558386383}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 25.84304, y: -9.13618, z: 23.601917}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &765372184
 GameObject:
   m_ObjectHideFlags: 0

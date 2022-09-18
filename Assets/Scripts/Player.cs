@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     public CharacterUI characterUI;
     public CharacterBehaviour characterBehaviour;
     public Character selectedCharacter;
+    public int playerIndex;
     
     void Start()
     {
@@ -20,6 +21,7 @@ public class Player : MonoBehaviour
 
         characterBehaviour = GetComponent<CharacterBehaviour>();
         EventManager.Instance.onLevelLoad += AddSelector;
+        playerIndex = GetComponent<PlayerInput>().playerIndex;
     }
 
     private void AddSelector()
@@ -65,5 +67,10 @@ public class Player : MonoBehaviour
     void OnDeselect()
     {
         characterSelector.DeselectCharacter();
+    }
+
+    public void TakeDamage(int damage)
+    {
+        characterBehaviour.ReceiveDamage(damage);
     }
 }

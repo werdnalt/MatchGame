@@ -23,13 +23,15 @@ public class Block : MonoBehaviour
         Bomb,
         Wall,
         Boulder,
-        Rubble
+        Rubble,
+        Wings,
+        Timer
     }
 
     protected float timeSpawned;
     public Type blockType;
     public int pointValue;
-    [SerializeField] private SpriteRenderer _blockIcon;
+    [SerializeField] protected SpriteRenderer _blockIcon;
     private Renderer _renderer;
 
     private void Start()
