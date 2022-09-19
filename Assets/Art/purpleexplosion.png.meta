@@ -1,31 +1,31 @@
 fileFormatVersion: 2
-guid: db8b1c7f0ec847241903481340bb4f7d
+guid: b45779b6ddbd79242ad1f786f71dfa7f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9087577266532155448
-    second: smoke_0
+      213: 7141115574072440394
+    second: purpleexplosion_0
   - first:
-      213: -1106684591460216115
-    second: smoke_1
+      213: -5638591133954735096
+    second: purpleexplosion_1
   - first:
-      213: -5983078005227543334
-    second: smoke_2
+      213: -3997765088142300723
+    second: purpleexplosion_2
   - first:
-      213: 7818055727696256662
-    second: smoke_3
+      213: 4999475047848169348
+    second: purpleexplosion_3
   - first:
-      213: 8013849657407384527
-    second: smoke_4
+      213: -6894994981919558269
+    second: purpleexplosion_4
   - first:
-      213: -5181280606106272151
-    second: smoke_5
+      213: 923016922135557278
+    second: purpleexplosion_5
   - first:
-      213: -7197358887858680917
-    second: smoke_6
+      213: -7791789493084674364
+    second: purpleexplosion_6
   - first:
-      213: 5016423947855932505
-    second: smoke_7
+      213: -4436058094154798839
+    second: purpleexplosion_7
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -127,13 +127,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: smoke_0
+      name: purpleexplosion_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 348
-        height: 168
+        width: 153
+        height: 138
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,20 +141,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8cf7f67cf9072e180800000000000000
-      internalID: -9087577266532155448
+      spriteID: a46f89487c65a1360800000000000000
+      internalID: 7141115574072440394
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: smoke_1
+      name: purpleexplosion_1
       rect:
         serializedVersion: 2
-        x: 348
+        x: 153
         y: 0
-        width: 348
-        height: 168
+        width: 153
+        height: 138
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -162,20 +162,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dc29d9f3a3444a0f0800000000000000
-      internalID: -1106684591460216115
+      spriteID: 80406fafc33bfb1b0800000000000000
+      internalID: -5638591133954735096
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: smoke_2
+      name: purpleexplosion_2
       rect:
         serializedVersion: 2
-        x: 696
+        x: 306
         y: 0
-        width: 348
-        height: 168
+        width: 153
+        height: 138
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -183,20 +183,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ad4a5f20146d7fca0800000000000000
-      internalID: -5983078005227543334
+      spriteID: dc9e1d955d51588c0800000000000000
+      internalID: -3997765088142300723
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: smoke_3
+      name: purpleexplosion_3
       rect:
         serializedVersion: 2
-        x: 1044
+        x: 459
         y: 0
-        width: 348
-        height: 168
+        width: 153
+        height: 138
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -204,20 +204,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 69e1b8333405f7c60800000000000000
-      internalID: 7818055727696256662
+      spriteID: 48f4b625114b16540800000000000000
+      internalID: 4999475047848169348
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: smoke_4
+      name: purpleexplosion_4
       rect:
         serializedVersion: 2
-        x: 1392
+        x: 612
         y: 0
-        width: 348
-        height: 168
+        width: 153
+        height: 138
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -225,20 +225,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fcb2721edc9e63f60800000000000000
-      internalID: 8013849657407384527
+      spriteID: 385759e589e0050a0800000000000000
+      internalID: -6894994981919558269
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: smoke_5
+      name: purpleexplosion_5
       rect:
         serializedVersion: 2
-        x: 1740
+        x: 765
         y: 0
-        width: 348
-        height: 168
+        width: 153
+        height: 138
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -246,20 +246,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 96e3a678db46818b0800000000000000
-      internalID: -5181280606106272151
+      spriteID: e94709510073fcc00800000000000000
+      internalID: 923016922135557278
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: smoke_6
+      name: purpleexplosion_6
       rect:
         serializedVersion: 2
-        x: 2088
+        x: 918
         y: 0
-        width: 348
-        height: 168
+        width: 153
+        height: 138
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -267,20 +267,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: babce288938dd1c90800000000000000
-      internalID: -7197358887858680917
+      spriteID: 4c6211c1db00ed390800000000000000
+      internalID: -7791789493084674364
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: smoke_7
+      name: purpleexplosion_7
       rect:
         serializedVersion: 2
-        x: 2436
+        x: 1071
         y: 0
-        width: 348
-        height: 168
+        width: 153
+        height: 138
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -288,8 +288,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 95c27be900bed9540800000000000000
-      internalID: 5016423947855932505
+      spriteID: 90928e6aaa4ff62c0800000000000000
+      internalID: -4436058094154798839
       vertices: []
       indices: 
       edges: []

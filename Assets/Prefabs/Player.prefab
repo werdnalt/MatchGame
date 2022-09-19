@@ -131,7 +131,9 @@ MonoBehaviour:
   selector: {fileID: -6010474621618404176}
   characterSelector: {fileID: 0}
   characterUI: {fileID: 0}
+  characterBehaviour: {fileID: 0}
   selectedCharacter: {fileID: 0}
+  playerIndex: 0
 --- !u!114 &1266973872018359919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,6 +147,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   character: {fileID: 0}
+  bombPrefabs: []
 --- !u!114 &-6010474621618404176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,6 +161,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   p1SelectorPrefab: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}
-  p2SelectorPrefab: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}
+  p2SelectorPrefab: {fileID: 9029535746960203821, guid: c6da0d8d0c64ae34eabf4533d3980104, type: 3}
   p3SelectorPrefab: {fileID: 9029535746960203821, guid: c6da0d8d0c64ae34eabf4533d3980104, type: 3}
   p4SelectorPrefab: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}

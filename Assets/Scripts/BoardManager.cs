@@ -12,6 +12,7 @@ public class BoardManager : MonoBehaviour
     public GameObject smokePrefab;
     public GameObject rubbleBlock;
     public GameObject bombPrefab;
+    public GameObject deployObject;
 
     public int numRows;
     public int numColumns;
@@ -615,13 +616,18 @@ public class BoardManager : MonoBehaviour
         return GetBlockGameObject(coordinates).GetComponent<Block>();
     }
 
-    public void CheckBlock(Coordinates coordinates)
+    public void CheckBlock(Coordinates coordinates, int playerIndex)
     {
         Block block = GetBlockGameObject(coordinates).GetComponent<Block>();
         
         if (block.blockType == Block.Type.Bomb)
         {
-            AnimateAndReplaceBlock(coordinates, block);
+            Bomb bomb = block.GetComponent<Bomb>();
+            if (bomb.belongsToPlayerIndex != playerIndex)
+            {
+                GameManager.Instance.GetPlayerByIndex(playerIndex).TakeDamage(1);
+                AnimateAndReplaceBlock(coordinates, block);
+            }
         }
 
         if (block.blockType == Block.Type.Sticky)
@@ -648,16 +654,16 @@ public class BoardManager : MonoBehaviour
         string trigger = "blue";
         switch (playerIndex)
         {
+            case 0:
+                trigger = "blue";
+                break;
             case 1:
                 trigger = "red";
                 break;
             case 2:
-                trigger = "blue";
+                trigger = "purple";
                 break;
             case 3:
-                trigger = "pink";
-                break;
-            case 4:
                 trigger = "orange";
                 break;
         }
@@ -743,5 +749,18 @@ public class BoardManager : MonoBehaviour
         }
 
         return neighbors;
+    }
+
+    public void ShowDeployAnimation(Coordinates coordinates)
+    {
+        StartCoroutine(IShowDeployAnimation(coordinates));
+    }
+
+    private IEnumerator IShowDeployAnimation(Coordinates coordinates)
+    {
+        GameObject spawnedAnimation = Instantiate(deployObject);
+        spawnedAnimation.transform.position = _board[coordinates.x, coordinates.y].transform.position;
+        yield return new WaitForSeconds(.6f);
+        Destroy(spawnedAnimation);
     }
 }

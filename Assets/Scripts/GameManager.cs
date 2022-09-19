@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     
     private Dictionary<int, Player> _playersByIndex = new Dictionary<int, Player>();
     public List<Player> playersInGame = new List<Player>();
+    private List<Player> _alivePlayers = new List<Player>();
     public Scene currentScene;
     
     void Start()
@@ -54,6 +55,7 @@ public class GameManager : MonoBehaviour
         
         if (currentScene.name == "PlayScene")
         {
+            _alivePlayers = playersInGame;
             AudioManager.Instance.PlayAndLoop("game");
             for (int i = 0; i < 4; i++)
             {
@@ -71,6 +73,32 @@ public class GameManager : MonoBehaviour
         {
             playersInGame.Add(player);
         }
+    }
+
+    public void PlayerDied(Player player)
+    {
+        _alivePlayers.Remove(player);
+        if (_alivePlayers.Count <= 1) Debug.Log("GAME OVER");
+    }
+
+    public void DamagePlayer(int playerindex, int amount)
+    {
+        GetPlayerByIndex(playerindex).TakeDamage(amount);
+    }
+
+    public void AwardAttackPoints(int playerIndex, int amount)
+    {
+        GetPlayerByIndex(playerIndex).EarnAttackPoints(amount);
+    }
+
+    public void AwardSpecialAbilityPoints(int playerIndex, int amount)
+    {
+        GetPlayerByIndex(playerIndex).EarnSpecialAbilityPoints(amount);
+    }
+
+    public void AwardPlayerPoints(int playerIndex, int amount)
+    {
+        GetPlayerByIndex(playerIndex).EarnPoints(amount);
     }
 
     

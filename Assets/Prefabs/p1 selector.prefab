@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9029535746960203820}
   - component: {fileID: 3955431061230471538}
   m_Layer: 3
-  m_Name: p2selector_horizontal
+  m_Name: p1 selector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

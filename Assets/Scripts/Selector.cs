@@ -81,20 +81,27 @@ public class Selector : MonoBehaviour
         {
             case 0:
                 _selectorObject = Instantiate(p1SelectorPrefab);
+                pivotBlockCoordinates = new BoardManager.Coordinates(0, 0);
+                rotatingBlockCoordinates = new BoardManager.Coordinates(1, 0);
                 break;
             case 1:
-                _selectorObject = Instantiate(p1SelectorPrefab);
+                _selectorObject = Instantiate(p2SelectorPrefab);
+                pivotBlockCoordinates = new BoardManager.Coordinates(numColumns-2, numRows-1);
+                rotatingBlockCoordinates = new BoardManager.Coordinates(numColumns-1, numRows-1);
                 break;
             case 2:
-                _selectorObject = Instantiate(p1SelectorPrefab);
+                _selectorObject = Instantiate(p3SelectorPrefab);
+                pivotBlockCoordinates = new BoardManager.Coordinates(numColumns, 0);
+                rotatingBlockCoordinates = new BoardManager.Coordinates(1, 0);
                 break;
             case 3:
-                _selectorObject = Instantiate(p1SelectorPrefab);
+                _selectorObject = Instantiate(p4SelectorPrefab);
+                pivotBlockCoordinates = new BoardManager.Coordinates(0, 0);
+                rotatingBlockCoordinates = new BoardManager.Coordinates(1, 0);
                 break;
         }
         
-        pivotBlockCoordinates = new BoardManager.Coordinates(0, 0);
-        rotatingBlockCoordinates = new BoardManager.Coordinates(1, 0);
+
         SetSelectorPosition();
     }
     
@@ -281,8 +288,9 @@ void OnRotateCounterClockwise(InputValue inputValue)
             pivotBlockCoordinates = newCoords1;
             rotatingBlockCoordinates = newCoords2;
 
-            BoardManager.Instance.CheckBlock(pivotBlockCoordinates);
-            BoardManager.Instance.CheckBlock(rotatingBlockCoordinates);
+            BoardManager.Instance.CheckBlock(pivotBlockCoordinates, _playerIndex);
+            BoardManager.Instance.CheckBlock(rotatingBlockCoordinates, _playerIndex);
+            BoardManager.Instance.SetSelectorPosition(_playerIndex, newCoords1, newCoords2);
             
             SetSelectorPosition();
       }

@@ -21,6 +21,7 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < GameManager.Instance.playersInGame.Count; i++)
         {
             characterUIsGameObjects[i].SetActive(true);
+            GameManager.Instance.playersInGame[i].AssignPlayerUI(characterUIsGameObjects[i].GetComponent<CharacterUI>());
         }
         
         foreach (var UIGO in characterUIsGameObjects)

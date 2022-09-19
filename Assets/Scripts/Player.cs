@@ -73,4 +73,24 @@ public class Player : MonoBehaviour
     {
         characterBehaviour.ReceiveDamage(damage);
     }
+
+    public void EarnAttackPoints(int amount)
+    {
+        characterBehaviour.GainAttack(amount);
+    }
+
+    public void EarnSpecialAbilityPoints(int amount)
+    {
+        characterBehaviour.GainSpecialAbilityCharge(amount);
+    }
+
+    public void EarnPoints(int amount)
+    {
+        characterBehaviour.GainPoints(amount);
+    }
+
+    public void AssignPlayerUI(CharacterUI ui)
+    {
+        characterBehaviour.SetCharacterUI(ui);
+    }
 }
