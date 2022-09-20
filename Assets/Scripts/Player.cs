@@ -39,9 +39,7 @@ public class Player : MonoBehaviour
     
     void OnNavigate(InputValue inputValue)
     {
-        Debug.Log("MOVE");
         Vector2 movement = inputValue.Get<Vector2>();
-        Debug.Log(movement);
 
         if (GameManager.Instance.currentScene.name == "ChooseCharacterScene")
         {

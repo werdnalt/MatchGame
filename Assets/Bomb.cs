@@ -64,7 +64,7 @@ public class Bomb : Block
                         Player p = BoardManager.Instance.GetPlayerFromPosition(coords);
                         if (p)
                         {
-                            p.TakeDamage(2);
+                            p.TakeDamage(1);
                         }
                     }
                 }

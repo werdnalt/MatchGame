@@ -101,6 +101,7 @@ MonoBehaviour:
   blockType: 2
   pointValue: 5
   _blockIcon: {fileID: 6645471321882242364}
+  isMovable: 1
 --- !u!61 &6492157483457702533
 BoxCollider2D:
   m_ObjectHideFlags: 0

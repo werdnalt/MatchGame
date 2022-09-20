@@ -8,6 +8,8 @@ public class CharacterUI : MonoBehaviour
 {
     public Image characterSprite;
     public Image specialAbilitySprite;
+    public Image specialAbilityHider;
+    public Image bombSprite;
     public List<Image> hearts;
 
     private Material characterMaterial;
@@ -25,6 +27,34 @@ public class CharacterUI : MonoBehaviour
     }
     public void RefreshUI()
     {
+    }
+
+    public void UpdateSpecialAbilityBar(int currentAbilityAmount, int maxAbilityAmount)
+    {
+        specialAbilityHider.fillAmount = (float)(maxAbilityAmount - currentAbilityAmount) / maxAbilityAmount;
+    }
+
+    public void UpdateBombUI(int bombPoints)
+    {
+        if (bombPoints < 50)
+        {
+            bombSprite.sprite = Resources.Load<Sprite>("Skull");
+        }
+        
+        if (bombPoints >= 50 && bombPoints <= 150)
+        {
+            bombSprite.sprite = Resources.Load<Sprite>("landmine");
+        }
+        
+        if (bombPoints >150 && bombPoints <= 300)
+        {
+            bombSprite.sprite = Resources.Load<Sprite>("round");
+        }
+        
+        if (bombPoints > 300)
+        {
+            bombSprite.sprite = Resources.Load<Sprite>("atomic");
+        }
     }
 
     public void DamageFlash()

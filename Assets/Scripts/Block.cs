@@ -33,6 +33,8 @@ public class Block : MonoBehaviour
     public int pointValue;
     [SerializeField] protected SpriteRenderer _blockIcon;
     private Renderer _renderer;
+    protected BoardManager.Coordinates _coordinates;
+    public bool isMovable;
 
     private void Start()
     {
@@ -40,7 +42,7 @@ public class Block : MonoBehaviour
         if (blockType != Type.Bomb) _blockIcon = GetComponent<SpriteRenderer>();
         _renderer = GetComponent<Renderer>();
         Sprite loadedIcon = Resources.Load<Sprite>(blockType.ToString());
-        if (_blockIcon) _blockIcon.sprite = loadedIcon ? loadedIcon : Resources.Load<Sprite>("default");
+        if (_blockIcon && blockType != Type.Bomb) _blockIcon.sprite = loadedIcon ? loadedIcon : Resources.Load<Sprite>("default");
     }
 
     public void Match()
@@ -94,6 +96,11 @@ public class Block : MonoBehaviour
         {
             
         }
+    }
+
+    public void SetCoordinates(BoardManager.Coordinates coordinates)
+    {
+        _coordinates = coordinates;
     }
     
 }

@@ -91,3 +91,4 @@ MonoBehaviour:
   blockType: 6
   pointValue: 1
   _blockIcon: {fileID: 0}
+  isMovable: 1

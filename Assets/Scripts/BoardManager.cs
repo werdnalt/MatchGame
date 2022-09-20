@@ -17,7 +17,7 @@ public class BoardManager : MonoBehaviour
     public int numRows;
     public int numColumns;
 
-    public GameObject BoardGameObject;
+    public GameObject boardGameObject;
     
     // A list of all possible blocks that can be spawned on the board
     public List<GameObject> blockGameObjects = new List<GameObject>();
@@ -107,7 +107,6 @@ public class BoardManager : MonoBehaviour
         float startYPos = transform.position.y + offset;
 
         blockSize = .9f;
-        Debug.Log(blockSize);
         //blockSize = 90;
         
         // populate array with spawn positions
@@ -260,7 +259,7 @@ public class BoardManager : MonoBehaviour
         }
         GameObject blockToReplace = _board[block.x, block.y];
         _board[block.x, block.y] = newBlock;
-        newBlock.transform.SetParent(BoardGameObject.transform);
+        newBlock.transform.SetParent(boardGameObject.transform);
         newBlock.transform.position = blockToReplace.transform.position;
         Destroy(blockToReplace);
     }
@@ -271,8 +270,10 @@ public class BoardManager : MonoBehaviour
         GameObject leftBlock = _board[leftBlockCoords.x, leftBlockCoords.y];
         GameObject rightBlock = _board[rightBlockCoords.x, rightBlockCoords.y];
         
-        _board[leftBlockCoords.x, leftBlockCoords.y] = Instantiate(newBlockPrefab, BoardGameObject.transform);
-        _board[rightBlockCoords.x, rightBlockCoords.y] = Instantiate(newBlockPrefab, BoardGameObject.transform);
+        _board[leftBlockCoords.x, leftBlockCoords.y] = Instantiate(newBlockPrefab, boardGameObject.transform);
+        _board[leftBlockCoords.x, leftBlockCoords.y].GetComponent<Block>().SetCoordinates(leftBlockCoords);
+        _board[rightBlockCoords.x, rightBlockCoords.y] = Instantiate(newBlockPrefab, boardGameObject.transform);
+        _board[rightBlockCoords.x, rightBlockCoords.y].GetComponent<Block>().SetCoordinates(rightBlockCoords);
 
         _board[leftBlockCoords.x, leftBlockCoords.y].transform.position = leftBlock.transform.position;
         Destroy(leftBlock);
@@ -288,7 +289,7 @@ public class BoardManager : MonoBehaviour
         GameObject block = _board[blockCoords.x, blockCoords.y];
 
         _board[blockCoords.x, blockCoords.y] = newBlock;
-        newBlock.transform.SetParent(BoardGameObject.transform);
+        newBlock.transform.SetParent(boardGameObject.transform);
 
         _board[blockCoords.x, blockCoords.y].transform.position = block.transform.position;
         Destroy(block);
@@ -415,12 +416,12 @@ public class BoardManager : MonoBehaviour
         if (block) block.transform.position = endingPos;
     }
 
-    private void HandleMatch(List<Coordinates> blocksInRun)
+    private void HandleMatch(List<Coordinates> blocksInRun, int playerIndex)
     {
         MatchHandler.Instance.ShowMatchDisplayerUI();
         isRefilling = true;
         Block type = _board[blocksInRun[0].x, blocksInRun[0].y].GetComponent<Block>();
-        HandleCombo(AccumulatePoints(type, blocksInRun.Count));
+        HandleCombo(AccumulatePoints(type, blocksInRun.Count), playerIndex);
         MatchHandler.Instance.QueueEffect(type, blocksInRun.Count);
 
         foreach (Coordinates coords in blocksInRun)
@@ -429,12 +430,7 @@ public class BoardManager : MonoBehaviour
             _board[coords.x, coords.y] = null;
         }
     }
-
-    public void DestroyAndReplaceBlocks()
-    {
-        
-    }
-
+    
     private IEnumerator MatchFound(List<Coordinates> blocksInRun, int playerIndex)
     {
         canMove = false;
@@ -444,7 +440,7 @@ public class BoardManager : MonoBehaviour
             GameObject blockGO = GetBlockGameObject(block);
             blockGO.GetComponent<Block>().Match();
         }
-        HandleMatch(blocksInRun);
+        HandleMatch(blocksInRun, playerIndex);
         yield return new WaitForSeconds(1.5f);
         RefillBoard(blocksInRun);
         if (!CheckMatch(playerIndex)) 
@@ -456,7 +452,8 @@ public class BoardManager : MonoBehaviour
 
     private int AccumulatePoints(Block block, int runSize)
     {
-        int pointvalue = block.pointValue;
+        // int pointvalue = block.pointValue;
+        int pointvalue = 10;
 
         switch (runSize)
         {
@@ -467,15 +464,14 @@ public class BoardManager : MonoBehaviour
                 return (pointvalue * pointvalue);
 
             case 5:
-                return (pointvalue * pointvalue * pointvalue);
+                return (int)(pointvalue * (pointvalue * 1.5));
 
             default: 
                 return 0;
         }
-
     }
 
-    private void HandleCombo(int points)
+    private void HandleCombo(int points, int playerIndex)
     {
         if (combo == 1)
         {
@@ -505,7 +501,8 @@ public class BoardManager : MonoBehaviour
             //AudioManager.Instance.Play("tada");
         }
 
-        accumulatedScores.Add(points);
+        GameManager.Instance.AwardAttackPoints(playerIndex, accumulatedPoints);
+        GameManager.Instance.AwardPlayerPoints(playerIndex, accumulatedPoints);
     }
 
     private void ResolveCombo(int playerIndex)
@@ -513,7 +510,7 @@ public class BoardManager : MonoBehaviour
         //Player.Instance.UpdateScore(accumulatedPoints);
         accumulatedPoints = 0;
         accumulatedScores.Clear();
-        GameManager.Instance.GetPlayerByIndex(playerIndex).characterBehaviour.GainSpecialAbilityCharge(combo);
+        GameManager.Instance.AwardSpecialAbilityPoints(playerIndex, combo);
         combo = 0;
         
         // TODO: Hide Display Card
@@ -549,7 +546,7 @@ public class BoardManager : MonoBehaviour
         _selectorPositions.Add(playerIndex, coords);
     }
 
-    public Player GetPlayerFromPosition(Coordinates coordinates)
+    public Player GetPlayerFromPosition(Coordinates affectedCoordinates)
     {
         Player p = null;
         foreach (var player in GameManager.Instance.playersInGame)
@@ -560,7 +557,7 @@ public class BoardManager : MonoBehaviour
                 List<Coordinates> occupiedCoordinates = _selectorPositions[playerIndex];
                 foreach (var coords in occupiedCoordinates)
                     {
-                        if (coords.Equals(coordinates))
+                        if (coords.Equals(affectedCoordinates))
                         {
                             p = player;
                         }

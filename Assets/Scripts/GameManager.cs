@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour
     public List<Player> playersInGame = new List<Player>();
     private List<Player> _alivePlayers = new List<Player>();
     public Scene currentScene;
+    public bool canMove;
+    public List<GameObject> readyObjects;
+    public GameObject gameOver;
     
     void Start()
     {
@@ -20,6 +23,7 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
         SceneManager.activeSceneChanged += OnSceneChanged;
         currentScene = SceneManager.GetActiveScene();
+        canMove = false;
     }
     
     public void OnPlayerJoined(PlayerInput playerInput)
@@ -64,6 +68,8 @@ public class GameManager : MonoBehaviour
                     _playersByIndex[i].GetComponent<PlayerInput>().SwitchCurrentActionMap("Player");
                 }
             }
+
+            StartCoroutine(StartGame());
         }
     }
     
@@ -78,7 +84,8 @@ public class GameManager : MonoBehaviour
     public void PlayerDied(Player player)
     {
         _alivePlayers.Remove(player);
-        if (_alivePlayers.Count <= 1) Debug.Log("GAME OVER");
+        if (_alivePlayers.Count <= 1) Debug.Log("GAME OVER, PLAYER " + player.GetComponent<PlayerInput>().playerIndex + 1 +" WINS!");
+        gameOver.SetActive(true);
     }
 
     public void DamagePlayer(int playerindex, int amount)
@@ -101,5 +108,19 @@ public class GameManager : MonoBehaviour
         GetPlayerByIndex(playerIndex).EarnPoints(amount);
     }
 
-    
+    private IEnumerator StartGame()
+    {
+        int currentlyDisplaying = 0;
+        yield return new WaitForSeconds(2);
+
+        for (int i = 0; i <= readyObjects.Count; i++)
+        {
+            if (currentlyDisplaying < readyObjects.Count) readyObjects[currentlyDisplaying].SetActive(true);
+            if (currentlyDisplaying - 1 >= 0) readyObjects[currentlyDisplaying - 1].SetActive(false);
+            currentlyDisplaying++;
+            yield return new WaitForSeconds(1);
+        }
+
+        canMove = true;
+    }
 }

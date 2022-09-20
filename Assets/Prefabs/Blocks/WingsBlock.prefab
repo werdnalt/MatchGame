@@ -117,6 +117,7 @@ MonoBehaviour:
   blockType: 16
   pointValue: 0
   _blockIcon: {fileID: 0}
+  isMovable: 1
 --- !u!1 &8400365933749359228
 GameObject:
   m_ObjectHideFlags: 0

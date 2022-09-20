@@ -23,7 +23,7 @@ public class RandomEventManager : MonoBehaviour
     private void Start()
     {
         _timeOfLastEvent = Time.time;
-        _timeBetweenEvents = PlayerPrefs.HasKey("EventTime") ? PlayerPrefs.GetInt("EventTime") : 60;
+        _timeBetweenEvents = PlayerPrefs.HasKey("EventTime") ? PlayerPrefs.GetInt("EventTime") : 10000;
         
         _eventTypes.Add(EventType.Wings);
         _eventTypes.Add(EventType.Bombs);
