@@ -215,23 +215,6 @@ public class BoardManager : MonoBehaviour
     {
         int randomNum = Random.Range(0, blockGameObjects.Count);
         GameObject blockToReturn = blockGameObjects[randomNum];
-
-        if (except)
-        {
-            if (blockToReturn.GetComponent<Block>().blockType == except.blockType)
-            {
-                return GetRandomBlock(except, or);
-            }
-        }
-
-        if (or)
-        {
-            if (blockToReturn.GetComponent<Block>().blockType == or.blockType)
-            {
-                return GetRandomBlock(except, or);
-            }
-        }
-
         return blockToReturn;
     }
 
@@ -241,9 +224,7 @@ public class BoardManager : MonoBehaviour
         GameObject leftBlock = _board[leftBlockCoords.x, leftBlockCoords.y];
         GameObject rightBlock = _board[rightBlockCoords.x, rightBlockCoords.y];
 
-        if (leftBlock.GetComponent<Block>().blockType != Block.Type.Invincible && 
-            rightBlock.GetComponent<Block>().blockType != Block.Type.Invincible)
-            {
+       
                AudioManager.Instance.PlayWithRandomPitch("whoosh");
                
                 // Swap the blocks data
@@ -256,9 +237,7 @@ public class BoardManager : MonoBehaviour
 
                 // Swap the gameobjects' positions
                 StartCoroutine(LerpBlocks(leftBlock, rightBlock));
-            } else {
-                //AudioManager.Instance.Play("error");
-            }
+            
         ApplyGravity();
     }
 
@@ -426,10 +405,7 @@ public class BoardManager : MonoBehaviour
             for (int row = 0; row < numRows; row++)
             {
                 Block b = GetBlock(new Coordinates(row, column));
-                if (b.blockType != Block.Type.Empty)
-                {
-                    collapsedBlocks.Add(b);
-                }
+                
             }
 
             for (int newRow = 0; newRow < numRows; newRow++)
@@ -470,7 +446,6 @@ public class BoardManager : MonoBehaviour
         isRefilling = true;
         Block type = _board[blocksInRun[0].x, blocksInRun[0].y].GetComponent<Block>();
         HandleCombo(AccumulatePoints(type, blocksInRun.Count), playerIndex);
-        MatchHandler.Instance.QueueEffect(type, blocksInRun.Count);
 
         foreach (Coordinates coords in blocksInRun)
         {
@@ -548,9 +523,6 @@ public class BoardManager : MonoBehaviour
             accumulatedPoints += points * 4;
             //AudioManager.Instance.Play("tada");
         }
-
-        GameManager.Instance.AwardAttackPoints(playerIndex, accumulatedPoints);
-        GameManager.Instance.AwardPlayerPoints(playerIndex, accumulatedPoints);
     }
 
     private void ResolveCombo(int playerIndex)
@@ -558,7 +530,6 @@ public class BoardManager : MonoBehaviour
         //Player.Instance.UpdateScore(accumulatedPoints);
         accumulatedPoints = 0;
         accumulatedScores.Clear();
-        GameManager.Instance.AwardSpecialAbilityPoints(playerIndex, combo);
         combo = 0;
         
         // TODO: Hide Display Card
@@ -568,7 +539,11 @@ public class BoardManager : MonoBehaviour
 
     private GameObject GetBlockGameObject(Coordinates blockCoords)
     {
-        return _board[blockCoords.x, blockCoords.y];
+        if (blockCoords.x < numColumns && blockCoords.y < numRows)
+        {
+            return _board[blockCoords.x, blockCoords.y];
+        }
+        else return null;
     }
 
     // Pass in the coordinates of the two blocks the selector is highlighting.
@@ -661,26 +636,6 @@ public class BoardManager : MonoBehaviour
         return GetBlockGameObject(coordinates).GetComponent<Block>();
     }
 
-    public void CheckBlock(Coordinates coordinates, int playerIndex)
-    {
-        Block block = GetBlockGameObject(coordinates).GetComponent<Block>();
-        
-        if (block.blockType == Block.Type.Bomb)
-        {
-            Bomb bomb = block.GetComponent<Bomb>();
-            if (bomb.belongsToPlayerIndex != playerIndex)
-            {
-                GameManager.Instance.GetPlayerByIndex(playerIndex).TakeDamage(1);
-                AnimateAndReplaceBlock(coordinates, block);
-            }
-        }
-
-        if (block.blockType == Block.Type.Sticky)
-        {
-            
-        }
-    }
-    
     public void SpawnSmoke(Coordinates coordinates)
     {
         GameObject smoke = Instantiate(smokePrefab);
@@ -722,21 +677,7 @@ public class BoardManager : MonoBehaviour
         yield return new WaitForSeconds(.7f);
         Destroy(smoke);
     }
-
-    private void AnimateAndReplaceBlock(Coordinates coordinates, Block block)
-    {
-        float timeBeforeNewBlock = .6f;
-        switch (block.blockType)
-        {
-            case Block.Type.Bomb:
-                SpawnSmoke(coordinates);
-                block.LongFlash();
-                break;
-        }
-
-        StartCoroutine(ReplaceBlock(coordinates, block, timeBeforeNewBlock));
-    }
-
+    
     private IEnumerator ReplaceBlock(Coordinates coordinates, Block block, float time)
     {
         yield return new WaitForSeconds(time);

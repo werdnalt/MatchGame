@@ -26,55 +26,7 @@ public class Bomb : Block
         Atomic
     }
 
-    public void Explode()
-    {
-        switch (bombType)
-        {
-            case BombType.Round:
-                List<BoardManager.Coordinates> neighboringCoords =
-                    BoardManager.Instance.GetNeighboringCoordinates(_coordinates, BoardManager.BlockLayout.Surrounding);
-                foreach (var coords in neighboringCoords)
-                {
-                    if (!coords.Equals(_coordinates))
-                    {
-                        // play animation
-                        BoardManager.Instance.SpawnSmoke(coords, belongsToPlayerIndex);
-                        
-                        // deal damage if player is there
-                        Player p = BoardManager.Instance.GetPlayerFromPosition(coords);
-                        if (p)
-                        {
-                            p.TakeDamage(1);
-                        }
-                    }
-                }
-                break;
-            
-            case BombType.Atomic:
-                List<BoardManager.Coordinates> crossingCoords =
-                    BoardManager.Instance.GetNeighboringCoordinates(_coordinates, BoardManager.BlockLayout.Crossing);
-                foreach (var coords in crossingCoords)
-                {
-                    if (!coords.Equals(_coordinates))
-                    {
-                        // play animation
-                        BoardManager.Instance.SpawnSmoke(coords, belongsToPlayerIndex);
-                        
-                        // deal damage if player is there
-                        Player p = BoardManager.Instance.GetPlayerFromPosition(coords);
-                        if (p)
-                        {
-                            p.TakeDamage(1);
-                        }
-                    }
-                }
-                break;
-        }
-        
-        BoardManager.Instance.ReplaceWithRandomBlock(_coordinates);
-        Destroy(gameObject);
-    }
-
+    
     private void Update()
     {
         endTime = timeSpawned + bombLifetime;
@@ -88,7 +40,6 @@ public class Bomb : Block
         if (timeLeft <= 0)
         {
             timeLeft = 1000;
-            Explode();
         }
     }
 

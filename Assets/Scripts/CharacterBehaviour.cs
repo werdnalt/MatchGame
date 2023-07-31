@@ -58,10 +58,6 @@ public class CharacterBehaviour : MonoBehaviour
         _isShielded = false;
         _isAlive = true;
         _selector = GetComponent<Selector>();
-        _characterUI.RefreshUI();
-
-        _numSpecialAbilityRequired = 5;
-        _characterUI.UpdateBombUI(0);
     }
 
     void OnSpecialAbility(InputValue inputValue)

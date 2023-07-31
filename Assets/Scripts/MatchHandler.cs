@@ -37,42 +37,6 @@ public class MatchHandler : MonoBehaviour
         if (Instance == null) Instance = this;
     }
 
-    public void QueueEffect(Block block, int runLength)
-    {
-        string effectText = "No effect text set";
-        switch (block.blockType)
-        {
-            case Block.Type.Sword:
-                switch (runLength)
-            {
-                case 3:
-                    effectText = "Deal 1 damage";
-                    QueueMatchEffect(MatchEffect.Damage1);
-                    break;
-                case 4:
-                    effectText = "Deal 1 damage";
-                    QueueMatchEffect(MatchEffect.Damage2);
-                    break;
-                case 5:
-                    effectText = "Deal 1 damage";
-                    QueueMatchEffect(MatchEffect.Damage3);
-                    break;
-            }
-                break;
-
-            case Block.Type.Enemy_Effect:
-                EnemyEffect(runLength);
-                break;    
-            
-            case Block.Type.Shield:
-                break;
-            
-            case Block.Type.Potion:
-                break;
-        }
-        AddMatchDisplayerObject(Resources.Load<Sprite>(block.blockType.ToString()), effectText);
-    }
-
     private void Sword(int runLength)
     {
 

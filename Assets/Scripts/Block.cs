@@ -6,34 +6,11 @@ using UnityEngine.UI;
 
 public class Block : MonoBehaviour
 {
-    public enum Type
-    {
-        Sword,
-        Bow,
-        Shield,
-        Fireball,
-        Star,
-        Potion,
-        Leaf, 
-        Coin,
-        Invincible,
-        Enemy_Effect,
-        Skull,
-        Sticky,
-        Bomb,
-        Wall,
-        Boulder,
-        Rubble,
-        Wings,
-        Timer,
-        Empty
-    }
+    public Unit unit;
 
     protected float timeSpawned;
     public Type blockType;
-    public int pointValue;
     [SerializeField] protected SpriteRenderer _blockIcon;
-    private Renderer _renderer;
     protected BoardManager.Coordinates _coordinates;
     public float movementSpeed = 1;
 
@@ -44,15 +21,13 @@ public class Block : MonoBehaviour
     private void Start()
     {
         timeSpawned = Time.time;
-        if (blockType != Type.Bomb) _blockIcon = GetComponent<SpriteRenderer>();
-        _renderer = GetComponent<Renderer>();
-        Sprite loadedIcon = Resources.Load<Sprite>(blockType.ToString());
-        if (_blockIcon && blockType != Type.Bomb) _blockIcon.sprite = loadedIcon ? loadedIcon : Resources.Load<Sprite>("default");
+        
+        //if (unit.unitSprite) _blockIcon.sprite = unit.unitSprite;
     }
 
     private void Update()
     {
-        if (targetPosition != null && transform.position != targetPosition)
+        if (transform.position != targetPosition)
         {
             Vector3.MoveTowards(transform.position, targetPosition, movementSpeed * Time.deltaTime);
 
@@ -67,15 +42,7 @@ public class Block : MonoBehaviour
     {
         StartCoroutine(Flash());
     }
-
-    private IEnumerator Matched()
-    {
-        //_renderer.material.SetFloat("_HitEffectBlend", 0);
-        StartCoroutine(Flash());
-        yield return new WaitForSeconds(1f);
-        
-    }
-
+    
     private IEnumerator Flash()
     {
         int numFlashes = 5;
@@ -102,23 +69,9 @@ public class Block : MonoBehaviour
         yield return new WaitForSeconds(flashDuration);
         _blockIcon.material.SetFloat("_HitEffectBlend", 0);
     }
-
-    public void OnSelectorHover()
-    {
-        if (blockType == Type.Bomb)
-        {
-            Debug.Log("KABOOM");
-        }
-
-        if (blockType == Type.Sticky)
-        {
-            
-        }
-    }
-
+    
     public void SetCoordinates(BoardManager.Coordinates coordinates)
     {
         _coordinates = coordinates;
     }
-    
 }
