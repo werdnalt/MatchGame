@@ -98,8 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d6f18f1f99c847438efc93a55f491dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blockType: 1
-  pointValue: 5
+  unit: {fileID: 11400000, guid: 8f46b050b7f008341b5e4fd84e02fdfc, type: 2}
   _blockIcon: {fileID: 4001739480162334750}
   isMovable: 1
 --- !u!61 &3578315487723831207

@@ -11,7 +11,7 @@ public class Block : MonoBehaviour
     protected float timeSpawned;
     public Type blockType;
     [SerializeField] protected SpriteRenderer _blockIcon;
-    protected BoardManager.Coordinates _coordinates;
+    public BoardManager.Coordinates coordinates;
 
     // The location that the block is being asked to move to
     public Vector3? targetPosition;
@@ -67,10 +67,5 @@ public class Block : MonoBehaviour
         _blockIcon.material.SetFloat("_HitEffectBlend", 1);
         yield return new WaitForSeconds(flashDuration);
         _blockIcon.material.SetFloat("_HitEffectBlend", 0);
-    }
-    
-    public void SetCoordinates(BoardManager.Coordinates coordinates)
-    {
-        _coordinates = coordinates;
     }
 }

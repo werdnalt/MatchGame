@@ -264,9 +264,9 @@ public class BoardManager : MonoBehaviour
         GameObject rightBlock = _board[rightBlockCoords.x, rightBlockCoords.y];
         
         _board[leftBlockCoords.x, leftBlockCoords.y] = Instantiate(newBlockPrefab, boardGameObject.transform);
-        _board[leftBlockCoords.x, leftBlockCoords.y].GetComponent<Block>().SetCoordinates(leftBlockCoords);
+        _board[leftBlockCoords.x, leftBlockCoords.y].GetComponent<Block>().coordinates = leftBlockCoords;
         _board[rightBlockCoords.x, rightBlockCoords.y] = Instantiate(newBlockPrefab, boardGameObject.transform);
-        _board[rightBlockCoords.x, rightBlockCoords.y].GetComponent<Block>().SetCoordinates(rightBlockCoords);
+        _board[rightBlockCoords.x, rightBlockCoords.y].GetComponent<Block>().coordinates = rightBlockCoords;
 
         _board[leftBlockCoords.x, leftBlockCoords.y].transform.position = leftBlock.transform.position;
         Destroy(leftBlock);
@@ -443,9 +443,18 @@ public class BoardManager : MonoBehaviour
 
     private List<Block> Chain(Block origin)
     {
-        return new List<Block>();
+        return GetNeighboringCoordinates(origin.coordinates).Select((coordinate) =>
+        {
+            return _board[coordinate.x, coordinate.y].GetComponent<Block>();
+        }).Where((block) =>
+        {
+            return block.unit == origin.unit;
+        }).SelectMany((matchingBlock) =>
+        {
+            return Chain(matchingBlock);
+        }).ToList();
     }
-
+    
     private void HandleMatch(List<Coordinates> blocksInRun, int playerIndex)
     {
         MatchHandler.Instance.ShowMatchDisplayerUI();
@@ -694,52 +703,35 @@ public class BoardManager : MonoBehaviour
         Destroy(block.gameObject);
     }
 
-    public List<Coordinates> GetNeighboringCoordinates(Coordinates coordinates, BlockLayout blockLayout)
+    public List<Coordinates> GetNeighboringCoordinates(Coordinates coordinates)
     {
         List<Coordinates> neighbors = new List<Coordinates>();
         int x = coordinates.x;
         int y = coordinates.y;
-        if (blockLayout == BlockLayout.Surrounding)
-        {
-            // west
-            if (x - 1 >= 0) neighbors.Add(new Coordinates(x - 1, y));
 
-            // northwest
-            if (x - 1 >= 0 && y + 1 < numRows) neighbors.Add(new Coordinates(x - 1, y + 1));
+        // west
+        if (x - 1 >= 0) neighbors.Add(new Coordinates(x - 1, y));
 
-            // north
-            if (y + 1 < numRows) neighbors.Add(new Coordinates(x, y + 1));
+        // northwest
+        if (x - 1 >= 0 && y + 1 < numRows) neighbors.Add(new Coordinates(x - 1, y + 1));
 
-            // northeast
-            if (x + 1 < numColumns && y + 1 < numRows) neighbors.Add(new Coordinates(x + 1, y + 1));
+        // north
+        if (y + 1 < numRows) neighbors.Add(new Coordinates(x, y + 1));
 
-            // east
-            if (x + 1 < numColumns) neighbors.Add(new Coordinates(x + 1, y));
+        // northeast
+        if (x + 1 < numColumns && y + 1 < numRows) neighbors.Add(new Coordinates(x + 1, y + 1));
 
-            // southeast 
-            if (x + 1 < numColumns && y - 1 >= 0) neighbors.Add(new Coordinates(x + 1, y - 1));
+        // east
+        if (x + 1 < numColumns) neighbors.Add(new Coordinates(x + 1, y));
+
+        // southeast 
+        if (x + 1 < numColumns && y - 1 >= 0) neighbors.Add(new Coordinates(x + 1, y - 1));
             
-            // south
-            if (y - 1 >= 0) neighbors.Add(new Coordinates(x, y - 1));
+        // south
+        if (y - 1 >= 0) neighbors.Add(new Coordinates(x, y - 1));
             
-            // southwest
-            if (x - 1 >= 0 && y - 1 >= 0) neighbors.Add(new Coordinates(x - 1, y - 1));
-        }
-
-        else
-        {
-            for (int row = 0; row < numRows; row++)
-            {
-                Coordinates toAdd = new Coordinates(x, row);
-                neighbors.Add(toAdd);
-            }
-            
-            for (int column = 0; column < numRows; column++)
-            {
-                Coordinates toAdd = new Coordinates(column, y);
-                neighbors.Add(toAdd);
-            }
-        }
+        // southwest
+        if (x - 1 >= 0 && y - 1 >= 0) neighbors.Add(new Coordinates(x - 1, y - 1));
 
         return neighbors;
     }

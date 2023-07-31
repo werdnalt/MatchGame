@@ -11,7 +11,7 @@ public class SpecialBlock : Block
     {
         if (Time.time - disappearAfterSeconds >= timeSpawned)
         {
-            BoardManager.Instance.ReplaceWithRandomBlock(_coordinates);
+            BoardManager.Instance.ReplaceWithRandomBlock(coordinates);
         }
     }
 }
