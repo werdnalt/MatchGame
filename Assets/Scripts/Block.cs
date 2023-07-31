@@ -25,7 +25,8 @@ public class Block : MonoBehaviour
         Boulder,
         Rubble,
         Wings,
-        Timer
+        Timer,
+        Empty
     }
 
     protected float timeSpawned;
@@ -34,6 +35,10 @@ public class Block : MonoBehaviour
     [SerializeField] protected SpriteRenderer _blockIcon;
     private Renderer _renderer;
     protected BoardManager.Coordinates _coordinates;
+    public float movementSpeed = 1;
+
+    // The location that the block is being asked to move to
+    public Vector3 targetPosition;
     public bool isMovable;
 
     private void Start()
@@ -43,6 +48,19 @@ public class Block : MonoBehaviour
         _renderer = GetComponent<Renderer>();
         Sprite loadedIcon = Resources.Load<Sprite>(blockType.ToString());
         if (_blockIcon && blockType != Type.Bomb) _blockIcon.sprite = loadedIcon ? loadedIcon : Resources.Load<Sprite>("default");
+    }
+
+    private void Update()
+    {
+        if (targetPosition != null && transform.position != targetPosition)
+        {
+            Vector3.MoveTowards(transform.position, targetPosition, movementSpeed * Time.deltaTime);
+
+            if (Vector3.Distance(transform.position, targetPosition) < 0.1)
+            {
+                transform.position = targetPosition;
+            }
+        }
     }
 
     public void Match()

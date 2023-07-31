@@ -2359,17 +2359,15 @@ MonoBehaviour:
   rubbleBlock: {fileID: 1956031276096587056, guid: d79d382a64fec0d498b81b2d67b38ca6, type: 3}
   bombPrefab: {fileID: 7533008557142195635, guid: c26141cafec09234c987cd108e0fc355, type: 3}
   deployObject: {fileID: 1177788296153230010, guid: 9dae60546d1a77847bd40d4dfb985fa8, type: 3}
-  numRows: 10
-  numColumns: 12
-  BoardGameObject: {fileID: 2034415744}
+  numRows: 8
+  numColumns: 4
+  boardGameObject: {fileID: 0}
   blockGameObjects:
   - {fileID: 1956031276096587056, guid: d122ef823e8f5f644aacc5aef0a8d405, type: 3}
   - {fileID: 1956031276096587056, guid: eb58c64e3e78a8a438a77ebe8e625989, type: 3}
   - {fileID: 8112465322397126674, guid: 82f6b876720c5f54aaa26a968502a00c, type: 3}
   - {fileID: 1956031276096587056, guid: ae31aa9d6b3297f49a25733d7225004e, type: 3}
-  - {fileID: 1956031276096587056, guid: 08bd45e203e3359458c10cc26aed9dca, type: 3}
-  - {fileID: 1956031276096587056, guid: 69782449915aefe439b67e32e0cabd1b, type: 3}
-  - {fileID: 1956031276096587056, guid: 4a1afafcb5999ea44a3114f515f43879, type: 3}
+  emptyBlock: {fileID: 584440006424721952, guid: a265415db77764546bd2031aadcd29e2, type: 3}
   isRefilling: 0
   accumulatedPointsText: {fileID: 0}
   canMove: 0

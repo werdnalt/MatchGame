@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using TMPro;
 using Random = UnityEngine.Random;
+using System.Linq;
 
 public class BoardManager : MonoBehaviour
 {
@@ -21,6 +22,9 @@ public class BoardManager : MonoBehaviour
     
     // A list of all possible blocks that can be spawned on the board
     public List<GameObject> blockGameObjects = new List<GameObject>();
+
+    // An empty block for filling blank space in the board
+    public GameObject emptyBlock;
     
     // A 2D array that contains all of the possible positions a block can be spawned
     public Vector2[,] BlockPositions;
@@ -119,10 +123,13 @@ public class BoardManager : MonoBehaviour
             }
         }
 
-        // instantiate blocks at corresponding spawn positions
-        for (int currentRow = 0; currentRow < numRows; currentRow++)
-        {
-            for (int currentColumn = 0; currentColumn < numColumns; currentColumn++)
+
+        for (int currentColumn = 0; currentColumn < numColumns; currentColumn++) {
+            // How many rows should be initialized with blocks?
+            int filledRows = UnityEngine.Random.Range(1, numRows);
+
+            // instantiate blocks at corresponding spawn positions
+            for (int currentRow = 0; currentRow < numRows; currentRow++)
             {
                 // get the x and y spawn coordinates 
                 float spawnX = BlockPositions[currentColumn, currentRow].x;
@@ -132,23 +139,32 @@ public class BoardManager : MonoBehaviour
                 Block bottomBlock = null;
 
                 // Don't spawn either of these blocks -- this will prevent starting with matches
-                if (currentColumn - 1 >= 0)
+                if (currentColumn - 1 >= 0 && _board[currentColumn - 1, currentRow])
                 {
                     leftBlock = _board[currentColumn - 1, currentRow].GetComponent<Block>();
                 }
 
-                if (currentRow - 1 >= 0)
+                if (currentRow - 1 >= 0 && _board[currentColumn, currentRow - 1])
                 {
                     bottomBlock = _board[currentColumn, currentRow - 1].GetComponent<Block>();
+
                 }
 
                 // create Vector3 coordinate at which to spawn the block
                 Vector3 spawnPos = new Vector3(spawnX, spawnY, 1);
 
-                GameObject toInstantiate = GetRandomBlock(except: leftBlock, or: bottomBlock);
+                if (currentRow < filledRows)
+                {
+                    GameObject toInstantiate = GetRandomBlock(except: leftBlock, or: bottomBlock);
 
-                GameObject block = Instantiate(toInstantiate, spawnPos, Quaternion.identity, this.transform);
-                _board[currentColumn, currentRow] = block;
+                    GameObject block = Instantiate(toInstantiate, spawnPos, Quaternion.identity, this.transform);
+                    _board[currentColumn, currentRow] = block;
+                }
+                else 
+                {
+                    // If we are past the filledRows, start inserting empty blocks instead
+                    _board[currentColumn, currentRow] = Instantiate(emptyBlock, spawnPos, Quaternion.identity, this.transform); 
+                }
             }
         }
         EventManager.Instance.BoardReady();
@@ -240,10 +256,10 @@ public class BoardManager : MonoBehaviour
 
                 // Swap the gameobjects' positions
                 StartCoroutine(LerpBlocks(leftBlock, rightBlock));
-                CheckMatch(playerIndex);
             } else {
                 //AudioManager.Instance.Play("error");
             }
+        ApplyGravity();
     }
 
     public void ReplaceBlock(Coordinates block, GameObject newBlockPrefab)
@@ -397,6 +413,38 @@ public class BoardManager : MonoBehaviour
                         StartCoroutine(MoveBlock(createdBlock, createdBlock.transform.position, moveTo, .2f));
                         // Vector2.Lerp(createdBlock.transform.position, Camera.main.ScreenToWorldPoint(spawnPositions[column, row]), Time.deltaTime);
                     }
+                }
+            }
+        }
+    }
+
+    private void ApplyGravity()
+    {
+        for (int column = 0; column < numColumns; column++)
+        {
+            List<Block> collapsedBlocks = new List<Block>();
+            for (int row = 0; row < numRows; row++)
+            {
+                Block b = GetBlock(new Coordinates(row, column));
+                if (b.blockType != Block.Type.Empty)
+                {
+                    collapsedBlocks.Add(b);
+                }
+            }
+
+            for (int newRow = 0; newRow < numRows; newRow++)
+            {
+                Vector3 newPosition = BlockPositions[column, newRow];
+                if (newRow < collapsedBlocks.Count)
+                {
+                    // Instruct all non-empty blocks to be compressed to the bottom of the board
+                    Block b = collapsedBlocks[newRow];
+                    b.targetPosition = newPosition;
+                    _board[column, newRow] = b.gameObject;
+                }
+                else
+                {
+                    _board[column, newRow] = Instantiate(emptyBlock, newPosition, Quaternion.identity, transform);
                 }
             }
         }

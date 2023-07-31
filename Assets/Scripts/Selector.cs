@@ -289,9 +289,6 @@ void OnRotateCounterClockwise(InputValue inputValue)
             pivotBlockCoordinates.y + yAdjustment);
         BoardManager.Coordinates newCoords2 = new BoardManager.Coordinates(rotatingBlockCoordinates.x + xAdjustment,
             rotatingBlockCoordinates.y + yAdjustment);
-
-        if (BoardManager.Instance.GetBlock(newCoords1).blockType == Block.Type.Wall) return;
-        if (BoardManager.Instance.GetBlock(newCoords2).blockType == Block.Type.Wall) return;
         
         //if NOT refilling, run this code
         if (!BoardManager.Instance.isRefilling )
@@ -300,8 +297,6 @@ void OnRotateCounterClockwise(InputValue inputValue)
             pivotBlockCoordinates = newCoords1;
             rotatingBlockCoordinates = newCoords2;
 
-            BoardManager.Instance.CheckBlock(pivotBlockCoordinates, _playerIndex);
-            BoardManager.Instance.CheckBlock(rotatingBlockCoordinates, _playerIndex);
             BoardManager.Instance.SetSelectorPosition(_playerIndex, newCoords1, newCoords2);
             
             SetSelectorPosition();
