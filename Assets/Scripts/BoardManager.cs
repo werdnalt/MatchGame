@@ -126,7 +126,7 @@ public class BoardManager : MonoBehaviour
 
         for (int currentColumn = 0; currentColumn < numColumns; currentColumn++) {
             // How many rows should be initialized with blocks?
-            int filledRows = UnityEngine.Random.Range(1, numRows);
+            int filledRows = UnityEngine.Random.Range(1, numRows + 1);
 
             // instantiate blocks at corresponding spawn positions
             for (int currentRow = 0; currentRow < numRows; currentRow++)
@@ -259,7 +259,6 @@ public class BoardManager : MonoBehaviour
             } else {
                 //AudioManager.Instance.Play("error");
             }
-        ApplyGravity();
     }
 
     public void ReplaceBlock(Coordinates block, GameObject newBlockPrefab)
@@ -425,7 +424,7 @@ public class BoardManager : MonoBehaviour
             List<Block> collapsedBlocks = new List<Block>();
             for (int row = 0; row < numRows; row++)
             {
-                Block b = GetBlock(new Coordinates(row, column));
+                Block b = GetBlock(new Coordinates(column, row));
                 if (b.blockType != Block.Type.Empty)
                 {
                     collapsedBlocks.Add(b);
@@ -640,6 +639,7 @@ public class BoardManager : MonoBehaviour
         block1.transform.position = targetPosition1;
         block2.transform.position = targetPosition2;
         yield return null;
+        ApplyGravity();
     }
     
     public bool IsSelectorColliding(BoardManager.Coordinates block1, BoardManager.Coordinates block2)

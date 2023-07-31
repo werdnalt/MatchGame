@@ -38,7 +38,7 @@ public class Block : MonoBehaviour
     public float movementSpeed = 1;
 
     // The location that the block is being asked to move to
-    public Vector3 targetPosition;
+    public Vector3? targetPosition;
     public bool isMovable;
 
     private void Start()
@@ -52,14 +52,17 @@ public class Block : MonoBehaviour
 
     private void Update()
     {
-        if (targetPosition != null && transform.position != targetPosition)
+        if (targetPosition.HasValue && transform.position != targetPosition)
         {
+            transform.position = targetPosition.Value;
+            /*
             Vector3.MoveTowards(transform.position, targetPosition, movementSpeed * Time.deltaTime);
 
             if (Vector3.Distance(transform.position, targetPosition) < 0.1)
             {
                 transform.position = targetPosition;
             }
+            */
         }
     }
 
