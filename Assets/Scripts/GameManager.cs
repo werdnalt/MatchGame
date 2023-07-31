@@ -88,25 +88,7 @@ public class GameManager : MonoBehaviour
         gameOver.SetActive(true);
     }
 
-    public void DamagePlayer(int playerindex, int amount)
-    {
-        GetPlayerByIndex(playerindex).TakeDamage(amount);
-    }
-
-    public void AwardAttackPoints(int playerIndex, int amount)
-    {
-        GetPlayerByIndex(playerIndex).EarnAttackPoints(amount);
-    }
-
-    public void AwardSpecialAbilityPoints(int playerIndex, int amount)
-    {
-        GetPlayerByIndex(playerIndex).EarnSpecialAbilityPoints(amount);
-    }
-
-    public void AwardPlayerPoints(int playerIndex, int amount)
-    {
-        GetPlayerByIndex(playerIndex).EarnPoints(amount);
-    }
+    
 
     private IEnumerator StartGame()
     {

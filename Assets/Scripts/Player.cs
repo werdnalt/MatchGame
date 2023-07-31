@@ -56,39 +56,4 @@ public class Player : MonoBehaviour
             }
         }
     }
-
-    void OnSelect()
-    {
-        characterSelector.SelectCharacter();
-    }
-
-    void OnDeselect()
-    {
-        characterSelector.DeselectCharacter();
-    }
-
-    public void TakeDamage(int damage)
-    {
-        characterBehaviour.ReceiveDamage(damage);
-    }
-
-    public void EarnAttackPoints(int amount)
-    {
-        characterBehaviour.GainAttack(amount);
-    }
-
-    public void EarnSpecialAbilityPoints(int amount)
-    {
-        characterBehaviour.GainSpecialAbilityCharge(amount);
-    }
-
-    public void EarnPoints(int amount)
-    {
-        characterBehaviour.GainPoints(amount);
-    }
-
-    public void AssignPlayerUI(CharacterUI ui)
-    {
-        characterBehaviour.SetCharacterUI(ui);
-    }
 }
