@@ -463,6 +463,11 @@ public class BoardManager : MonoBehaviour
         if (block) block.transform.position = endingPos;
     }
 
+    private List<Block> Chain(Block origin)
+    {
+        return new List<Block>();
+    }
+
     private void HandleMatch(List<Coordinates> blocksInRun, int playerIndex)
     {
         MatchHandler.Instance.ShowMatchDisplayerUI();
