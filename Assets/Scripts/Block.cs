@@ -35,7 +35,6 @@ public class Block : MonoBehaviour
     [SerializeField] protected SpriteRenderer _blockIcon;
     private Renderer _renderer;
     protected BoardManager.Coordinates _coordinates;
-    public float movementSpeed = 1;
 
     // The location that the block is being asked to move to
     public Vector3? targetPosition;
@@ -54,15 +53,12 @@ public class Block : MonoBehaviour
     {
         if (targetPosition.HasValue && transform.position != targetPosition)
         {
-            transform.position = targetPosition.Value;
-            /*
-            Vector3.MoveTowards(transform.position, targetPosition, movementSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition.Value, 10 * Time.deltaTime);
 
-            if (Vector3.Distance(transform.position, targetPosition) < 0.1)
+            if (Vector3.Distance(transform.position, targetPosition.Value) < 0.1)
             {
-                transform.position = targetPosition;
+               transform.position = targetPosition.Value;
             }
-            */
         }
     }
 
@@ -76,7 +72,6 @@ public class Block : MonoBehaviour
         //_renderer.material.SetFloat("_HitEffectBlend", 0);
         StartCoroutine(Flash());
         yield return new WaitForSeconds(1f);
-        
     }
 
     private IEnumerator Flash()
