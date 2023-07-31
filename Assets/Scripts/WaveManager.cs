@@ -3,9 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class WaveManager : MonoBehaviour
 {
+    public static WaveManager Instance;
+
+    public Wave startingWave;
     public List<Wave> waves;
 
     private float _startTime;
@@ -17,6 +21,11 @@ public class WaveManager : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI timeUntilWaveText;
     [SerializeField] private TextMeshProUGUI waveNumberText;
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+    }
 
     private void Start()
     {
@@ -69,5 +78,11 @@ public class WaveManager : MonoBehaviour
         timeUntilWaveText.text = string.Format("{0:D2}:{1:D2}", minutes, seconds);
 
         waveNumberText.text = _wavesCompleted.ToString();
+    }
+
+    public Unit GetUnitFromWave()
+    {
+        var currentWave = waves[_wavesCompleted];
+        return (currentWave.units[Random.Range(0, currentWave.units.Count)]);
     }
 }

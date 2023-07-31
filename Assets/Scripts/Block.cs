@@ -10,7 +10,7 @@ public class Block : MonoBehaviour
 
     protected float timeSpawned;
     public Type blockType;
-    [SerializeField] protected SpriteRenderer _blockIcon;
+    [SerializeField] protected Image _blockIcon;
     protected BoardManager.Coordinates _coordinates;
 
     // The location that the block is being asked to move to
@@ -72,5 +72,11 @@ public class Block : MonoBehaviour
     public void SetCoordinates(BoardManager.Coordinates coordinates)
     {
         _coordinates = coordinates;
+    }
+
+    public void Initialize(Unit u)
+    {
+        unit = u;
+        _blockIcon.sprite = u.unitSprite;
     }
 }

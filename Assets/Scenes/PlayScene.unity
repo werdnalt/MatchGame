@@ -724,6 +724,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdf592ca8d258c9468d3b3d497726e40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startingWave: {fileID: 0}
   waves:
   - {fileID: 11400000, guid: 170abff3b697a604a9a9e5e51a0aa1c7, type: 2}
   - {fileID: 11400000, guid: 0a1b56cac6b45e44ba098f0b2f4c2e1b, type: 2}
@@ -2717,12 +2718,13 @@ MonoBehaviour:
   numRows: 8
   numColumns: 4
   boardGameObject: {fileID: 0}
+  blockPrefab: {fileID: 5335042735140827574, guid: fb130bcd7f4efb946ac9c05c9c475661, type: 3}
   blockGameObjects:
   - {fileID: 1956031276096587056, guid: d122ef823e8f5f644aacc5aef0a8d405, type: 3}
   - {fileID: 1956031276096587056, guid: eb58c64e3e78a8a438a77ebe8e625989, type: 3}
   - {fileID: 8112465322397126674, guid: 82f6b876720c5f54aaa26a968502a00c, type: 3}
   - {fileID: 1956031276096587056, guid: ae31aa9d6b3297f49a25733d7225004e, type: 3}
-  emptyBlock: {fileID: 584440006424721952, guid: a265415db77764546bd2031aadcd29e2, type: 3}
+  emptyBlock: {fileID: 5335042735140827574, guid: fb130bcd7f4efb946ac9c05c9c475661, type: 3}
   isRefilling: 0
   accumulatedPointsText: {fileID: 0}
   canMove: 0

@@ -69,7 +69,7 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            StartCoroutine(StartGame());
+            canMove = true;
         }
     }
     

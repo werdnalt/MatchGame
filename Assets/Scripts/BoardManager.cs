@@ -19,6 +19,8 @@ public class BoardManager : MonoBehaviour
     public int numColumns;
 
     public GameObject boardGameObject;
+
+    public GameObject blockPrefab;
     
     // A list of all possible blocks that can be spawned on the board
     public List<GameObject> blockGameObjects = new List<GameObject>();
@@ -155,7 +157,7 @@ public class BoardManager : MonoBehaviour
 
                 if (currentRow < filledRows)
                 {
-                    GameObject toInstantiate = GetRandomBlock(except: leftBlock, or: bottomBlock);
+                    GameObject toInstantiate = GetBlock();
 
                     GameObject block = Instantiate(toInstantiate, spawnPos, Quaternion.identity, this.transform);
                     _board[currentColumn, currentRow] = block;
@@ -207,17 +209,10 @@ public class BoardManager : MonoBehaviour
             bottomBlock = _board[coordinates.x, coordinates.y - 1].GetComponent<Block>();
         }
 
-        GameObject newBlock = GetRandomBlock(leftBlock, bottomBlock);
+        GameObject newBlock = GetBlock();
         ReplaceBlock(coordinates, newBlock);
     }
-
-    private GameObject GetRandomBlock(Block except, Block or)
-    {
-        int randomNum = Random.Range(0, blockGameObjects.Count);
-        GameObject blockToReturn = blockGameObjects[randomNum];
-        return blockToReturn;
-    }
-
+    
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords, int playerIndex)
     {
         // Retrieve blocks from board based on their grid coordinates
@@ -351,50 +346,7 @@ public class BoardManager : MonoBehaviour
             }
         }
     }
-
-    private void RefillBoard(List<Coordinates> toRefill)
-    {
-        isRefilling = true;
-        foreach (Coordinates coords in toRefill)
-        {   
-            int column = coords.x;
-            // for each cell going up the grid
-            for (int row = coords.y; row < numRows; row++)
-            {
-                // if the cell is empty
-                if (_board[column, row] == null)
-                {
-                    bool replacementNeeded = true;
-                    Coordinates refilling = new Coordinates(column, row);
-                    Vector3 moveTo = (new Vector3(BlockPositions[column, row].x, BlockPositions[column, row].y, 1)); 
-                    // iterate through the cells above it to find the next non-empty cell
-                    for (int searchRow = row + 1; searchRow < numRows; searchRow++)
-                    {
-                        // if you find a cell that isn't empty, replace the empty cell with its block
-                        if (_board[column, searchRow] != null && replacementNeeded)
-                        {
-                            GameObject block = _board[column, searchRow];
-                            _board[column, searchRow] = null;
-                            _board[refilling.x, refilling.y] = block;
-                            //block.transform.position = moveTo;
-                            StartCoroutine(MoveBlock(block, block.transform.position, moveTo, .2f));
-                            //Vector2.Lerp(block.transform.position, moveTo, .5f);
-                            replacementNeeded = false;
-                        }
-                    }
-                    if (replacementNeeded)
-                    {
-                        GameObject createdBlock = Instantiate(GetRandomBlock(null, null), (BlockPositions[column, numRows - 1]), Quaternion.identity, this.transform);
-                        _board[refilling.x, refilling.y] = createdBlock;
-                        createdBlock.transform.position = moveTo;
-                        StartCoroutine(MoveBlock(createdBlock, createdBlock.transform.position, moveTo, .2f));
-                        // Vector2.Lerp(createdBlock.transform.position, Camera.main.ScreenToWorldPoint(spawnPositions[column, row]), Time.deltaTime);
-                    }
-                }
-            }
-        }
-    }
-
+    
     private void ApplyGravity()
     {
         for (int column = 0; column < numColumns; column++)
@@ -471,7 +423,7 @@ public class BoardManager : MonoBehaviour
         }
         HandleMatch(blocksInRun, playerIndex);
         yield return new WaitForSeconds(1.5f);
-        RefillBoard(blocksInRun);
+        //RefillBoard(blocksInRun);
         if (!CheckMatch(playerIndex)) 
         {
             isRefilling = false;
@@ -755,5 +707,12 @@ public class BoardManager : MonoBehaviour
         spawnedAnimation.transform.position = _board[coordinates.x, coordinates.y].transform.position;
         yield return new WaitForSeconds(.6f);
         Destroy(spawnedAnimation);
+    }
+
+    public GameObject GetBlock()
+    {
+        var blockInstance = Instantiate(blockPrefab);
+        blockInstance.GetComponent<Block>().Initialize(WaveManager.Instance.GetUnitFromWave());
+        return blockInstance;
     }
 }
