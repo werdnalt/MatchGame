@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,18 +11,26 @@ public class Block : MonoBehaviour
 
     protected float timeSpawned;
     public Type blockType;
-    [SerializeField] protected SpriteRenderer _blockIcon;
+    private SpriteRenderer _blockIcon;
     public BoardManager.Coordinates coordinates;
 
     // The location that the block is being asked to move to
     public Vector3? targetPosition;
     public bool isMovable;
 
+    private int _currentHp;
+
+    [SerializeField] private GameObject healthUI;
+    [SerializeField] private TextMeshProUGUI healthAmountText;
+
+    private void Awake()
+    {
+        _blockIcon = GetComponent<SpriteRenderer>();
+    }
+
     private void Start()
     {
         timeSpawned = Time.time;
-        
-        //if (unit.unitSprite) _blockIcon.sprite = unit.unitSprite;
     }
 
     private void Update()
@@ -67,5 +76,38 @@ public class Block : MonoBehaviour
         _blockIcon.material.SetFloat("_HitEffectBlend", 1);
         yield return new WaitForSeconds(flashDuration);
         _blockIcon.material.SetFloat("_HitEffectBlend", 0);
+    }
+
+    public void Initialize(Unit u)
+    {
+        unit = u;
+        _blockIcon.sprite = u.unitSprite;
+        _currentHp = u.hp;
+    }
+
+    public void TakeDamage(int amount)
+    {
+        if (amount >= _currentHp)
+        {
+            Die();
+        }
+
+        else
+        {
+            _currentHp -= amount;
+        }
+
+        UpdateHealthUI();
+    }
+
+    private void UpdateHealthUI()
+    {
+        healthUI.SetActive(true);
+        healthAmountText.text = _currentHp.ToString();
+    }
+
+    private void Die()
+    {
+        // remove block
     }
 }

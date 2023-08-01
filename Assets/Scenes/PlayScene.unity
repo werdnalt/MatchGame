@@ -353,6 +353,7 @@ Transform:
   - {fileID: 1116316305}
   - {fileID: 1831635314}
   - {fileID: 468968082}
+  - {fileID: 467734251}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -681,6 +682,49 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &467734250
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 467734251}
+  - component: {fileID: 467734252}
+  m_Layer: 0
+  m_Name: Event Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &467734251
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467734250}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 407704877}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &467734252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467734250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd0d70722f5c83340829ebcd45352643, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &468968081
 GameObject:
   m_ObjectHideFlags: 0
@@ -2710,6 +2754,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a198bbe88e31097418f4dc600aafd4af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blockPrefab: {fileID: 1956031276096587056, guid: d122ef823e8f5f644aacc5aef0a8d405, type: 3}
   smokePrefab: {fileID: 5378296105675652666, guid: 6dc67bbd96da80d4e92837b91a10a435, type: 3}
   rubbleBlock: {fileID: 1956031276096587056, guid: d79d382a64fec0d498b81b2d67b38ca6, type: 3}
   bombPrefab: {fileID: 7533008557142195635, guid: c26141cafec09234c987cd108e0fc355, type: 3}

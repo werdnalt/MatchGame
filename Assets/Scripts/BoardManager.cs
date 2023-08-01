@@ -10,6 +10,8 @@ using System.Linq;
 public class BoardManager : MonoBehaviour
 {
     public static BoardManager Instance;
+
+    public GameObject blockPrefab;
     public GameObject smokePrefab;
     public GameObject rubbleBlock;
     public GameObject bombPrefab;
@@ -155,9 +157,9 @@ public class BoardManager : MonoBehaviour
 
                 if (currentRow < filledRows)
                 {
-                    GameObject toInstantiate = GetRandomBlock(except: leftBlock, or: bottomBlock);
-
-                    GameObject block = Instantiate(toInstantiate, spawnPos, Quaternion.identity, this.transform);
+                    var block = CreateBlock();
+                    block.transform.SetParent(this.gameObject.transform);
+                    block.transform.position = spawnPos;
                     _board[currentColumn, currentRow] = block;
                 }
                 else 
@@ -191,32 +193,32 @@ public class BoardManager : MonoBehaviour
         return coordinatesList;
     }
 
-    public void ReplaceWithRandomBlock(Coordinates coordinates)
-    {
-        Block leftBlock = null;
-        Block bottomBlock = null;
+    // public void ReplaceWithRandomBlock(Coordinates coordinates)
+    // {
+    //     Block leftBlock = null;
+    //     Block bottomBlock = null;
+    //
+    //     // Don't spawn either of these blocks -- this will prevent starting with matches
+    //     if (coordinates.x - 1 >= 0)
+    //     {
+    //         leftBlock = _board[coordinates.x - 1, coordinates.y].GetComponent<Block>();
+    //     }
+    //
+    //     if (coordinates.y - 1 >= 0)
+    //     {
+    //         bottomBlock = _board[coordinates.x, coordinates.y - 1].GetComponent<Block>();
+    //     }
+    //
+    //     GameObject newBlock = GetRandomBlock(leftBlock, bottomBlock);
+    //     ReplaceBlock(coordinates, newBlock);
+    // }
 
-        // Don't spawn either of these blocks -- this will prevent starting with matches
-        if (coordinates.x - 1 >= 0)
-        {
-            leftBlock = _board[coordinates.x - 1, coordinates.y].GetComponent<Block>();
-        }
-
-        if (coordinates.y - 1 >= 0)
-        {
-            bottomBlock = _board[coordinates.x, coordinates.y - 1].GetComponent<Block>();
-        }
-
-        GameObject newBlock = GetRandomBlock(leftBlock, bottomBlock);
-        ReplaceBlock(coordinates, newBlock);
-    }
-
-    private GameObject GetRandomBlock(Block except, Block or)
-    {
-        int randomNum = Random.Range(0, blockGameObjects.Count);
-        GameObject blockToReturn = blockGameObjects[randomNum];
-        return blockToReturn;
-    }
+    // private GameObject GetRandomBlock(Block except, Block or)
+    // {
+    //     int randomNum = Random.Range(0, blockGameObjects.Count);
+    //     GameObject blockToReturn = blockGameObjects[randomNum];
+    //     return blockToReturn;
+    // }
 
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords, int playerIndex)
     {
@@ -384,7 +386,9 @@ public class BoardManager : MonoBehaviour
                     }
                     if (replacementNeeded)
                     {
-                        GameObject createdBlock = Instantiate(GetRandomBlock(null, null), (BlockPositions[column, numRows - 1]), Quaternion.identity, this.transform);
+                        var createdBlock = CreateBlock();
+                        createdBlock.transform.SetParent(gameObject.transform);
+                        createdBlock.transform.position = (BlockPositions[column, numRows - 1]);
                         _board[refilling.x, refilling.y] = createdBlock;
                         createdBlock.transform.position = moveTo;
                         StartCoroutine(MoveBlock(createdBlock, createdBlock.transform.position, moveTo, .2f));
@@ -747,5 +751,18 @@ public class BoardManager : MonoBehaviour
         spawnedAnimation.transform.position = _board[coordinates.x, coordinates.y].transform.position;
         yield return new WaitForSeconds(.6f);
         Destroy(spawnedAnimation);
+    }
+
+    private GameObject CreateBlock()
+    {
+        // get unit from current wave
+        var randomUnitFromWave = WaveManager.Instance.GetRandomUnitFromWave();
+
+        var blockInstance = Instantiate(blockPrefab);
+
+        // hydrate generic block prefab 
+        blockInstance.GetComponent<Block>().Initialize(randomUnitFromWave);
+
+        return blockInstance;
     }
 }

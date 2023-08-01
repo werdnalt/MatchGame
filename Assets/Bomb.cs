@@ -43,65 +43,65 @@ public class Bomb : Block
         }
     }
 
-    public void Setup(BombType type, int playerIndex, BoardManager.Coordinates coordinates, int lifetime)
-    {
-        belongsToPlayerIndex = playerIndex;
-        _coordinates = coordinates;
-        background.sprite = Resources.Load<Sprite>(playerIndex + "bomb_background");
-        bombType = type;
-        _blockIcon.sprite = Resources.Load<Sprite>(type.ToString());
-        bombLifetime = lifetime;
-        Pulse();
-    }
+    // public void Setup(BombType type, int playerIndex, BoardManager.Coordinates coordinates, int lifetime)
+    // {
+    //     belongsToPlayerIndex = playerIndex;
+    //     _coordinates = coordinates;
+    //     background.sprite = Resources.Load<Sprite>(playerIndex + "bomb_background");
+    //     bombType = type;
+    //     _blockIcon.sprite = Resources.Load<Sprite>(type.ToString());
+    //     bombLifetime = lifetime;
+    //     Pulse();
+    // }
 
-    private void Pulse()
-    {
-        StartCoroutine(IPulseIn());
-    }
+    // private void Pulse()
+    // {
+    //     StartCoroutine(IPulseIn());
+    // }
 
-    private IEnumerator IPulseIn()
-    {
-        _timeOfPulseSwitch = Time.time;
-        float elapsedTime = 0;
-        Transform blockTransform = _blockIcon.transform;
-        
-        Vector3 originalScale = _blockIcon.transform.localScale;
-        Vector3 targetScale = new Vector3(originalScale.x / 3, originalScale.y / 3, originalScale.z / 3);
-        
-        while (elapsedTime < _pulseTime)
-        {
-            blockTransform.localScale = Vector3.Lerp(originalScale, targetScale, (elapsedTime / _pulseTime));
-            elapsedTime += Time.deltaTime;
- 
-            // Yield here
-            yield return null;
-        }  
-        // Make sure we got there
-        blockTransform.localScale = targetScale;
-        StartCoroutine(IPulseOut());
-        yield return null;
-    }
+    // private IEnumerator IPulseIn()
+    // {
+    //     _timeOfPulseSwitch = Time.time;
+    //     float elapsedTime = 0;
+    //     Transform blockTransform = _blockIcon.transform;
+    //     
+    //     Vector3 originalScale = _blockIcon.transform.localScale;
+    //     Vector3 targetScale = new Vector3(originalScale.x / 3, originalScale.y / 3, originalScale.z / 3);
+    //     
+    //     while (elapsedTime < _pulseTime)
+    //     {
+    //         blockTransform.localScale = Vector3.Lerp(originalScale, targetScale, (elapsedTime / _pulseTime));
+    //         elapsedTime += Time.deltaTime;
+    //
+    //         // Yield here
+    //         yield return null;
+    //     }  
+    //     // Make sure we got there
+    //     blockTransform.localScale = targetScale;
+    //     StartCoroutine(IPulseOut());
+    //     yield return null;
+    // }
     
-    private IEnumerator IPulseOut()
-    {
-        _timeOfPulseSwitch = Time.time;
-        float elapsedTime = 0;
-        Transform blockTransform = _blockIcon.transform;
-        
-        Vector3 originalScale = _blockIcon.transform.localScale;
-        Vector3 targetScale = new Vector3(originalScale.x * 3, originalScale.y * 3, originalScale.z * 3);
-        
-        while (elapsedTime < _pulseTime)
-        {
-            blockTransform.localScale = Vector3.Lerp(originalScale, targetScale, (elapsedTime / _pulseTime));
-            elapsedTime += Time.deltaTime;
- 
-            // Yield here
-            yield return null;
-        }  
-        // Make sure we got there
-        blockTransform.localScale = targetScale;
-        StartCoroutine(IPulseIn());
-        yield return null;
-    }
+    // private IEnumerator IPulseOut()
+    // {
+    //     _timeOfPulseSwitch = Time.time;
+    //     float elapsedTime = 0;
+    //     // Transform blockTransform = _blockIcon.transform;
+    //     //
+    //     // Vector3 originalScale = _blockIcon.transform.localScale;
+    //     Vector3 targetScale = new Vector3(originalScale.x * 3, originalScale.y * 3, originalScale.z * 3);
+    //     
+    //     while (elapsedTime < _pulseTime)
+    //     {
+    //         blockTransform.localScale = Vector3.Lerp(originalScale, targetScale, (elapsedTime / _pulseTime));
+    //         elapsedTime += Time.deltaTime;
+    //
+    //         // Yield here
+    //         yield return null;
+    //     }  
+    //     // Make sure we got there
+    //     blockTransform.localScale = targetScale;
+    //     //StartCoroutine(IPulseIn());
+    //     yield return null;
+    // }
 }

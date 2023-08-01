@@ -96,12 +96,12 @@ public class CharacterBehaviour : MonoBehaviour
             
             BoardManager.Coordinates[] selectedCoords = _selector.GetSelectedBlocks();
             GameObject bomb1 = Instantiate(BoardManager.Instance.bombPrefab);
-            bomb1.GetComponent<Bomb>().Setup(type, GetComponent<PlayerInput>().playerIndex,selectedCoords[0], 7);
+            //bomb1.GetComponent<Bomb>().Setup(type, GetComponent<PlayerInput>().playerIndex,selectedCoords[0], 7);
             BoardManager.Instance.ReplaceBlock(selectedCoords[0], bomb1);
             BoardManager.Instance.ShowDeployAnimation(selectedCoords[0]);
         
             GameObject bomb2 = Instantiate(BoardManager.Instance.bombPrefab);
-            bomb2.GetComponent<Bomb>().Setup(type, GetComponent<PlayerInput>().playerIndex,selectedCoords[1], 7);
+            //bomb2.GetComponent<Bomb>().Setup(type, GetComponent<PlayerInput>().playerIndex,selectedCoords[1], 7);
             BoardManager.Instance.ReplaceBlock(selectedCoords[1], bomb2);
             BoardManager.Instance.ShowDeployAnimation(selectedCoords[1]);
 
