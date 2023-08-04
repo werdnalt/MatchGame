@@ -13,7 +13,7 @@ public class Unit : ScriptableObject
         Yellow
     }
 
-    public enum Alignment
+    public enum Classification
     {
         Rock,
         Paper,
@@ -21,7 +21,7 @@ public class Unit : ScriptableObject
     }
 
     public Tribe tribe;
-    public Alignment alignment;
+    public Classification classification;
     public int hp;
     public int attack;
     public Sprite unitSprite;

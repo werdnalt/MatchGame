@@ -59,56 +59,7 @@ public class CharacterBehaviour : MonoBehaviour
         _isAlive = true;
         _selector = GetComponent<Selector>();
     }
-
-    void OnSpecialAbility(InputValue inputValue)
-    {
-        if (_currentSpecialAbilityAmount >= _numSpecialAbilityRequired)
-        {
-            BoardManager.Coordinates[] selectedCoords = _selector.GetSelectedBlocks();
-            BoardManager.Instance.ReplaceBlocks(selectedCoords[0], selectedCoords[1], character.specialBlockPrefab);
-            BoardManager.Instance.ShowDeployAnimation(selectedCoords[0]);
-            BoardManager.Instance.ShowDeployAnimation(selectedCoords[1]);
-
-            _currentSpecialAbilityAmount = 0;
-            _characterUI.UpdateSpecialAbilityBar(0, _numSpecialAbilityRequired);
-        }
-    }
-
-    void OnAttack(InputValue inputValue)
-    {
-        Bomb.BombType type = Bomb.BombType.Landmine;
-        if (_currentBombPoints >= 50)
-        {
-            if (_currentBombPoints >= 50 && _currentBombPoints <= 150)
-            {
-                type = Bomb.BombType.Landmine;
-            }
-        
-            if (_currentBombPoints >150 && _currentBombPoints <= 300)
-            {
-                type = Bomb.BombType.Round;
-            }
-        
-            if (_currentBombPoints > 300)
-            {
-                type = Bomb.BombType.Atomic;
-            }
-            
-            BoardManager.Coordinates[] selectedCoords = _selector.GetSelectedBlocks();
-            GameObject bomb1 = Instantiate(BoardManager.Instance.bombPrefab);
-            //bomb1.GetComponent<Bomb>().Setup(type, GetComponent<PlayerInput>().playerIndex,selectedCoords[0], 7);
-            BoardManager.Instance.ReplaceBlock(selectedCoords[0], bomb1);
-            BoardManager.Instance.ShowDeployAnimation(selectedCoords[0]);
-        
-            GameObject bomb2 = Instantiate(BoardManager.Instance.bombPrefab);
-            //bomb2.GetComponent<Bomb>().Setup(type, GetComponent<PlayerInput>().playerIndex,selectedCoords[1], 7);
-            BoardManager.Instance.ReplaceBlock(selectedCoords[1], bomb2);
-            BoardManager.Instance.ShowDeployAnimation(selectedCoords[1]);
-
-            _currentBombPoints = 0;
-            _characterUI.UpdateBombUI(0);
-        }
-    }
+    
 
     public void LevelStart()
     {
