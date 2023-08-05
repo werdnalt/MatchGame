@@ -98,6 +98,8 @@ public class BoardManager : MonoBehaviour
 
     private void Start()
     {
+        AttackTimeManager.instance.attackTriggerListeners += PerformCombat;
+        
         EventManager.Instance.LevelLoaded();
         canMove = true;
     }
@@ -412,5 +414,28 @@ public class BoardManager : MonoBehaviour
     public Block GetBlock(Coordinates coordinates)
     {
         return _board.GetBlock(coordinates);
+    }
+
+    public void PerformCombat()
+    {
+        Debug.Log("Performing combat");
+        
+        var heroes = _board.HeroPositions;
+        var enemies = _board.FrontRowEnemyPositions;
+        // heroes attack first
+        for (var i = 0; i < numColumns; i++)
+        {
+            if (!heroes[i] || !enemies[i]) return;
+            
+            enemies[i].TakeDamage(heroes[i].unit.attack);
+        }
+        
+        // then enemies
+        for (var i = 0; i < numColumns; i++)
+        {
+            if (!heroes[i] || !enemies[i]) return;
+            
+            if (enemies[i].currentHp > 0) enemies[i].TakeDamage(heroes[i].unit.attack);
+        }
     }
 }

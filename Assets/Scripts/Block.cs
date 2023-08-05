@@ -18,7 +18,7 @@ public class Block : MonoBehaviour
     public Vector3? targetPosition;
     public bool isMovable;
 
-    private int _currentHp;
+    public int currentHp;
 
     [SerializeField] private GameObject healthUI;
     [SerializeField] private TextMeshProUGUI healthAmountText;
@@ -82,28 +82,28 @@ public class Block : MonoBehaviour
     {
         unit = u;
         _blockIcon.sprite = u.unitSprite;
-        _currentHp = u.hp;
+        currentHp = u.hp;
     }
 
     public void TakeDamage(int amount)
     {
-        if (amount >= _currentHp)
+        if (amount >= currentHp)
         {
             Die();
         }
 
         else
         {
-            _currentHp -= amount;
+            currentHp -= amount;
         }
 
         UpdateHealthUI();
     }
-
+    
     private void UpdateHealthUI()
     {
         healthUI.SetActive(true);
-        healthAmountText.text = _currentHp.ToString();
+        healthAmountText.text = currentHp.ToString();
     }
 
     private void Die()

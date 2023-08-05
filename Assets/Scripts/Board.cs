@@ -8,14 +8,16 @@ public class Board
     private int _numColumns;
     private int _numRows;
 
-    private List<Unit> _frontRowEnemyPositions;
-    private List<Unit> _heroPositions;
-    
+    public Block[] FrontRowEnemyPositions { get; }
+    public Block[] HeroPositions { get; }
+
     public Board(int numColumns, int numRows)
     {
         _board = new GameObject[numColumns, numRows];
         _numColumns = numColumns;
         _numRows = numRows;
+        FrontRowEnemyPositions = new Block[numColumns];
+        HeroPositions = new Block[numColumns];
     }
     
     public GameObject GetBlockGameObject(BoardManager.Coordinates coordinates)
@@ -45,7 +47,7 @@ public class Board
         // unit is in the front/attacking row
         if (coordinates.y == 0)
         {
-            _frontRowEnemyPositions[coordinates.x] = block.GetComponent<Block>().unit;
+            FrontRowEnemyPositions[coordinates.x] = block.GetComponent<Block>();
         }
     }
 
@@ -60,7 +62,13 @@ public class Board
 
     public void SwapBlocks(BoardManager.Coordinates leftBlockCoords, BoardManager.Coordinates rightBlockCoords)
     {
-        SetBlock(leftBlockCoords, GetBlockGameObject(rightBlockCoords));
-        SetBlock(rightBlockCoords, GetBlockGameObject(leftBlockCoords));
+        // Cache original blocks
+        var originalLeftBlock = GetBlockGameObject(leftBlockCoords);
+        var originalRightBlock = GetBlockGameObject(rightBlockCoords);
+    
+        // Now you can swap the blocks
+        SetBlock(leftBlockCoords, originalRightBlock);
+        SetBlock(rightBlockCoords, originalLeftBlock);
     }
+
 }

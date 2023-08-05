@@ -9,7 +9,8 @@ public class AttackTimeManager : MonoBehaviour
     public float secondsBetweenAttacks = 3;
 
     // A number on a scale of 0 to 1 that represents the percentage of time that has elapsed since the last attack
-    public float attackPercentage => Mathf.Min(Time.time - timeOfLastAttack / secondsBetweenAttacks, 1);
+    public float attackPercentage => Mathf.Min((Time.time - timeOfLastAttack) / secondsBetweenAttacks, 1);
+
 
     public delegate void AttackTrigger();
     public event AttackTrigger attackTriggerListeners;
@@ -17,6 +18,8 @@ public class AttackTimeManager : MonoBehaviour
     void Awake()
     {
         if (instance == null) instance = this;
+        
+        StartTimer();
     }
 
     public void StartTimer()
