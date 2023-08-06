@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 using UnityEngine.UIElements;
 using TMPro;
 using Random = UnityEngine.Random;
@@ -16,6 +17,8 @@ public class BoardManager : MonoBehaviour
     public GameObject rubbleBlock;
     public GameObject bombPrefab;
     public GameObject deployObject;
+
+    public List<GameObject> gridSquares;
 
     public int numRows;
     public int numColumns;
@@ -40,6 +43,8 @@ public class BoardManager : MonoBehaviour
 
     private float blockSize;
 
+    private List<GameObject> _objectsToDestroyLater = new List<GameObject>();
+    private GameObject[,] _gameBoard;
     private int combo = 0;
     private int accumulatedPoints = 0;
     private List<int> accumulatedScores = new List<int>();
@@ -88,12 +93,11 @@ public class BoardManager : MonoBehaviour
     void Awake()
     {
         BlockPositions = new Vector2[numColumns, numRows];
-        _board = new Board(numColumns, numRows);
         isRefilling = false;
 
         if (Instance == null) Instance = this;
 
-        InitializeBoard();
+        //InitializeBoard();
     }
 
     private void Start()
@@ -102,6 +106,8 @@ public class BoardManager : MonoBehaviour
         
         EventManager.Instance.LevelLoaded();
         canMove = true;
+        
+        CreateBoard();
     }
 
     // Iterate through each row of the board one by one. For each column in the row, 
@@ -174,6 +180,90 @@ public class BoardManager : MonoBehaviour
         EventManager.Instance.BoardReady();
     }
 
+    private void AddBlock()
+    {
+        // pick unit from current wave and create Block from the unit
+        var blockGameobject = CreateBlock();
+
+        // find available cell on grid for block
+        var blockCoordinates = FindBlockPlacement();
+
+        // assign block to board
+        _board.SetBlock(blockCoordinates, blockGameobject);
+
+        // drop block gameobject into position
+        DropBlock(blockGameobject, _board.GetUnitPosition(blockCoordinates));
+    }
+
+    private void DropBlock(GameObject blockGameobject, Vector3 position)
+    {
+        var dropFrom = new Vector3(position.x, Camera.main.orthographicSize + 1, position.z);
+
+        blockGameobject.transform.position = dropFrom;
+        
+        // Determine drop speed
+        float dropSpeed = 10.0f; // Unity units per second
+
+        // Determine the time needed based on the distance and speed
+        float dropTime = Vector3.Distance(dropFrom, position) / dropSpeed;
+
+        // Use DoTween to move the unit to the final position
+        blockGameobject.transform.DOMove(position, dropSpeed).SetEase(Ease.OutBounce);
+
+        // Use DoTween to bounce the unit slightly when it reaches its final position
+        blockGameobject.transform.DOPunchPosition(new Vector3(0, 1, 0), 0.5f, 1, 0.5f).SetDelay(1.0f);
+    }
+
+    // create the game board where pieces will be populated. whenever the value of numColumns or numRows is changed, the
+    // game board should repopulate while in edit mode
+    
+    // the board should originate from the gameobject from which this script is attached, so it can be dragged around and
+    // readjusted while in edit mode
+    private void CreateBoard()
+    {
+        _board = new Board(numColumns, numRows+2);
+        
+        // Initialize gameBoard with new dimensions
+        _gameBoard = new GameObject[numRows+2, numColumns];
+
+        // Create game board by populating the grid squares
+        for (int i = 0; i < numRows+2; i++)
+        {
+            for (int j = 0; j < numColumns; j++)
+            {
+                GameObject gridSquare = Instantiate(gridSquares[(i + j) % 2], new Vector3(j, i, 0), Quaternion.identity, gameObject.transform);
+                gridSquare.name = $"Square ({i},{j})";
+                _gameBoard[i, j] = gridSquare;
+                _board.SetUnitPositions(new Coordinates(j, i), gridSquare);
+
+                // Hide game objects in the 2nd row
+                if (i == 1)
+                {
+                    Renderer renderer = gridSquare.GetComponent<Renderer>();
+                    if (renderer != null)
+                    {
+                        renderer.enabled = false;
+                    }
+                }
+            }
+        }
+    }
+    
+    private Coordinates FindBlockPlacement()
+    {
+        // if all columns are full, overfill a column
+        
+        // otherwise, try a random column
+        return _board.FindRandomColumn();
+
+        // if it has space, the block can go in the column
+
+        // if not, try another column
+
+        // assign unit to Board data
+
+    }
+    
     private void CreateHeroes()
     {
         // for each column, create a hero spot

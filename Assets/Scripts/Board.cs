@@ -4,45 +4,46 @@ using UnityEngine;
 
 public class Board
 {
-    private GameObject[,] _board;
+    private List<List<GameObject>> _board;
+    private List<List<GameObject>> _unitPositions;
     private int _numColumns;
     private int _numRows;
+    private int _fullColumnCount;
 
     public Block[] FrontRowEnemyPositions { get; }
     public Block[] HeroPositions { get; }
 
     public Board(int numColumns, int numRows)
     {
-        _board = new GameObject[numColumns, numRows];
+        _board = new List<List<GameObject>>();
+        _unitPositions = new List<List<GameObject>>();
         _numColumns = numColumns;
         _numRows = numRows;
         FrontRowEnemyPositions = new Block[numColumns];
         HeroPositions = new Block[numColumns];
+        _fullColumnCount = _numColumns + 2; // this accounts for hero and blank row
     }
     
     public GameObject GetBlockGameObject(BoardManager.Coordinates coordinates)
     {
-        return _board[coordinates.x, coordinates.y] ? _board[coordinates.x, coordinates.y] : null;
+        return _board[coordinates.x][coordinates.y] ? _board[coordinates.x][coordinates.y] : null;
     }
     
     public Block GetBlock(BoardManager.Coordinates coordinates)
     {
-        if (coordinates.x >= 0 && coordinates.x < _board.GetLength(0) &&
-            coordinates.y >= 0 && coordinates.y < _board.GetLength(1))
+        if (_board[coordinates.x][coordinates.y])
         {
-            var component = _board[coordinates.x, coordinates.y].GetComponent<Block>();
-            return component != null ? component : null;
+            return _board[coordinates.x][coordinates.y].GetComponent<Block>();
         }
         else
         {
-            Debug.Log("out of bounds");
             return null;
         }
     }
 
     public void SetBlock(BoardManager.Coordinates coordinates, GameObject block)
     {
-        _board[coordinates.x, coordinates.y] = block;
+        _board[coordinates.x][coordinates.y] = block;
 
         // unit is in the front/attacking row
         if (coordinates.y == 0)
@@ -51,9 +52,14 @@ public class Board
         }
     }
 
+    public void SetUnitPositions(BoardManager.Coordinates coordinates, GameObject positionAnchor)
+    {
+        _unitPositions[coordinates.x][coordinates.y] = positionAnchor;
+    }
+
     public void SetCoordinates(BoardManager.Coordinates coordinates)
     {
-        var blockGameObject = _board[coordinates.x, coordinates.y];
+        var blockGameObject = _board[coordinates.x][coordinates.y];
         if (blockGameObject && blockGameObject.GetComponent<Block>())
         {
             blockGameObject.GetComponent<Block>().coordinates = coordinates;
@@ -69,6 +75,70 @@ public class Board
         // Now you can swap the blocks
         SetBlock(leftBlockCoords, originalRightBlock);
         SetBlock(rightBlockCoords, originalLeftBlock);
+    }
+    
+    public bool AreColumnsFull()
+    {
+        var full = true;
+        
+
+        for (int column = 0; column < _numColumns; column++)
+        {
+            for (var row = 2; row < _fullColumnCount; row++)
+            {
+                if (_board[column][row].GetComponent<Block>().unit != null) continue;
+                full = false;
+                break;
+            }
+        }
+        
+        return full;
+    }
+
+    public BoardManager.Coordinates FindRandomColumn()
+    {
+        List<int> availableColumnIndices = new List<int>();
+        BoardManager.Coordinates cellCoordinates = new BoardManager.Coordinates(0, 0);
+
+        // find any columns that have at least one available cell
+        for (int column = 0; column < _numColumns; column++)
+        {
+            for (var row = 2; row < _fullColumnCount; row++)
+            {
+                if (_board[column][row].GetComponent<Block>().unit == null)
+                {
+                    availableColumnIndices.Add(column);
+                }
+            }
+        }
+        
+        // pick a random column from the available columns
+        var chosenColumnIndex = availableColumnIndices[Random.Range(0, availableColumnIndices.Count)];
+
+        var chosenColumn = _board[chosenColumnIndex];
+
+        // add the block to that column, adding its data to the board
+        for (var row = 2; row < _fullColumnCount; row++)
+        {
+            if (chosenColumn[row].GetComponent<Block>().unit == null)
+            {
+                cellCoordinates = new BoardManager.Coordinates(chosenColumnIndex, row);
+            }
+        }
+
+        return cellCoordinates;
+    }
+
+    public Vector3 GetUnitPosition(BoardManager.Coordinates coordinates)
+    {
+        if (_unitPositions[coordinates.x][coordinates.y])
+        {
+            return _unitPositions[coordinates.x][coordinates.y].transform.position;
+        }
+        else
+        {
+            return Vector3.zero;
+        }
     }
 
 }

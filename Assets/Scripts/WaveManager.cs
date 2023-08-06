@@ -30,6 +30,7 @@ public class WaveManager : MonoBehaviour
     {
         _upcomingWave = waves[_wavesCompleted];
 
+        _isTimeOngoing = true;
         _ongoingTime = 0f;
         _waveSpawnedTime = Time.time;
     }
@@ -76,7 +77,7 @@ public class WaveManager : MonoBehaviour
 
         timeUntilWaveText.text = string.Format("{0:D2}:{1:D2}", minutes, seconds);
 
-        waveNumberText.text = _wavesCompleted.ToString();
+        waveNumberText.text = $"Wave {_wavesCompleted} in";
     }
 
     public Unit GetRandomUnitFromWave()
