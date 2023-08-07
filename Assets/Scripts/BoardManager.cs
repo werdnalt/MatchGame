@@ -18,7 +18,7 @@ public class BoardManager : MonoBehaviour
     public GameObject bombPrefab;
     public GameObject deployObject;
 
-    public List<GameObject> gridSquares;
+    public List<GameObject> cellPrefabs;
 
     public int numRows;
     public int numColumns;
@@ -44,7 +44,7 @@ public class BoardManager : MonoBehaviour
     private float blockSize;
 
     private List<GameObject> _objectsToDestroyLater = new List<GameObject>();
-    private GameObject[,] _gameBoard;
+    private GameObject[,] cellObjects;
     private int combo = 0;
     private int accumulatedPoints = 0;
     private List<int> accumulatedScores = new List<int>();
@@ -96,8 +96,6 @@ public class BoardManager : MonoBehaviour
         isRefilling = false;
 
         if (Instance == null) Instance = this;
-
-        //InitializeBoard();
     }
 
     private void Start()
@@ -107,92 +105,22 @@ public class BoardManager : MonoBehaviour
         EventManager.Instance.LevelLoaded();
         canMove = true;
         
-        CreateBoard();
+        CreateBoard(); // creates the actual grid composed of square gameobjects. unit placement will be based on these transforms
     }
 
-    // Iterate through each row of the board one by one. For each column in the row, 
-    // populate it with a Block.
-    private void InitializeBoard()
+    private void AddBlock(Unit unit)
     {
-        int offset = 0;
-
-        // Choose a starting position to begin populating spawn coordinates
-        float startXPos = transform.position.x + offset;
-        float startYPos = transform.position.y + offset;
-
-        blockSize = .9f;
-        //blockSize = 90;
-        
-        // populate array with spawn positions
-        for (int currentRow = 0; currentRow < numRows; currentRow++)
-        {
-            for (int currentColumn = 0; currentColumn < numColumns; currentColumn++)
-            {
-                Vector2 pos = new Vector2(startXPos + (blockSize * currentColumn), startYPos + (blockSize * currentRow));
-                BlockPositions[currentColumn, currentRow] = pos;
-            }
-        }
-        
-        for (int currentColumn = 0; currentColumn < numColumns; currentColumn++) {
-            // How many rows should be initialized with blocks?
-            int filledRows = UnityEngine.Random.Range(1, numRows + 1);
-
-            // instantiate blocks at corresponding spawn positions
-            for (int currentRow = 0; currentRow < numRows; currentRow++)
-            {
-                // get the x and y spawn coordinates 
-                float spawnX = BlockPositions[currentColumn, currentRow].x;
-                float spawnY = BlockPositions[currentColumn, currentRow].y;
-
-                var currentCoordinates = new Coordinates(currentColumn, currentRow);
-
-                Block leftBlock = null;
-                Block bottomBlock = null;
-
-                // Don't spawn either of these blocks -- this will prevent starting with matches
-                if (currentColumn - 1 >= 0 && _board.GetBlockGameObject(new Coordinates(currentColumn - 1, currentRow)));
-                {
-                    leftBlock = _board.GetBlock(new Coordinates(currentColumn - 1, currentRow));
-                }
-
-                if (currentRow - 1 >= 0 && _board.GetBlockGameObject(new Coordinates(currentColumn, currentRow - 1))) ;
-                {
-                    bottomBlock = _board.GetBlock(new Coordinates(currentColumn, currentRow - 1));
-                }
-
-                // create Vector3 coordinate at which to spawn the block
-                Vector3 spawnPos = new Vector3(spawnX, spawnY, 1);
-
-                if (currentRow < filledRows)
-                {
-                    var block = CreateBlock();
-                    block.transform.SetParent(this.gameObject.transform);
-                    block.transform.position = spawnPos;
-                    _board.SetBlock(currentCoordinates, block);
-                }
-                else 
-                {
-                    // If we are past the filledRows, start inserting empty blocks instead
-                    _board.SetBlock(currentCoordinates, Instantiate(emptyBlock, spawnPos, Quaternion.identity, this.transform)); 
-                }
-            }
-        }
-        EventManager.Instance.BoardReady();
-    }
-
-    private void AddBlock()
-    {
-        // pick unit from current wave and create Block from the unit
-        var blockGameobject = CreateBlock();
+        // create Block from the unit
+        var blockGameObject = CreateBlock(unit);
 
         // find available cell on grid for block
         var blockCoordinates = FindBlockPlacement();
 
         // assign block to board
-        _board.SetBlock(blockCoordinates, blockGameobject);
+        _board.SetBlock(blockCoordinates, blockGameObject);
 
         // drop block gameobject into position
-        DropBlock(blockGameobject, _board.GetUnitPosition(blockCoordinates));
+        DropBlock(blockGameObject, _board.GetUnitPosition(blockCoordinates));
     }
 
     private void DropBlock(GameObject blockGameobject, Vector3 position)
@@ -202,16 +130,10 @@ public class BoardManager : MonoBehaviour
         blockGameobject.transform.position = dropFrom;
         
         // Determine drop speed
-        float dropSpeed = 10.0f; // Unity units per second
-
-        // Determine the time needed based on the distance and speed
-        float dropTime = Vector3.Distance(dropFrom, position) / dropSpeed;
+        float dropSpeed = 1.0f; // Unity units per second
 
         // Use DoTween to move the unit to the final position
         blockGameobject.transform.DOMove(position, dropSpeed).SetEase(Ease.OutBounce);
-
-        // Use DoTween to bounce the unit slightly when it reaches its final position
-        blockGameobject.transform.DOPunchPosition(new Vector3(0, 1, 0), 0.5f, 1, 0.5f).SetDelay(1.0f);
     }
 
     // create the game board where pieces will be populated. whenever the value of numColumns or numRows is changed, the
@@ -221,31 +143,57 @@ public class BoardManager : MonoBehaviour
     // readjusted while in edit mode
     private void CreateBoard()
     {
-        _board = new Board(numColumns, numRows+2);
-        
-        // Initialize gameBoard with new dimensions
-        _gameBoard = new GameObject[numRows+2, numColumns];
+        _board = new Board(numColumns, numRows + 2);
+        cellObjects = new GameObject[numColumns, numRows + 2];
 
-        // Create game board by populating the grid squares
-        for (int i = 0; i < numRows+2; i++)
+        // Calculate the total width and height of the board
+        float boardWidth = numColumns; // Assuming each cell has a width of 1 unit
+        float boardHeight = numRows + 2; // Assuming each cell has a height of 1 unit
+
+        // Calculate the starting position for the board to be centered on the screen
+        float startX = -boardWidth / 2 + 0.5f; // +0.5f since we assume each cell has a width of 1 unit and we want to start from its center
+        float startY = -boardHeight / 2 + 0.5f; // +0.5f for the same reason as above
+
+        for (int column = 0; column < numColumns; column++)
         {
-            for (int j = 0; j < numColumns; j++)
+            for (int row = 0; row < numRows + 2; row++)
             {
-                GameObject gridSquare = Instantiate(gridSquares[(i + j) % 2], new Vector3(j, i, 0), Quaternion.identity, gameObject.transform);
-                gridSquare.name = $"Square ({i},{j})";
-                _gameBoard[i, j] = gridSquare;
-                _board.SetUnitPositions(new Coordinates(j, i), gridSquare);
+                // Calculate the position for each cell based on the start position
+                float xPos = startX + column;
+                float yPos = startY + row;
+            
+                GameObject cellGameObject = Instantiate(cellPrefabs[(column + row) % 2], new Vector3(xPos, yPos, 0), Quaternion.identity, gameObject.transform);
+                cellGameObject.name = $"Square ({column},{row})";
+                cellObjects[column, row] = cellGameObject;
+                _board.SetUnitPositions(new Coordinates(column, row), cellGameObject);
 
                 // Hide game objects in the 2nd row
-                if (i == 1)
+                if (row == 1)
                 {
-                    Renderer renderer = gridSquare.GetComponent<Renderer>();
+                    Renderer renderer = cellGameObject.GetComponent<Renderer>();
                     if (renderer != null)
                     {
                         renderer.enabled = false;
                     }
                 }
             }
+        }
+
+        EventManager.Instance.BoardReady();
+    }
+
+    public void SpawnWave(Wave wave)
+    {
+        StartCoroutine(SpawnUnit(wave));
+    }
+
+    private IEnumerator SpawnUnit(Wave wave)
+    {
+        for (var unitsSpawned = 0; unitsSpawned < wave.waveSize; unitsSpawned++)
+        {
+            var randomUnitFromWave = wave.units[Random.Range(0, wave.units.Count)];
+            AddBlock(randomUnitFromWave);
+            yield return new WaitForSeconds(.1f);
         }
     }
     
@@ -488,15 +436,12 @@ public class BoardManager : MonoBehaviour
         return neighbors;
     }
 
-    private GameObject CreateBlock()
+    private GameObject CreateBlock(Unit unit)
     {
-        // get unit from current wave
-        var randomUnitFromWave = WaveManager.Instance.GetRandomUnitFromWave();
-
         var blockInstance = Instantiate(blockPrefab);
 
         // hydrate generic block prefab 
-        blockInstance.GetComponent<Block>().Initialize(randomUnitFromWave);
+        blockInstance.GetComponent<Block>().Initialize(unit);
 
         return blockInstance;
     }

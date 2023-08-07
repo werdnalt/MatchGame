@@ -41,8 +41,7 @@ public class WaveManager : MonoBehaviour
 
         if (_ongoingTime >= _waveSpawnedTime + _upcomingWave.timeBeforeSpawn)
         {
-            SpawnWave();
-            SetUpcomingWave();
+            StartWaveSpawn();
         }
         
         UpdateWaveUI();
@@ -51,21 +50,9 @@ public class WaveManager : MonoBehaviour
     private void SetUpcomingWave()
     {
         _wavesCompleted++;
-        if (waves[_wavesCompleted] != null) _upcomingWave = waves[_wavesCompleted];
-    }
+        if (_wavesCompleted >= waves.Count) return;
 
-    private void SpawnWave()
-    {
-        Debug.Log("wave spawned");
-        _waveSpawnedTime = Time.time;
-
-        // for each unit in waveSize, pick a random unit from wave
-
-        // Insantiate Block prefab, hydrate with Unit data
-
-        // Find available location on board
-
-        // Drop blocks onto board
+        _upcomingWave = waves[_wavesCompleted];
     }
 
     private void UpdateWaveUI()
@@ -84,5 +71,12 @@ public class WaveManager : MonoBehaviour
     {
         var currentWave = waves[_wavesCompleted];
         return currentWave.units[Random.Range(0, currentWave.units.Count)];
+    }
+
+    private void StartWaveSpawn()
+    {
+        BoardManager.Instance.SpawnWave(_upcomingWave);
+        SetUpcomingWave();
+        _waveSpawnedTime = Time.time;
     }
 }

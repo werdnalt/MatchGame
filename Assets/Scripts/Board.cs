@@ -8,7 +8,7 @@ public class Board
     private List<List<GameObject>> _unitPositions;
     private int _numColumns;
     private int _numRows;
-    private int _fullColumnCount;
+    private int _offsetRows;
 
     public Block[] FrontRowEnemyPositions { get; }
     public Block[] HeroPositions { get; }
@@ -21,7 +21,18 @@ public class Board
         _numRows = numRows;
         FrontRowEnemyPositions = new Block[numColumns];
         HeroPositions = new Block[numColumns];
-        _fullColumnCount = _numColumns + 2; // this accounts for hero and blank row
+        _offsetRows = _numRows + 2; // this accounts for hero and blank row
+        
+        for (int i = 0; i < numColumns; i++) // changed from numRows to _fullColumnCount
+        {
+            _board.Add(new List<GameObject>());
+            _unitPositions.Add(new List<GameObject>());
+            for (int j = 0; j < _numRows + 2; j++) 
+            {
+                _board[i].Add(null);         // or initialize with a default value
+                _unitPositions[i].Add(null); // or initialize with a default value
+            }
+        }
     }
     
     public GameObject GetBlockGameObject(BoardManager.Coordinates coordinates)
@@ -31,14 +42,7 @@ public class Board
     
     public Block GetBlock(BoardManager.Coordinates coordinates)
     {
-        if (_board[coordinates.x][coordinates.y])
-        {
-            return _board[coordinates.x][coordinates.y].GetComponent<Block>();
-        }
-        else
-        {
-            return null;
-        }
+        return _board[coordinates.x][coordinates.y] ? _board[coordinates.x][coordinates.y].GetComponent<Block>() : null;
     }
 
     public void SetBlock(BoardManager.Coordinates coordinates, GameObject block)
@@ -84,7 +88,7 @@ public class Board
 
         for (int column = 0; column < _numColumns; column++)
         {
-            for (var row = 2; row < _fullColumnCount; row++)
+            for (var row = 2; row < _offsetRows; row++)
             {
                 if (_board[column][row].GetComponent<Block>().unit != null) continue;
                 full = false;
@@ -103,9 +107,9 @@ public class Board
         // find any columns that have at least one available cell
         for (int column = 0; column < _numColumns; column++)
         {
-            for (var row = 2; row < _fullColumnCount; row++)
+            for (var row = 2; row < _offsetRows; row++)
             {
-                if (_board[column][row].GetComponent<Block>().unit == null)
+                if (GetBlock(new BoardManager.Coordinates(column, row)) == null)
                 {
                     availableColumnIndices.Add(column);
                 }
@@ -118,11 +122,12 @@ public class Board
         var chosenColumn = _board[chosenColumnIndex];
 
         // add the block to that column, adding its data to the board
-        for (var row = 2; row < _fullColumnCount; row++)
+        for (var row = 2; row < _offsetRows; row++)
         {
-            if (chosenColumn[row].GetComponent<Block>().unit == null)
+            if (GetBlock(new BoardManager.Coordinates(chosenColumnIndex, row)) == null)
             {
                 cellCoordinates = new BoardManager.Coordinates(chosenColumnIndex, row);
+                break;
             }
         }
 
