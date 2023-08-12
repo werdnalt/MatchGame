@@ -33,6 +33,8 @@ public class WaveManager : MonoBehaviour
         _isTimeOngoing = true;
         _ongoingTime = 0f;
         _waveSpawnedTime = Time.time;
+        
+        StartWaveSpawn();
     }
 
     public void Update()

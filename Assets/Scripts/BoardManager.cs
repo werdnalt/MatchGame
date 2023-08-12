@@ -96,6 +96,8 @@ public class BoardManager : MonoBehaviour
         isRefilling = false;
 
         if (Instance == null) Instance = this;
+        
+        CreateBoard(); // creates the actual grid composed of square gameobjects. unit placement will be based on these transforms
     }
 
     private void Start()
@@ -104,8 +106,6 @@ public class BoardManager : MonoBehaviour
         
         EventManager.Instance.LevelLoaded();
         canMove = true;
-        
-        CreateBoard(); // creates the actual grid composed of square gameobjects. unit placement will be based on these transforms
     }
 
     private void AddBlock(Unit unit)
@@ -130,10 +130,10 @@ public class BoardManager : MonoBehaviour
         blockGameobject.transform.position = dropFrom;
         
         // Determine drop speed
-        float dropSpeed = 1.0f; // Unity units per second
+        float dropSpeed = .75f; // Unity units per second
 
         // Use DoTween to move the unit to the final position
-        blockGameobject.transform.DOMove(position, dropSpeed).SetEase(Ease.OutBounce);
+        blockGameobject.transform.DOMove(position, dropSpeed);
     }
 
     // create the game board where pieces will be populated. whenever the value of numColumns or numRows is changed, the
