@@ -60,7 +60,7 @@ public class Board
     {
         _unitPositions[coordinates.x][coordinates.y] = positionAnchor;
     }
-
+    
     public void SetCoordinates(BoardManager.Coordinates coordinates)
     {
         var blockGameObject = _board[coordinates.x][coordinates.y];

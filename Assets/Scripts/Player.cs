@@ -20,15 +20,9 @@ public class Player : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
 
         characterBehaviour = GetComponent<CharacterBehaviour>();
-        EventManager.Instance.onLevelLoad += AddSelector;
         playerIndex = GetComponent<PlayerInput>().playerIndex;
     }
-
-    private void AddSelector()
-    {
-        selector.Setup();
-    }
-
+    
     void OnStart(InputValue inputValue)
     {
         if (SceneManager.GetActiveScene().name == "ChooseCharacterScene")

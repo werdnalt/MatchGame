@@ -240,7 +240,7 @@ public class BoardManager : MonoBehaviour
         return coordinatesList;
     }
     
-    public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords, int playerIndex)
+    public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
         // Retrieve blocks from board based on their grid coordinates
         GameObject leftBlock = _board.GetBlockGameObject(leftBlockCoords);
@@ -321,45 +321,21 @@ public class BoardManager : MonoBehaviour
     // This will then return the transform in the middle of the two where the selector gameobject should be rendered
     public Vector3 GetSelectorPosition(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
-        var lBlock = _board.GetBlockGameObject(leftBlockCoords);
-        var rBlock = _board.GetBlockGameObject(rightBlockCoords);
+        var lBlock = _board.GetUnitPosition(leftBlockCoords);
+        var rBlock = _board.GetUnitPosition(rightBlockCoords);
 
         Vector2 middlePos;
-        float x = rBlock.transform.position.x - ((rBlock.transform.position.x - lBlock.transform.position.x) / 2);
-        float y = rBlock.transform.position.y - ((rBlock.transform.position.y - lBlock.transform.position.y) / 2);
+        float x = rBlock.x - ((rBlock.x - lBlock.x) / 2);
+        float y = rBlock.y - ((rBlock.y - lBlock.y) / 2);
         middlePos = new Vector3(x, y, -50);
         return middlePos;
     }
 
-    public void SetSelectorPosition(int playerIndex, Coordinates pos1, Coordinates pos2)
+    public void SetSelectorPosition(Coordinates pos1, Coordinates pos2)
     {
-        if (_selectorPositions.ContainsKey(playerIndex)) _selectorPositions.Remove(playerIndex);
         List<Coordinates> coords = new List<Coordinates>();
         coords.Add(pos1);
         coords.Add(pos2);
-        _selectorPositions.Add(playerIndex, coords);
-    }
-
-    public Player GetPlayerFromPosition(Coordinates affectedCoordinates)
-    {
-        Player p = null;
-        foreach (var player in GameManager.Instance.playersInGame)
-        {
-            int playerIndex = player.playerIndex;
-            if (_selectorPositions.ContainsKey(playerIndex))
-            {
-                List<Coordinates> occupiedCoordinates = _selectorPositions[playerIndex];
-                foreach (var coords in occupiedCoordinates)
-                    {
-                        if (coords.Equals(affectedCoordinates))
-                        {
-                            p = player;
-                        }
-                    }
-            }
-        }
-
-        return p;
     }
 
     private IEnumerator LerpBlocks(GameObject block1, GameObject block2)
@@ -395,7 +371,7 @@ public class BoardManager : MonoBehaviour
 
         foreach (var player in GameManager.Instance.playersInGame)
         {
-            if ((block1.Equals(player.selector.pivotBlockCoordinates) || (block1.Equals(player.selector.rotatingBlockCoordinates)) || block2.Equals(player.selector.pivotBlockCoordinates) || (block2.Equals(player.selector.rotatingBlockCoordinates))))
+            if ((block1.Equals(player.selector._leftBlockCoordinates) || (block1.Equals(player.selector._rightBlockCoordinates)) || block2.Equals(player.selector._leftBlockCoordinates) || (block2.Equals(player.selector._rightBlockCoordinates))))
             {
                 isColliding = true;
             }

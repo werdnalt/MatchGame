@@ -160,7 +160,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 008d030256e12b74198a4c34b0090dfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  p1SelectorPrefab: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}
-  p2SelectorPrefab: {fileID: 9029535746960203821, guid: c6da0d8d0c64ae34eabf4533d3980104, type: 3}
-  p3SelectorPrefab: {fileID: 9029535746960203821, guid: c6da0d8d0c64ae34eabf4533d3980104, type: 3}
-  p4SelectorPrefab: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}
+  selectorPrefab: {fileID: 9029535746960203821, guid: dead92ad0ca374f46947d794ce25a2b3, type: 3}

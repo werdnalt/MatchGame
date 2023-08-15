@@ -17,10 +17,19 @@ public class AttackTimeManager : MonoBehaviour
 
     void Awake()
     {
-        if (instance == null) instance = this;
-        
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+    
         StartTimer();
     }
+
 
     public void StartTimer()
     {
@@ -32,7 +41,7 @@ public class AttackTimeManager : MonoBehaviour
     {
         if (attackPercentage == 1)
         {
-            attackTriggerListeners.Invoke();
+            attackTriggerListeners?.Invoke();
             timeOfLastAttack = Time.time;
         }
     }
