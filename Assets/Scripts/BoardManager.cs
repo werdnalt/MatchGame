@@ -245,7 +245,7 @@ public class BoardManager : MonoBehaviour
         // Retrieve blocks from board based on their grid coordinates
         GameObject leftBlock = _board.GetBlockGameObject(leftBlockCoords);
         GameObject rightBlock = _board.GetBlockGameObject(rightBlockCoords);
-        AudioManager.Instance.PlayWithRandomPitch("whoosh");
+        //AudioManager.Instance.PlayWithRandomPitch("whoosh");
                
         // Swap the blocks data
         _board.SwapBlocks(leftBlockCoords, rightBlockCoords);

@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
         SceneManager.activeSceneChanged += OnSceneChanged;
         currentScene = SceneManager.GetActiveScene();
-        canMove = false;
+        canMove = true;
     }
     
     public void OnPlayerJoined(PlayerInput playerInput)

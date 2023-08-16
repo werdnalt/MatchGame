@@ -24,9 +24,9 @@ public class Selector : MonoBehaviour
         Right
     }
 
-    private void Awake()
+    private void Start()
     {
-        EventManager.Instance.onBoardReady += CreateAndSetSelector;
+        CreateAndSetSelector();
     }
 
     private void CreateAndSetSelector()
@@ -120,7 +120,7 @@ public class Selector : MonoBehaviour
         var newCoords2 = new BoardManager.Coordinates(_rightBlockCoordinates.x + xAdjustment,
             _rightBlockCoordinates.y + yAdjustment);
         
-        AudioManager.Instance.PlayWithRandomPitch("move");
+        //AudioManager.Instance.PlayWithRandomPitch("move");
         
         _leftBlockCoordinates = newCoords1;
         _rightBlockCoordinates = newCoords2;
