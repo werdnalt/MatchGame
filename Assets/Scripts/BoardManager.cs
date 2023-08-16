@@ -126,14 +126,30 @@ public class BoardManager : MonoBehaviour
     private void DropBlock(GameObject blockGameobject, Vector3 position)
     {
         var dropFrom = new Vector3(position.x, Camera.main.orthographicSize + 1, position.z);
-
         blockGameobject.transform.position = dropFrom;
-        
-        // Determine drop speed
-        float dropSpeed = .75f; // Unity units per second
 
-        // Use DoTween to move the unit to the final position
-        blockGameobject.transform.DOMove(position, dropSpeed);
+        // Initial scale
+        var initialScale = blockGameobject.transform.localScale;
+        blockGameobject.transform.localScale = new Vector3(.7f, initialScale.y, initialScale.z);
+
+        // Set a constant falling speed
+        float fallSpeed = 15.0f;  // Unity units per second. Adjust as necessary.
+
+        // Calculate the drop duration based on distance to travel and the constant speed
+        float dropDistance = Vector3.Distance(dropFrom, position);
+        float dropDuration = dropDistance / fallSpeed;
+
+        // Create a sequence for DOTween animations
+        Sequence mySequence = DOTween.Sequence();
+
+        // Add move tween to the sequence
+        mySequence.Append(blockGameobject.transform.DOMove(position, dropDuration).SetEase(Ease.InQuad));
+
+        // Add squash effect once the movement is completed
+        mySequence.Append(blockGameobject.transform.DOScale(new Vector3(1.3f, 0.7f, initialScale.z), 0.1f));
+
+        // After squashing, spring back to original size
+        mySequence.Append(blockGameobject.transform.DOScale(initialScale, 0.1f));
     }
 
     // create the game board where pieces will be populated. whenever the value of numColumns or numRows is changed, the
