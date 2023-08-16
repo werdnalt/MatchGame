@@ -42,12 +42,14 @@ public class Board
     
     public Block GetBlock(BoardManager.Coordinates coordinates)
     {
+        Debug.Log($"Trying to get block from {coordinates.x}, {coordinates.y}");
         return _board[coordinates.x][coordinates.y] ? _board[coordinates.x][coordinates.y].GetComponent<Block>() : null;
     }
 
     public void SetBlock(BoardManager.Coordinates coordinates, GameObject block)
     {
         _board[coordinates.x][coordinates.y] = block;
+        Debug.Log($"Block set at {coordinates.x}, {coordinates.y}");
 
         // unit is in the front/attacking row
         if (coordinates.y == 0)

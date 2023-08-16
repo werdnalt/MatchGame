@@ -286,10 +286,9 @@ public class BoardManager : MonoBehaviour
             for (int row = 0; row < numRows; row++)
             {
                 var b = _board.GetBlock(new Coordinates(column, row));
-                if (b.unit != null)
-                {
-                    collapsedBlocks.Add(b);
-                }
+                if (b == null || !b.unit) return;
+                
+                collapsedBlocks.Add(b);
             }
 
             for (int newRow = 0; newRow < numRows; newRow++)
