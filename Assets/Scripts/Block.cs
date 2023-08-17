@@ -29,6 +29,10 @@ public class Block : MonoBehaviour
 
     [SerializeField] private GameObject healthUI;
     [SerializeField] private TextMeshProUGUI healthAmountText;
+    [SerializeField] private GameObject heartHolder;
+    [SerializeField] private GameObject fullHeart;
+    [SerializeField] private Sprite emptyHeart;
+    private List<GameObject> _heartObjects = new List<GameObject>();
 
     private void Awake()
     {
@@ -159,7 +163,9 @@ public class Block : MonoBehaviour
             currentHp -= amount;
         }
 
+        ShowHearts();
         UpdateHealthUI();
+        UpdateHearts();
     }
     
     private void UpdateHealthUI()
@@ -172,6 +178,23 @@ public class Block : MonoBehaviour
     {
         // remove block
     }
-    
+
+    private void ShowHearts()
+    {
+        if (_heartObjects[0]) return;
+        
+        for (var i = 0; i < unit.hp; i++)
+        {
+            _heartObjects.Add(Instantiate(fullHeart, heartHolder.transform));
+        }
+    }
+
+    private void UpdateHearts()
+    {
+        for (var i = unit.hp - 1; i >= currentHp; i--)
+        {
+            _heartObjects[i].GetComponent<SpriteRenderer>().sprite = emptyHeart;
+        }
+    }
     
 }

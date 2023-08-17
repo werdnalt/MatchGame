@@ -52,9 +52,14 @@ public class Board
         Debug.Log($"Block set at {coordinates.x}, {coordinates.y}");
 
         // unit is in the front/attacking row
-        if (coordinates.y == 0)
+        if (coordinates.y == 2)
         {
             FrontRowEnemyPositions[coordinates.x] = block.GetComponent<Block>();
+        }
+        
+        if (coordinates.y == 0)
+        {
+            HeroPositions[coordinates.x] = block.GetComponent<Block>();
         }
     }
 
@@ -146,6 +151,16 @@ public class Board
         {
             return Vector3.zero;
         }
+    }
+
+    public bool SetHero(GameObject heroObject)
+    {
+        return false;
+        // find available block for hero if possible
+
+        // assign hero data to that block
+
+        // set hero gameobject's position to block GO
     }
 
 }

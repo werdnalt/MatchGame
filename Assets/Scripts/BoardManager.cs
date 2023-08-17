@@ -146,7 +146,7 @@ public class BoardManager : MonoBehaviour
         mySequence.Append(blockGameobject.transform.DOMove(position, dropDuration).SetEase(Ease.InQuad));
 
         // Add squash effect once the movement is completed
-        mySequence.Append(blockGameobject.transform.DOScale(new Vector3(1.3f, 0.7f, initialScale.z), 0.1f));
+        mySequence.Append(blockGameobject.transform.DOScale(new Vector3(1.5f, 0.6f, initialScale.z), 0.1f));
 
         // After squashing, spring back to original size
         mySequence.Append(blockGameobject.transform.DOScale(initialScale, 0.1f));
