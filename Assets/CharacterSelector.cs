@@ -77,21 +77,6 @@ public class CharacterSelector : MonoBehaviour
         characterDescription.text = currentCharacter.specialBlockDescription;
     }
 
-    public void SelectCharacter()
-    {
-        if (!_lockedIn)
-        {
-            _flash = StartCoroutine(GreyscaleFlash());
-        
-            // prevent player from navigating through characters
-            _lockedIn = true;
-
-            // lock character
-            GameManager.Instance.GetPlayerByIndex(playerIndex).selectedCharacter = currentCharacter;
-            GameManager.Instance.GetPlayerByIndex(playerIndex).GetComponent<CharacterBehaviour>().SetCharacter(currentCharacter);
-            GameManager.Instance.playersInGame.Add(GameManager.Instance.GetPlayerByIndex(playerIndex));
-        }
-    }
 
     private IEnumerator GreyscaleFlash()
     {

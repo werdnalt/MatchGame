@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Block : MonoBehaviour
+public class UnitBehaviour : MonoBehaviour
 {
     public Unit unit;
 
@@ -27,8 +27,8 @@ public class Block : MonoBehaviour
 
     public int currentHp;
 
+    [SerializeField] private ParticleSystem deathParticles;
     [SerializeField] private GameObject healthUI;
-    [SerializeField] private TextMeshProUGUI healthAmountText;
     [SerializeField] private GameObject heartHolder;
     [SerializeField] private GameObject fullHeart;
     [SerializeField] private Sprite emptyHeart;
@@ -78,7 +78,6 @@ public class Block : MonoBehaviour
         // Set the sprite
         if (_sprites[_currentSpriteIndex] == null)
         {
-            Debug.Log($"No sprite found at index {_currentSpriteIndex} for {unit.name}");
             return;
         }
 
@@ -163,25 +162,26 @@ public class Block : MonoBehaviour
             currentHp -= amount;
         }
 
-        ShowHearts();
-        UpdateHealthUI();
-        UpdateHearts();
-    }
-    
-    private void UpdateHealthUI()
-    {
         healthUI.SetActive(true);
-        healthAmountText.text = currentHp.ToString();
+        ShowHearts();
+        UpdateHearts();
     }
 
     private void Die()
     {
         // remove block
+        
+        // play death particles
+
+        deathParticles.Play();
+        
+        Destroy(gameObject);
     }
 
     private void ShowHearts()
     {
-        if (_heartObjects[0]) return;
+        // hearts have already been instantiated
+        if (_heartObjects.Count >= 1) return;
         
         for (var i = 0; i < unit.hp; i++)
         {
@@ -193,7 +193,7 @@ public class Block : MonoBehaviour
     {
         for (var i = unit.hp - 1; i >= currentHp; i--)
         {
-            _heartObjects[i].GetComponent<SpriteRenderer>().sprite = emptyHeart;
+            _heartObjects[i].GetComponent<Image>().sprite = emptyHeart;
         }
     }
     

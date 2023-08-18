@@ -43,6 +43,7 @@ public class BoardManager : MonoBehaviour
 
     private float blockSize;
 
+    private Player _player;
     private List<GameObject> _objectsToDestroyLater = new List<GameObject>();
     private GameObject[,] cellObjects;
     private int combo = 0;
@@ -103,9 +104,13 @@ public class BoardManager : MonoBehaviour
     private void Start()
     {
         AttackTimeManager.instance.attackTriggerListeners += PerformCombat;
+
+        _player = GameObject.FindObjectOfType<Player>();
         
         EventManager.Instance.LevelLoaded();
         canMove = true;
+
+        CreateHeroes();
     }
 
     private void AddBlock(Unit unit)
@@ -116,8 +121,15 @@ public class BoardManager : MonoBehaviour
         // find available cell on grid for block
         var blockCoordinates = FindBlockPlacement();
 
+        // TODO: fix this
+        if (blockCoordinates.Equals(new Coordinates(-1, -1)))
+        {
+            Destroy(blockGameObject);
+            return;
+        }
+
         // assign block to board
-        _board.SetBlock(blockCoordinates, blockGameObject);
+        _board.SetUnitBehaviour(blockCoordinates, blockGameObject);
 
         // drop block gameobject into position
         DropBlock(blockGameObject, _board.GetUnitPosition(blockCoordinates));
@@ -230,9 +242,21 @@ public class BoardManager : MonoBehaviour
     
     private void CreateHeroes()
     {
-        // for each column, create a hero spot
+        foreach (var hero in _player.allHeroes)
+        {
+            var heroObject = CreateBlock(hero);
+            
+            var heroBoardCoordinates = _board.SetHero(heroObject);
         
-        // populate it with a hero from the available heroes
+            // the default value is -1, -1, meaning a column was not available
+            if (heroBoardCoordinates.Equals(new Coordinates(-1, -1)))
+            {
+                Destroy(heroObject);
+                return;
+            }
+        
+            DropBlock(heroObject, _board.GetUnitPosition(heroBoardCoordinates));
+        }
     }
 
     public List<Coordinates> GetRandomCoordinates(int numCoords)
@@ -259,8 +283,8 @@ public class BoardManager : MonoBehaviour
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
         // Retrieve blocks from board based on their grid coordinates
-        GameObject leftBlock = _board.GetBlockGameObject(leftBlockCoords);
-        GameObject rightBlock = _board.GetBlockGameObject(rightBlockCoords);
+        GameObject leftBlock = _board.GetUnitGameObject(leftBlockCoords);
+        GameObject rightBlock = _board.GetUnitGameObject(rightBlockCoords);
         //AudioManager.Instance.PlayWithRandomPitch("whoosh");
                
         // Swap the blocks data
@@ -287,8 +311,8 @@ public class BoardManager : MonoBehaviour
         {
             newBlock = newBlockPrefab;
         }
-        GameObject blockToReplace = _board.GetBlockGameObject(blockCoords);
-        _board.SetBlock(blockCoords, newBlock);
+        GameObject blockToReplace = _board.GetUnitGameObject(blockCoords);
+        _board.SetUnitBehaviour(blockCoords, newBlock);
         newBlock.transform.SetParent(boardGameObject.transform);
         newBlock.transform.position = blockToReplace.transform.position;
         Destroy(blockToReplace);
@@ -298,10 +322,10 @@ public class BoardManager : MonoBehaviour
     {
         for (int column = 0; column < numColumns; column++)
         {
-            List<Block> collapsedBlocks = new List<Block>();
+            List<UnitBehaviour> collapsedBlocks = new List<UnitBehaviour>();
             for (int row = 0; row < numRows; row++)
             {
-                var b = _board.GetBlock(new Coordinates(column, row));
+                var b = _board.GetUnitBehaviour(new Coordinates(column, row));
                 if (b == null || !b.unit) return;
                 
                 collapsedBlocks.Add(b);
@@ -315,20 +339,20 @@ public class BoardManager : MonoBehaviour
                     // Instruct all non-empty blocks to be compressed to the bottom of the board
                     var b = collapsedBlocks[newRow];
                     b.targetPosition = newPosition;
-                    _board.SetBlock(new Coordinates(column, newRow), b.gameObject);
+                    _board.SetUnitBehaviour(new Coordinates(column, newRow), b.gameObject);
                 }
                 else
                 {
-                    _board.SetBlock(new Coordinates(column, newRow), Instantiate(emptyBlock, newPosition, Quaternion.identity, transform));
+                    _board.SetUnitBehaviour(new Coordinates(column, newRow), Instantiate(emptyBlock, newPosition, Quaternion.identity, transform));
                 }
             }
         }
     }
 
-    private List<Block> Chain(Block origin)
+    private List<UnitBehaviour> Chain(UnitBehaviour origin)
     {
         return GetNeighboringCoordinates(origin.coordinates).Select((coordinate) 
-            => _board.GetBlock(coordinate)).Where((block) 
+            => _board.GetUnitBehaviour(coordinate)).Where((block) 
             => block.unit == origin.unit).SelectMany(Chain).ToList();
     }
     
@@ -432,14 +456,14 @@ public class BoardManager : MonoBehaviour
         var blockInstance = Instantiate(blockPrefab);
 
         // hydrate generic block prefab 
-        blockInstance.GetComponent<Block>().Initialize(unit);
+        blockInstance.GetComponent<UnitBehaviour>().Initialize(unit);
 
         return blockInstance;
     }
 
-    public Block GetBlock(Coordinates coordinates)
+    public UnitBehaviour GetBlock(Coordinates coordinates)
     {
-        return _board.GetBlock(coordinates);
+        return _board.GetUnitBehaviour(coordinates);
     }
 
     public void PerformCombat()

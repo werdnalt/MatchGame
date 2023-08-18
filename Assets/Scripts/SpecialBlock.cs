@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpecialBlock : Block
+public class SpecialUnitBehaviour : UnitBehaviour
 {
     public int disappearAfterSeconds;
 

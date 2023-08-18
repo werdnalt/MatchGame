@@ -39,18 +39,7 @@ public class CharacterSelection : MonoBehaviour
         if (Instance == null) Instance = this;
         //GameManager.Instance.currentScene = GameManager.Scenes.CharacterSelect;
     }
-
-    public void ActivateCharacterSelectorUI(int playerIndex)
-    {
-        CharacterSelector characterSelector = characterSelectionObjects[playerIndex].GetComponent<CharacterSelector>();
-        
-        // assign selector to player so they can control UI
-        GameManager.Instance.GetPlayerByIndex(playerIndex).characterSelector = characterSelector;
-        characterSelector.SetTag(playerIndex);
-        characterSelector.RefreshUI();
-        characterSelector.playerIndex = playerIndex;
-    }
-
+    
     public void DeactivateCharacterSelectorUI(int playerIndex)
     {
         // characterSelectionObjects[playerIndex] = Instantiate(InactiveCharacterSelector);

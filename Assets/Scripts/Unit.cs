@@ -16,6 +16,7 @@ public class Unit : ScriptableObject
     
     public enum Tribe
     {
+        Hero,
         Red,
         Blue,
         Green,

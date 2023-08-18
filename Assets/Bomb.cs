@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Bomb : Block
+public class Bomb : UnitBehaviour
 {
     public SpriteRenderer countdown;
     public SpriteRenderer background;

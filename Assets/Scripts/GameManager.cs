@@ -26,15 +26,6 @@ public class GameManager : MonoBehaviour
         canMove = true;
     }
     
-    public void OnPlayerJoined(PlayerInput playerInput)
-    {
-        _playersByIndex.Add(playerInput.playerIndex, playerInput.GetComponent<Player>());
-
-        if (currentScene.name == "ChooseCharacterScene" )
-        {
-            CharacterSelection.Instance.ActivateCharacterSelectorUI(playerInput.playerIndex);
-        }
-    }
 
     public Player GetPlayerByIndex(int playerIndex)
     {
