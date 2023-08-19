@@ -10,8 +10,8 @@ public class Board
     private int _numRows;
     private int _offsetRows;
 
-    public UnitBehaviour[] FrontRowEnemyPositions { get; }
-    public UnitBehaviour[] HeroPositions { get; }
+    public UnitBehaviour[] FrontRowEnemies { get; }
+    public UnitBehaviour[] Heroes { get; }
 
     public Board(int numColumns, int numRows)
     {
@@ -19,8 +19,8 @@ public class Board
         _unitPositions = new List<List<GameObject>>();
         _numColumns = numColumns;
         _numRows = numRows;
-        FrontRowEnemyPositions = new UnitBehaviour[numColumns];
-        HeroPositions = new UnitBehaviour[numColumns];
+        FrontRowEnemies = new UnitBehaviour[numColumns];
+        Heroes = new UnitBehaviour[numColumns];
         _offsetRows = _numRows + 2; // this accounts for hero and blank row
         
         for (int i = 0; i < numColumns; i++) // changed from numRows to _fullColumnCount
@@ -45,6 +45,28 @@ public class Board
         return _board[coordinates.x][coordinates.y] ? _board[coordinates.x][coordinates.y].GetComponent<UnitBehaviour>() : null;
     }
 
+    public UnitBehaviour[] GetAllUnits()
+    {
+        List<UnitBehaviour> allUnits = new List<UnitBehaviour>();
+        for(int column = 0; column < _board.Count; column++)
+        {
+            for (int row = 0; row < _board[column].Count; row++)
+            {
+                GameObject obj = _board[column][row];
+                if (obj != null)
+                {
+                    UnitBehaviour unit = obj.GetComponent<UnitBehaviour>();
+                    if (unit != null)
+                    {
+                        allUnits.Add(unit);
+                    }
+                }
+            }
+        }
+
+        return allUnits.ToArray();
+    }
+
     public void SetUnitBehaviour(BoardManager.Coordinates coordinates, GameObject unitBehaviourObject)
     {
         _board[coordinates.x][coordinates.y] = unitBehaviourObject;
@@ -52,12 +74,12 @@ public class Board
         // unit is in the front/attacking row
         if (coordinates.y == 2)
         {
-            FrontRowEnemyPositions[coordinates.x] = unitBehaviourObject.GetComponent<UnitBehaviour>();
+            FrontRowEnemies[coordinates.x] = unitBehaviourObject.GetComponent<UnitBehaviour>();
         }
         
         if (coordinates.y == 0)
         {
-            HeroPositions[coordinates.x] = unitBehaviourObject.GetComponent<UnitBehaviour>();
+            Heroes[coordinates.x] = unitBehaviourObject.GetComponent<UnitBehaviour>();
         }
     }
 
@@ -183,6 +205,29 @@ public class Board
         }
         
         return coordinates;
+    }
+
+    public BoardManager.Coordinates? FindBlock(GameObject block)
+    {
+        for (int i = 0; i < _board.Count; i++)
+        {
+            for (int j = 0; j < _board[i].Count; j++)
+            {
+                if (_board[i][j] == block)
+                {
+                    return new BoardManager.Coordinates(i, j);
+                }
+            }
+        }
+
+        return null; // return null if the object was not found
+    }
+
+    public void RemoveBlock(GameObject blockToRemove)
+    {
+        var blockCoords = FindBlock(blockToRemove);
+        if (blockCoords == null) return;
+        _board[blockCoords.Value.x][blockCoords.Value.y] = null;
     }
 
 }

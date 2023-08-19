@@ -31,9 +31,6 @@ public class BoardManager : MonoBehaviour
     // An empty block for filling blank space in the board
     public GameObject emptyBlock;
     
-    // A 2D array that contains all of the possible positions a block can be spawned
-    public Vector2[,] BlockPositions;
-    
     // A 2D array that contains the blocks that comprise the board
     private Board _board;
     
@@ -93,7 +90,6 @@ public class BoardManager : MonoBehaviour
 
     void Awake()
     {
-        BlockPositions = new Vector2[numColumns, numRows];
         isRefilling = false;
 
         if (Instance == null) Instance = this;
@@ -326,14 +322,14 @@ public class BoardManager : MonoBehaviour
             for (int row = 0; row < numRows; row++)
             {
                 var b = _board.GetUnitBehaviour(new Coordinates(column, row));
-                if (b == null || !b.unit) return;
+                if (b == null || !b.unit) continue;
                 
                 collapsedBlocks.Add(b);
             }
 
             for (int newRow = 0; newRow < numRows; newRow++)
             {
-                Vector3 newPosition = BlockPositions[column, newRow];
+                Vector3 newPosition = _board.GetUnitPosition(new Coordinates(column, newRow));
                 if (newRow < collapsedBlocks.Count)
                 {
                     // Instruct all non-empty blocks to be compressed to the bottom of the board
@@ -470,8 +466,8 @@ public class BoardManager : MonoBehaviour
     {
         Debug.Log("Performing combat");
         
-        var heroes = _board.HeroPositions;
-        var enemies = _board.FrontRowEnemyPositions;
+        var heroes = _board.Heroes;
+        var enemies = _board.FrontRowEnemies;
         // heroes attack first
         for (var i = 0; i < numColumns; i++)
         {
@@ -486,6 +482,24 @@ public class BoardManager : MonoBehaviour
             if (!heroes[i] || !enemies[i]) return;
             
             if (enemies[i].currentHp > 0) enemies[i].TakeDamage(heroes[i].unit.attack);
+        }
+
+        // Remove dead units from the board
+        RemoveDeadUnits();
+
+        ApplyGravity();
+    }
+
+    private void RemoveDeadUnits()
+    {
+        UnitBehaviour[] allUnits = _board.GetAllUnits();
+        foreach(UnitBehaviour unit in allUnits)
+        {
+            if(unit.currentHp <= 0)
+            {
+                _board.RemoveBlock(unit.gameObject);
+                Destroy(unit.gameObject);
+            }
         }
     }
 }

@@ -50,8 +50,8 @@ public class UnitBehaviour : MonoBehaviour
         _sprites = new Sprite[SpriteCount];
         for (int i = 0; i < SpriteCount; i++)
         {
-            var sprite = Resources.Load<Sprite>($"{unit.name}{i + 1}"); // name1, name2, etc.
-            _sprites[i] = sprite;
+            //var sprite = Resources.Load<Sprite>($"{unit.name}{i + 1}"); // name1, name2, etc.
+            //_sprites[i] = sprite;
         }
     }
 
@@ -152,14 +152,11 @@ public class UnitBehaviour : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (amount >= currentHp)
+        currentHp -= amount;
+
+        if (currentHp <= 0)
         {
             Die();
-        }
-
-        else
-        {
-            currentHp -= amount;
         }
 
         healthUI.SetActive(true);
@@ -174,8 +171,6 @@ public class UnitBehaviour : MonoBehaviour
         // play death particles
 
         deathParticles.Play();
-        
-        Destroy(gameObject);
     }
 
     private void ShowHearts()
