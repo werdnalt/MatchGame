@@ -111,16 +111,16 @@ public class BoardManager : MonoBehaviour
 
     private void AddBlock(Unit unit)
     {
-        // create Block from the unit
-        var blockGameObject = CreateBlock(unit);
+        // create unit behavior for the unit
+        var unitBehaviour = CreateBlock(unit);
 
-        // find available cell on grid for block
+        // find available board position on grid for unit
         var blockCoordinates = FindBlockPlacement();
 
         // TODO: fix this
         if (blockCoordinates.Equals(new Coordinates(-1, -1)))
         {
-            Destroy(blockGameObject);
+            Destroy(unitBehaviour.gameObject);
             return;
         }
 
@@ -167,41 +167,7 @@ public class BoardManager : MonoBehaviour
     // readjusted while in edit mode
     private void CreateBoard()
     {
-        _board = new Board(numColumns, numRows + 2);
-        cellObjects = new GameObject[numColumns, numRows + 2];
-
-        // Calculate the total width and height of the board
-        float boardWidth = numColumns; // Assuming each cell has a width of 1 unit
-        float boardHeight = numRows + 2; // Assuming each cell has a height of 1 unit
-
-        // Calculate the starting position for the board to be centered on the screen
-        float startX = -boardWidth / 2 + 0.5f; // +0.5f since we assume each cell has a width of 1 unit and we want to start from its center
-        float startY = -boardHeight / 2 + 0.5f; // +0.5f for the same reason as above
-
-        for (int column = 0; column < numColumns; column++)
-        {
-            for (int row = 0; row < numRows + 2; row++)
-            {
-                // Calculate the position for each cell based on the start position
-                float xPos = startX + column;
-                float yPos = startY + row;
-            
-                GameObject cellGameObject = Instantiate(cellPrefabs[(column + row) % 2], new Vector3(xPos, yPos, 0), Quaternion.identity, gameObject.transform);
-                cellGameObject.name = $"Square ({column},{row})";
-                cellObjects[column, row] = cellGameObject;
-                _board.SetUnitPositions(new Coordinates(column, row), cellGameObject);
-
-                // Hide game objects in the 2nd row
-                if (row == 1)
-                {
-                    Renderer renderer = cellGameObject.GetComponent<Renderer>();
-                    if (renderer != null)
-                    {
-                        renderer.enabled = false;
-                    }
-                }
-            }
-        }
+        _board = new Board(numColumns, numRows);
 
         EventManager.Instance.BoardReady();
     }
@@ -447,14 +413,12 @@ public class BoardManager : MonoBehaviour
         return neighbors;
     }
 
-    private GameObject CreateBlock(Unit unit)
+    private UnitBehaviour CreateBlock(Unit unit)
     {
         var blockInstance = Instantiate(blockPrefab);
 
         // hydrate generic block prefab 
-        blockInstance.GetComponent<UnitBehaviour>().Initialize(unit);
-
-        return blockInstance;
+        return blockInstance.GetComponent<UnitBehaviour>().Initialize(unit);
     }
 
     public UnitBehaviour GetBlock(Coordinates coordinates)

@@ -143,11 +143,12 @@ public class UnitBehaviour : MonoBehaviour
         _blockIcon.material.SetFloat("_HitEffectBlend", 0);
     }
 
-    public void Initialize(Unit u)
+    public UnitBehaviour Initialize(Unit u)
     {
         unit = u;
         _blockIcon.sprite = u.unitSprite;
         currentHp = u.hp;
+        return this;
     }
 
     public void TakeDamage(int amount)

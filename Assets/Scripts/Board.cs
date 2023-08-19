@@ -4,62 +4,80 @@ using UnityEngine;
 
 public class Board
 {
-    private List<List<GameObject>> _board;
-    private List<List<GameObject>> _unitPositions;
+    private BoardPosition[][] _boardPositions;
     private int _numColumns;
     private int _numRows;
-    private int _offsetRows;
 
     public UnitBehaviour[] FrontRowEnemies { get; }
     public UnitBehaviour[] Heroes { get; }
 
     public Board(int numColumns, int numRows)
     {
-        _board = new List<List<GameObject>>();
-        _unitPositions = new List<List<GameObject>>();
         _numColumns = numColumns;
         _numRows = numRows;
         FrontRowEnemies = new UnitBehaviour[numColumns];
         Heroes = new UnitBehaviour[numColumns];
-        _offsetRows = _numRows + 2; // this accounts for hero and blank row
-        
+
+        _boardPositions = new BoardPosition[_numColumns][];
+
         for (int i = 0; i < numColumns; i++) // changed from numRows to _fullColumnCount
         {
-            _board.Add(new List<GameObject>());
-            _unitPositions.Add(new List<GameObject>());
-            for (int j = 0; j < _numRows + 2; j++) 
+            BoardPosition[] column = new BoardPosition[numRows];
+            _boardPositions[i] = column;
+            for (int j = 0; j < _numRows; j++) 
             {
-                _board[i].Add(null);         // or initialize with a default value
-                _unitPositions[i].Add(null); // or initialize with a default value
+                Vector2 boardCoordinates = new Vector2(i, j);
+                Vector3 worldPosition = WorldPositionForBoardCoordinate(boardCoordinates);
+                column[j] = new BoardPosition(boardCoordinates, worldPosition);
             }
         }
+    }
+
+    private Vector3 WorldPositionForBoardCoordinate(Vector2 boardCoordinates)
+    {
+        // Calculate the total width and height of the board
+        float boardWidth = _numColumns; // Assuming each board position has a width of 1 unit
+        float boardHeight = _numRows; // Assuming each board position has a height of 1 unit
+
+        // Calculate the starting position for the board to be centered on the screen
+        float startX = -boardWidth / 2 + 0.5f; // +0.5f since we assume each board position has a width of 1 unit and we want to start from its center
+        float startY = -boardHeight / 2 + 0.5f; // +0.5f for the same reason as above
+
+
+        // Calculate the position for each board position based on the start position
+        float xPos = startX + boardCoordinates.x;
+        float yPos = startY + boardCoordinates.y;
+
+        return new Vector3(xPos, yPos, 0);
     }
     
     public GameObject GetUnitGameObject(BoardManager.Coordinates coordinates)
     {
-        return _board[coordinates.x][coordinates.y] ? _board[coordinates.x][coordinates.y] : null;
+        return GetUnitBehaviour(coordinates).gameObject;
     }
     
     public UnitBehaviour GetUnitBehaviour(BoardManager.Coordinates coordinates)
     {
-        return _board[coordinates.x][coordinates.y] ? _board[coordinates.x][coordinates.y].GetComponent<UnitBehaviour>() : null;
+        if (coordinates.x > _numColumns || coordinates.y > _numRows)
+        {
+            Debug.LogAssertion("Attempting to access coordinate outside of the board space");
+            return null;
+        }
+
+        return  _boardPositions[coordinates.x][coordinates.y].unit;
     }
 
     public UnitBehaviour[] GetAllUnits()
     {
         List<UnitBehaviour> allUnits = new List<UnitBehaviour>();
-        for(int column = 0; column < _board.Count; column++)
+        for(int column = 0; column < _boardPositions.Length; column++)
         {
-            for (int row = 0; row < _board[column].Count; row++)
+            for (int row = 0; row < _boardPositions[column].Length; row++)
             {
-                GameObject obj = _board[column][row];
-                if (obj != null)
+                BoardPosition position = _boardPositions[column][row];
+                if (position.unit != null)
                 {
-                    UnitBehaviour unit = obj.GetComponent<UnitBehaviour>();
-                    if (unit != null)
-                    {
-                        allUnits.Add(unit);
-                    }
+                    allUnits.Add(position.unit);
                 }
             }
         }
@@ -67,34 +85,15 @@ public class Board
         return allUnits.ToArray();
     }
 
-    public void SetUnitBehaviour(BoardManager.Coordinates coordinates, GameObject unitBehaviourObject)
+    public void SetUnitBehaviour(BoardManager.Coordinates coordinates, UnitBehaviour unitBehaviour)
     {
-        _board[coordinates.x][coordinates.y] = unitBehaviourObject;
-
-        // unit is in the front/attacking row
-        if (coordinates.y == 2)
-        {
-            FrontRowEnemies[coordinates.x] = unitBehaviourObject.GetComponent<UnitBehaviour>();
-        }
+        BoardPosition boardPosition = _boardPositions[coordinates.x][coordinates.y];
+        boardPosition.unit = unitBehaviour;
         
-        if (coordinates.y == 0)
-        {
-            Heroes[coordinates.x] = unitBehaviourObject.GetComponent<UnitBehaviour>();
-        }
-    }
+        // TODO: Should this be automatically moved to the position?
+        unitBehaviour.transform.position = boardPosition.worldSpacePosition;
 
-    public void SetUnitPositions(BoardManager.Coordinates coordinates, GameObject positionAnchor)
-    {
-        _unitPositions[coordinates.x][coordinates.y] = positionAnchor;
-    }
-    
-    public void SetCoordinates(BoardManager.Coordinates coordinates)
-    {
-        var blockGameObject = _board[coordinates.x][coordinates.y];
-        if (blockGameObject && blockGameObject.GetComponent<UnitBehaviour>())
-        {
-            blockGameObject.GetComponent<UnitBehaviour>().coordinates = coordinates;
-        }
+        _boardPositions[coordinates.x][coordinates.y] = boardPosition;
     }
 
     public void SwapBlocks(BoardManager.Coordinates leftBlockCoords, BoardManager.Coordinates rightBlockCoords)
@@ -117,7 +116,7 @@ public class Board
         {
             for (var row = 2; row < _offsetRows; row++)
             {
-                if (_board[column][row].GetComponent<UnitBehaviour>().unit != null) continue;
+                if (_units[column][row].GetComponent<UnitBehaviour>().unit != null) continue;
                 full = false;
                 break;
             }
@@ -209,11 +208,11 @@ public class Board
 
     public BoardManager.Coordinates? FindBlock(GameObject block)
     {
-        for (int i = 0; i < _board.Count; i++)
+        for (int i = 0; i < _units.Count; i++)
         {
-            for (int j = 0; j < _board[i].Count; j++)
+            for (int j = 0; j < _units[i].Count; j++)
             {
-                if (_board[i][j] == block)
+                if (_units[i][j] == block)
                 {
                     return new BoardManager.Coordinates(i, j);
                 }
@@ -227,7 +226,7 @@ public class Board
     {
         var blockCoords = FindBlock(blockToRemove);
         if (blockCoords == null) return;
-        _board[blockCoords.Value.x][blockCoords.Value.y] = null;
+        _units[blockCoords.Value.x][blockCoords.Value.y] = null;
     }
 
 }
