@@ -104,13 +104,20 @@ public class Selector : MonoBehaviour
         if (!GameManager.Instance.canMove) return;
         if (!BoardManager.Instance) return;
 
-        
-        if (BoardManager.Instance.GetBlock(_leftBlockCoordinates).isMovable &&
-            BoardManager.Instance.GetBlock(_rightBlockCoordinates).isMovable)
+        UnitBehaviour leftUnit = BoardManager.Instance.GetBlock(_leftBlockCoordinates);
+        UnitBehaviour rightUnit = BoardManager.Instance.GetBlock(_rightBlockCoordinates);
+
+        if (leftUnit != null && !leftUnit.isMovable)
         {
-            BoardManager.Instance.SwapBlocks(_leftBlockCoordinates, _rightBlockCoordinates);
+            return;
         }
-        
+
+        if (rightUnit != null && !rightUnit.isMovable)
+        {
+            return;
+        }
+
+        BoardManager.Instance.SwapBlocks(_leftBlockCoordinates, _rightBlockCoordinates);    
     }
 
     private void MoveSelector(int xAdjustment, int yAdjustment)

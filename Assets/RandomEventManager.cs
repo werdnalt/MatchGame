@@ -51,6 +51,7 @@ public class RandomEventManager : MonoBehaviour
 
     private void HandleRandomEvent(EventType eventType)
     {
+        /*
         switch (eventType)
         {
             case EventType.Bombs:
@@ -82,5 +83,6 @@ public class RandomEventManager : MonoBehaviour
         }
 
         _timeOfLastEvent = Time.time;
+        */
     }
 }

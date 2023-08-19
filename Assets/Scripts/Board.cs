@@ -1,24 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Board
 {
     private BoardPosition[][] _boardPositions;
+    private BoardPosition[] _heroPositions;
     private int _numColumns;
     private int _numRows;
 
-    public UnitBehaviour[] FrontRowEnemies { get; }
+    public UnitBehaviour[] FrontRowEnemies
+    {
+        get
+        {
+            return _boardPositions
+                .Select(row => row.First())
+                .Where(boardPosition => boardPosition.unit != null)
+                .Select(position => position.unit).ToArray();
+        }
+    }
+
     public UnitBehaviour[] Heroes { get; }
 
     public Board(int numColumns, int numRows)
     {
         _numColumns = numColumns;
         _numRows = numRows;
-        FrontRowEnemies = new UnitBehaviour[numColumns];
         Heroes = new UnitBehaviour[numColumns];
 
         _boardPositions = new BoardPosition[_numColumns][];
+        _heroPositions = new BoardPosition[_numColumns];
 
         for (int i = 0; i < numColumns; i++) // changed from numRows to _fullColumnCount
         {
@@ -26,14 +38,21 @@ public class Board
             _boardPositions[i] = column;
             for (int j = 0; j < _numRows; j++) 
             {
-                Vector2 boardCoordinates = new Vector2(i, j);
+                BoardManager.Coordinates boardCoordinates = new BoardManager.Coordinates(i, j);
                 Vector3 worldPosition = WorldPositionForBoardCoordinate(boardCoordinates);
                 column[j] = new BoardPosition(boardCoordinates, worldPosition);
             }
         }
+
+        for (int i = 0; i < numColumns; i++)
+        {
+            Vector3 worldPosition = WorldPositionForHeroPositionIndex(i);
+            BoardManager.Coordinates coordinates = new BoardManager.Coordinates(i, 0);
+            _heroPositions[i] = new BoardPosition(coordinates, worldPosition);
+        }
     }
 
-    private Vector3 WorldPositionForBoardCoordinate(Vector2 boardCoordinates)
+    private Vector3 WorldPositionForBoardCoordinate(BoardManager.Coordinates boardCoordinates)
     {
         // Calculate the total width and height of the board
         float boardWidth = _numColumns; // Assuming each board position has a width of 1 unit
@@ -48,12 +67,32 @@ public class Board
         float xPos = startX + boardCoordinates.x;
         float yPos = startY + boardCoordinates.y;
 
-        return new Vector3(xPos, yPos, 0);
+        return new Vector3(xPos, yPos);
+    }
+
+    private Vector3 WorldPositionForHeroPositionIndex(int index)
+    {
+        // Calculate the total width and height of the board
+        float boardWidth = _numColumns; // Assuming each board position has a width of 1 unit
+        float boardHeight = _numRows; // Assuming each board position has a height of 1 unit
+
+        // Calculate the starting position for the board to be centered on the screen
+        float startX = -boardWidth / 2 + 0.5f; // +0.5f since we assume each board position has a width of 1 unit and we want to start from its center
+        float startY = -boardHeight / 2 - 1f; // Add offset to move heros lower than the board
+
+        float xPos = startX + index;
+
+        return new Vector3(xPos, startY);
     }
     
     public GameObject GetUnitGameObject(BoardManager.Coordinates coordinates)
     {
-        return GetUnitBehaviour(coordinates).gameObject;
+        UnitBehaviour unit = GetUnitBehaviour(coordinates);
+        if (unit)
+        {
+            return unit.gameObject;
+        }
+        return null;
     }
     
     public UnitBehaviour GetUnitBehaviour(BoardManager.Coordinates coordinates)
@@ -91,7 +130,10 @@ public class Board
         boardPosition.unit = unitBehaviour;
         
         // TODO: Should this be automatically moved to the position?
-        unitBehaviour.transform.position = boardPosition.worldSpacePosition;
+        if (unitBehaviour != null)
+        {
+            unitBehaviour.transform.position = boardPosition.worldSpacePosition;
+        }
 
         _boardPositions[coordinates.x][coordinates.y] = boardPosition;
     }
@@ -99,8 +141,8 @@ public class Board
     public void SwapBlocks(BoardManager.Coordinates leftBlockCoords, BoardManager.Coordinates rightBlockCoords)
     {
         // Cache original blocks
-        var originalLeftBlock = GetUnitGameObject(leftBlockCoords);
-        var originalRightBlock = GetUnitGameObject(rightBlockCoords);
+        var originalLeftBlock = GetUnitBehaviour(leftBlockCoords);
+        var originalRightBlock = GetUnitBehaviour(rightBlockCoords);
     
         // Now you can swap the blocks
         SetUnitBehaviour(leftBlockCoords, originalRightBlock);
@@ -109,30 +151,34 @@ public class Board
     
     public bool AreColumnsFull()
     {
-        var full = true;
-        
-
         for (int column = 0; column < _numColumns; column++)
         {
-            for (var row = 2; row < _offsetRows; row++)
+            for (var row = 0; row < _numRows; row++)
             {
-                if (_units[column][row].GetComponent<UnitBehaviour>().unit != null) continue;
-                full = false;
-                break;
+                if (_boardPositions[column][row].unit == null)
+                {
+                    return false;
+                }
             }
         }
         
-        return full;
+        return true;
     }
 
-    public BoardManager.Coordinates FindRandomColumn()
+    /// <summary>
+    /// Finds the coordinates of the first available position in a random column
+    /// </summary>
+    /// <returns>
+    /// The coordinate of the position. If board is full, returns null
+    /// </returns>
+    public BoardManager.Coordinates? FindRandomColumn()
     {
         List<int> availableColumnIndices = new List<int>();
 
         // find any columns that have at least one available cell
         for (int column = 0; column < _numColumns; column++)
         {
-            for (int row = 2; row < _offsetRows; row++)
+            for (int row = 0; row < +_numRows; row++)
             {
                 if (GetUnitBehaviour(new BoardManager.Coordinates(column, row)) == null)
                 {
@@ -153,14 +199,14 @@ public class Board
         int chosenColumnIndex = availableColumnIndices[Random.Range(0, availableColumnIndices.Count)];
 
         // Find the first available cell in the chosen column.
-        BoardManager.Coordinates cellCoordinates = FindFirstAvailableCellInColumn(chosenColumnIndex);
+        BoardManager.Coordinates? cellCoordinates = FindFirstAvailablePositionInColumn(chosenColumnIndex);
 
         return cellCoordinates;
     }
 
-    private BoardManager.Coordinates FindFirstAvailableCellInColumn(int columnIndex)
+    private BoardManager.Coordinates? FindFirstAvailablePositionInColumn(int columnIndex)
     {
-        for (int row = 2; row < _offsetRows; row++)
+        for (int row = 0; row < _numRows; row++)
         {
             if (GetUnitBehaviour(new BoardManager.Coordinates(columnIndex, row)) == null)
             {
@@ -168,51 +214,54 @@ public class Board
             }
         }
 
-        return new BoardManager.Coordinates(-1, -1);
+        return null;
     }
 
-
-    public Vector3 GetUnitPosition(BoardManager.Coordinates coordinates)
+    public Vector3 GetWorldSpacePositionForBoardCoordinates(BoardManager.Coordinates coordinates)
     {
-        if (_unitPositions[coordinates.x][coordinates.y])
+        if (coordinates.x > _numColumns || coordinates.y > _numRows)
         {
-            return _unitPositions[coordinates.x][coordinates.y].transform.position;
-        }
-        else
-        {
+            Debug.LogAssertion("Attempting to access coordinate outside of the board space");
             return Vector3.zero;
         }
+
+        return _boardPositions[coordinates.x][coordinates.y].worldSpacePosition;
+
     }
 
-    public BoardManager.Coordinates SetHero(GameObject heroObject)
+    public Vector3? GetWorldSpacePositionForUnitBehaviour(UnitBehaviour unit)
     {
-        var heroRow = 0;
-        BoardManager.Coordinates coordinates = new BoardManager.Coordinates(-1, -1);
-        
-        // find available block for hero if possible
-        for (var potentialColumnIndex = 0; potentialColumnIndex < _numColumns; potentialColumnIndex++)
+        BoardManager.Coordinates? boardCoordinates = FindUnitBehaviour(unit);
+        if (boardCoordinates != null)
         {
-            var heroCoords = new BoardManager.Coordinates(potentialColumnIndex, heroRow);
-            var occupyingUnit = GetUnitBehaviour(heroCoords);
-            
-            if (occupyingUnit) continue;
-            
-            // assign hero data to that block
-            SetUnitBehaviour(heroCoords, heroObject);
-            coordinates = heroCoords;
-            break;
+            return GetWorldSpacePositionForBoardCoordinates(boardCoordinates.Value);
         }
+        return null;
+    }
         
-        return coordinates;
+
+    public Vector3? SetHero(UnitBehaviour heroUnit)
+    {
+        for (int i = 0; i < _heroPositions.Length; i++)
+        {
+            if (_heroPositions[i].unit == null)
+            {
+                _heroPositions[i].unit = heroUnit;
+                return _heroPositions[i].worldSpacePosition;
+            }
+        }
+
+        Debug.LogAssertion("Attempting to add a hero, but there isn't room");
+        return null;
     }
 
-    public BoardManager.Coordinates? FindBlock(GameObject block)
+    public BoardManager.Coordinates? FindUnitBehaviour(UnitBehaviour unit)
     {
-        for (int i = 0; i < _units.Count; i++)
+        for (int i = 0; i < _boardPositions.Length; i++)
         {
-            for (int j = 0; j < _units[i].Count; j++)
+            for (int j = 0; j < _boardPositions[i].Length; j++)
             {
-                if (_units[i][j] == block)
+                if (_boardPositions[i][j].unit == unit)
                 {
                     return new BoardManager.Coordinates(i, j);
                 }
@@ -222,11 +271,11 @@ public class Board
         return null; // return null if the object was not found
     }
 
-    public void RemoveBlock(GameObject blockToRemove)
+    public void RemoveUnitFromBoard(UnitBehaviour unit)
     {
-        var blockCoords = FindBlock(blockToRemove);
-        if (blockCoords == null) return;
-        _units[blockCoords.Value.x][blockCoords.Value.y] = null;
+        var unitCoords = FindUnitBehaviour(unit);
+        if (unitCoords == null) return;
+        _boardPositions[unitCoords.Value.x][unitCoords.Value.y].unit = null;
     }
 
 }

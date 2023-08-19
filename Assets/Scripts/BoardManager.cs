@@ -118,17 +118,17 @@ public class BoardManager : MonoBehaviour
         var blockCoordinates = FindBlockPlacement();
 
         // TODO: fix this
-        if (blockCoordinates.Equals(new Coordinates(-1, -1)))
+        if (blockCoordinates == null || blockCoordinates.Equals(new Coordinates(-1, -1)))
         {
             Destroy(unitBehaviour.gameObject);
             return;
         }
 
         // assign block to board
-        _board.SetUnitBehaviour(blockCoordinates, blockGameObject);
+        _board.SetUnitBehaviour(blockCoordinates.Value, unitBehaviour);
 
         // drop block gameobject into position
-        DropBlock(blockGameObject, _board.GetUnitPosition(blockCoordinates));
+        DropBlock(unitBehaviour.gameObject, _board.GetWorldSpacePositionForBoardCoordinates(blockCoordinates.Value));
     }
 
     private void DropBlock(GameObject blockGameobject, Vector3 position)
@@ -187,7 +187,7 @@ public class BoardManager : MonoBehaviour
         }
     }
     
-    private Coordinates FindBlockPlacement()
+    private Coordinates? FindBlockPlacement()
     {
         // if all columns are full, overfill a column
         
@@ -206,18 +206,12 @@ public class BoardManager : MonoBehaviour
     {
         foreach (var hero in _player.allHeroes)
         {
-            var heroObject = CreateBlock(hero);
-            
-            var heroBoardCoordinates = _board.SetHero(heroObject);
-        
-            // the default value is -1, -1, meaning a column was not available
-            if (heroBoardCoordinates.Equals(new Coordinates(-1, -1)))
+            var unitBehaviour = CreateBlock(hero);
+            Vector3? position = _board.SetHero(unitBehaviour);
+            if (position != null)
             {
-                Destroy(heroObject);
-                return;
+                DropBlock(unitBehaviour.gameObject, position.Value);
             }
-        
-            DropBlock(heroObject, _board.GetUnitPosition(heroBoardCoordinates));
         }
     }
 
@@ -262,6 +256,7 @@ public class BoardManager : MonoBehaviour
         ApplyGravity();
     }
 
+    /*
     public void ReplaceBlock(Coordinates blockCoords, GameObject newBlockPrefab)
     {
         GameObject newBlock;
@@ -279,6 +274,7 @@ public class BoardManager : MonoBehaviour
         newBlock.transform.position = blockToReplace.transform.position;
         Destroy(blockToReplace);
     }
+    */
     
     private void ApplyGravity()
     {
@@ -295,17 +291,13 @@ public class BoardManager : MonoBehaviour
 
             for (int newRow = 0; newRow < numRows; newRow++)
             {
-                Vector3 newPosition = _board.GetUnitPosition(new Coordinates(column, newRow));
+                Vector3 newPosition = _board.GetWorldSpacePositionForBoardCoordinates(new Coordinates(column, newRow));
                 if (newRow < collapsedBlocks.Count)
                 {
                     // Instruct all non-empty blocks to be compressed to the bottom of the board
                     var b = collapsedBlocks[newRow];
                     b.targetPosition = newPosition;
-                    _board.SetUnitBehaviour(new Coordinates(column, newRow), b.gameObject);
-                }
-                else
-                {
-                    _board.SetUnitBehaviour(new Coordinates(column, newRow), Instantiate(emptyBlock, newPosition, Quaternion.identity, transform));
+                    _board.SetUnitBehaviour(new Coordinates(column, newRow), b);
                 }
             }
         }
@@ -322,8 +314,8 @@ public class BoardManager : MonoBehaviour
     // This will then return the transform in the middle of the two where the selector gameobject should be rendered
     public Vector3 GetSelectorPosition(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
-        var lBlock = _board.GetUnitPosition(leftBlockCoords);
-        var rBlock = _board.GetUnitPosition(rightBlockCoords);
+        var lBlock = _board.GetWorldSpacePositionForBoardCoordinates(leftBlockCoords);
+        var rBlock = _board.GetWorldSpacePositionForBoardCoordinates(rightBlockCoords);
 
         Vector2 middlePos;
         float x = rBlock.x - ((rBlock.x - lBlock.x) / 2);
@@ -461,7 +453,7 @@ public class BoardManager : MonoBehaviour
         {
             if(unit.currentHp <= 0)
             {
-                _board.RemoveBlock(unit.gameObject);
+                _board.RemoveUnitFromBoard(unit);
                 Destroy(unit.gameObject);
             }
         }

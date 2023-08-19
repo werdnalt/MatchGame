@@ -7,7 +7,7 @@ public struct BoardPosition
     /// <summary>
     /// The position of a space on the board in the form of (column, row)
     /// </summary>
-    public Vector2 boardSpaceCoordinates;
+    public BoardManager.Coordinates boardSpaceCoordinates;
 
     /// <summary>
     /// The position value that should be assigned to a unit's transform to occupy this position
@@ -19,7 +19,7 @@ public struct BoardPosition
     /// </summary>
     public UnitBehaviour unit;
 
-    public BoardPosition(Vector2 boardSpaceCoordinates, Vector3 worldSpacePosition)
+    public BoardPosition(BoardManager.Coordinates boardSpaceCoordinates, Vector3 worldSpacePosition)
     {
         this.boardSpaceCoordinates = boardSpaceCoordinates;
         this.worldSpacePosition = worldSpacePosition;
