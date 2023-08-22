@@ -6,6 +6,7 @@ using DG.Tweening;
 
 public class Board
 {
+    public float blockSwapTime;
     public BoardPosition[][] boardPositions;
     private BoardPosition[] _heroPositions;
     private int _numColumns;
@@ -26,6 +27,7 @@ public class Board
 
     public Board(int numColumns, int numRows)
     {
+        blockSwapTime = .2f;
         _numColumns = numColumns;
         _numRows = numRows;
         Heroes = new UnitBehaviour[numColumns];
@@ -130,11 +132,10 @@ public class Board
         BoardPosition boardPosition = boardPositions[coordinates.x][coordinates.y];
         boardPosition.unit = unitBehaviour;
         
-        // TODO: Should this be automatically moved to the position?
         if (unitBehaviour != null)
         {
             unitBehaviour.isMovable = false;
-            unitBehaviour.transform.DOMove(boardPosition.worldSpacePosition, .2f).SetEase(Ease.InQuad).OnComplete(() =>
+            unitBehaviour.transform.DOMove(boardPosition.worldSpacePosition, blockSwapTime).SetEase(Ease.InQuad).OnComplete(() =>
             {
                 unitBehaviour.isMovable = true;
             });
@@ -251,6 +252,7 @@ public class Board
         {
             if (_heroPositions[i].unit == null)
             {
+                Heroes[i] = heroUnit;
                 _heroPositions[i].unit = heroUnit;
                 return _heroPositions[i].worldSpacePosition;
             }

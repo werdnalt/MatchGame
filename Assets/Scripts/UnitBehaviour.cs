@@ -187,7 +187,10 @@ public class UnitBehaviour : MonoBehaviour
 
     private void UpdateHearts()
     {
-        for (var i = unit.hp - 1; i >= currentHp; i--)
+        int startHp = Mathf.Max(0, unit.hp - 1); // Ensure this never goes below 0
+        int endHp = Mathf.Max(0, currentHp);     // Ensure this never goes below 0
+
+        for (var i = startHp; i >= endHp; i--)
         {
             _heartObjects[i].GetComponent<Image>().sprite = emptyHeart;
         }

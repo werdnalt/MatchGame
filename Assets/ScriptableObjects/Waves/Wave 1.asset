@@ -13,11 +13,6 @@ MonoBehaviour:
   m_Name: Wave 1
   m_EditorClassIdentifier: 
   units:
-  - {fileID: 11400000, guid: 8f46b050b7f008341b5e4fd84e02fdfc, type: 2}
   - {fileID: 11400000, guid: 63e15bba1de2717428a367c18cd949c0, type: 2}
-  - {fileID: 11400000, guid: 0ea059233f7db8f4f919b79c3127087d, type: 2}
-  - {fileID: 11400000, guid: 553a02e24c27dbf48bc073420341ea4c, type: 2}
-  - {fileID: 11400000, guid: 60cee662b20fffb4ea5931218899b2f7, type: 2}
-  - {fileID: 11400000, guid: b354d6889f6e79443a939f9ab92ada10, type: 2}
   timeBeforeSpawn: 5
   waveSize: 5

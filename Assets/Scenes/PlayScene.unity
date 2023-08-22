@@ -893,6 +893,8 @@ MonoBehaviour:
   waves:
   - {fileID: 11400000, guid: 170abff3b697a604a9a9e5e51a0aa1c7, type: 2}
   - {fileID: 11400000, guid: 0a1b56cac6b45e44ba098f0b2f4c2e1b, type: 2}
+  - {fileID: 11400000, guid: 0a1b56cac6b45e44ba098f0b2f4c2e1b, type: 2}
+  - {fileID: 11400000, guid: 0a1b56cac6b45e44ba098f0b2f4c2e1b, type: 2}
   timeUntilWaveText: {fileID: 1945922346}
   waveNumberText: {fileID: 1157258197}
 --- !u!1 &517399569

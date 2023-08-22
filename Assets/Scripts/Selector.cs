@@ -101,8 +101,8 @@ public class Selector : MonoBehaviour
     
     void OnSelect(InputValue inputValue)
     {
-        if (!GameManager.Instance.canMove) return;
-        if (!BoardManager.Instance) return;
+        if (GameManager.Instance == null || !GameManager.Instance.canMove) return;
+        if (BoardManager.Instance == null) return;
 
         UnitBehaviour leftUnit = BoardManager.Instance.GetBlock(_leftBlockCoordinates);
         UnitBehaviour rightUnit = BoardManager.Instance.GetBlock(_rightBlockCoordinates);

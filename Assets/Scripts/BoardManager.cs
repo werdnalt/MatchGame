@@ -135,29 +135,35 @@ public class BoardManager : MonoBehaviour
     {
         var dropFrom = new Vector3(position.x, Camera.main.orthographicSize + 1, position.z);
         blockGameobject.transform.position = dropFrom;
+        
+        Drop(blockGameobject, dropFrom, position);
+        
+    }
 
+    private void Drop(GameObject obj, Vector3 dropFrom, Vector3 dropTo)
+    {
         // Initial scale
-        var initialScale = blockGameobject.transform.localScale;
-        blockGameobject.transform.localScale = new Vector3(.7f, initialScale.y, initialScale.z);
+        var initialScale = obj.transform.localScale;
+        obj.transform.localScale = new Vector3(.7f, initialScale.y, initialScale.z);
 
         // Set a constant falling speed
         float fallSpeed = 15.0f;  // Unity units per second. Adjust as necessary.
 
         // Calculate the drop duration based on distance to travel and the constant speed
-        float dropDistance = Vector3.Distance(dropFrom, position);
+        float dropDistance = Vector3.Distance(dropFrom, dropTo);
         float dropDuration = dropDistance / fallSpeed;
 
         // Create a sequence for DOTween animations
         Sequence mySequence = DOTween.Sequence();
 
         // Add move tween to the sequence
-        mySequence.Append(blockGameobject.transform.DOMove(position, dropDuration).SetEase(Ease.InQuad));
+        mySequence.Append(obj.transform.DOMove(dropTo, dropDuration).SetEase(Ease.InQuad));
 
         // Add squash effect once the movement is completed
-        mySequence.Append(blockGameobject.transform.DOScale(new Vector3(1.5f, 0.6f, initialScale.z), 0.1f));
+        mySequence.Append(obj.transform.DOScale(new Vector3(1.5f, 0.6f, initialScale.z), 0.1f));
 
         // After squashing, spring back to original size
-        mySequence.Append(blockGameobject.transform.DOScale(initialScale, 0.1f));
+        mySequence.Append(obj.transform.DOScale(initialScale, 0.1f));
     }
 
     // create the game board where pieces will be populated. whenever the value of numColumns or numRows is changed, the
@@ -248,10 +254,14 @@ public class BoardManager : MonoBehaviour
     
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
-
         _board.SwapBlocks(leftBlockCoords, rightBlockCoords);
-        
-        //ApplyGravity();
+        StartCoroutine(WaitToApplyGravity(_board.blockSwapTime));
+    }
+
+    private IEnumerator WaitToApplyGravity(float blockSwapTime)
+    {
+        yield return new WaitForSeconds(blockSwapTime);
+        ApplyGravity();
     }
     
     private void ApplyGravity()
@@ -263,7 +273,7 @@ public class BoardManager : MonoBehaviour
             {
                 var b = _board.GetUnitBehaviour(new Coordinates(column, row));
                 if (b == null || !b.unit) continue;
-                
+            
                 collapsedBlocks.Add(b);
             }
 
@@ -276,6 +286,11 @@ public class BoardManager : MonoBehaviour
                     var b = collapsedBlocks[newRow];
                     b.targetPosition = newPosition;
                     _board.SetUnitBehaviour(new Coordinates(column, newRow), b);
+                }
+                else
+                {
+                    // Clear any remaining positions above the collapsed blocks
+                    _board.SetUnitBehaviour(new Coordinates(column, newRow), null);
                 }
             }
         }
@@ -371,16 +386,30 @@ public class BoardManager : MonoBehaviour
 
     public void PerformCombat()
     {
-        Debug.Log("Performing combat");
-        
         var heroes = _board.Heroes;
         var enemies = _board.FrontRowEnemies;
+
         // heroes attack first
         for (var i = 0; i < numColumns; i++)
         {
-            if (!heroes[i] || !enemies[i]) return;
-            
-            enemies[i].TakeDamage(heroes[i].unit.attack);
+            if (!heroes[i] || !enemies[i]) continue;  // Use continue instead of return
+
+            var hero = heroes[i];
+            var enemy = enemies[i];
+
+            var heroPos = hero.transform.position;
+            var enemyPos = enemy.transform.position;
+        
+            hero.transform.DOMove((Vector3) enemyPos, .2f).SetEase(Ease.InExpo).OnComplete(() =>
+            {
+                enemy.TakeDamage(hero.unit.attack);
+                // Move the hero back after damaging the enemy
+                hero.transform.DOMove((Vector3) heroPos, .3f).SetEase(Ease.OutQuad);
+                
+                RemoveDeadUnits();
+                
+                ApplyGravity();
+            });
         }
         
         // then enemies
@@ -390,11 +419,6 @@ public class BoardManager : MonoBehaviour
             
             if (enemies[i].currentHp > 0) enemies[i].TakeDamage(heroes[i].unit.attack);
         }
-
-        // Remove dead units from the board
-        RemoveDeadUnits();
-
-        ApplyGravity();
     }
 
     private void RemoveDeadUnits()
