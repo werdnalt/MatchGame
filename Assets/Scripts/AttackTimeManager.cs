@@ -27,7 +27,7 @@ public class AttackTimeManager : MonoBehaviour
             return;
         }
     
-        StartTimer();
+        //StartTimer();
     }
 
 
@@ -39,10 +39,10 @@ public class AttackTimeManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (attackPercentage == 1)
-        {
-            attackTriggerListeners?.Invoke();
-            timeOfLastAttack = Time.time;
-        }
+        // if (attackPercentage == 1)
+        // {
+        //     attackTriggerListeners?.Invoke();
+        //     timeOfLastAttack = Time.time;
+        // }
     }
 }

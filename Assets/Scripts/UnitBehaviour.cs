@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ public class UnitBehaviour : MonoBehaviour
     private int _currentSpriteIndex;
     private bool _isAscending;
     private float _timeOfSpriteChange;
+    private Vector3 _originalScale;
     
     private const int SpriteCount = 3; 
     private Sprite[] _sprites;
@@ -194,6 +196,21 @@ public class UnitBehaviour : MonoBehaviour
         {
             _heartObjects[i].GetComponent<Image>().sprite = emptyHeart;
         }
+    }
+
+    public void Grow()
+    {
+        var localScale = transform.localScale;
+        if (_originalScale == Vector3.zero) _originalScale = localScale;
+        
+        var newX = localScale.x * 1.5f;
+        var newY = localScale.y * 1.5f;
+        transform.DOScale(new Vector3(newX, newY, localScale.z), .2f).SetEase(Ease.InOutBounce);
+    }
+
+    public void Shrink()
+    {
+        transform.DOScale(_originalScale, .2f).SetEase(Ease.InOutBounce); 
     }
     
 }

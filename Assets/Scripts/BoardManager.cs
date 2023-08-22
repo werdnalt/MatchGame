@@ -201,6 +201,8 @@ public class BoardManager : MonoBehaviour
             AddBlock(randomUnitFromWave);
             yield return new WaitForSeconds(.1f);
         }
+        
+        PrepareTurn();
     }
     
     private Coordinates? FindBlockPlacement()
@@ -432,5 +434,12 @@ public class BoardManager : MonoBehaviour
                 Destroy(unit.gameObject);
             }
         }
+    }
+
+    private void PrepareTurn()
+    {
+        var combatParticipants = _board.FrontRowEnemies.ToList();
+        foreach (var unitBehaviour in _board.Heroes) combatParticipants.Add(unitBehaviour);
+        TurnManager.Instance.ChooseTurnOrder(combatParticipants);
     }
 }
