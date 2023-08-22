@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using DG.Tweening;
 
 public class Board
 {
-    private BoardPosition[][] _boardPositions;
+    public BoardPosition[][] boardPositions;
     private BoardPosition[] _heroPositions;
     private int _numColumns;
     private int _numRows;
@@ -14,7 +15,7 @@ public class Board
     {
         get
         {
-            return _boardPositions
+            return boardPositions
                 .Select(row => row.First())
                 .Where(boardPosition => boardPosition.unit != null)
                 .Select(position => position.unit).ToArray();
@@ -29,13 +30,13 @@ public class Board
         _numRows = numRows;
         Heroes = new UnitBehaviour[numColumns];
 
-        _boardPositions = new BoardPosition[_numColumns][];
+        boardPositions = new BoardPosition[_numColumns][];
         _heroPositions = new BoardPosition[_numColumns];
 
         for (int i = 0; i < numColumns; i++) // changed from numRows to _fullColumnCount
         {
             BoardPosition[] column = new BoardPosition[numRows];
-            _boardPositions[i] = column;
+            boardPositions[i] = column;
             for (int j = 0; j < _numRows; j++) 
             {
                 BoardManager.Coordinates boardCoordinates = new BoardManager.Coordinates(i, j);
@@ -78,7 +79,7 @@ public class Board
 
         // Calculate the starting position for the board to be centered on the screen
         float startX = -boardWidth / 2 + 0.5f; // +0.5f since we assume each board position has a width of 1 unit and we want to start from its center
-        float startY = -boardHeight / 2 - 1f; // Add offset to move heros lower than the board
+        float  startY = -boardHeight / 2 - 1f; // Add offset to move heros lower than the board
 
         float xPos = startX + index;
 
@@ -103,17 +104,17 @@ public class Board
             return null;
         }
 
-        return  _boardPositions[coordinates.x][coordinates.y].unit;
+        return  boardPositions[coordinates.x][coordinates.y].unit;
     }
 
     public UnitBehaviour[] GetAllUnits()
     {
         List<UnitBehaviour> allUnits = new List<UnitBehaviour>();
-        for(int column = 0; column < _boardPositions.Length; column++)
+        for(int column = 0; column < boardPositions.Length; column++)
         {
-            for (int row = 0; row < _boardPositions[column].Length; row++)
+            for (int row = 0; row < boardPositions[column].Length; row++)
             {
-                BoardPosition position = _boardPositions[column][row];
+                BoardPosition position = boardPositions[column][row];
                 if (position.unit != null)
                 {
                     allUnits.Add(position.unit);
@@ -126,16 +127,20 @@ public class Board
 
     public void SetUnitBehaviour(BoardManager.Coordinates coordinates, UnitBehaviour unitBehaviour)
     {
-        BoardPosition boardPosition = _boardPositions[coordinates.x][coordinates.y];
+        BoardPosition boardPosition = boardPositions[coordinates.x][coordinates.y];
         boardPosition.unit = unitBehaviour;
         
         // TODO: Should this be automatically moved to the position?
         if (unitBehaviour != null)
         {
-            unitBehaviour.transform.position = boardPosition.worldSpacePosition;
+            unitBehaviour.isMovable = false;
+            unitBehaviour.transform.DOMove(boardPosition.worldSpacePosition, .2f).SetEase(Ease.InQuad).OnComplete(() =>
+            {
+                unitBehaviour.isMovable = true;
+            });
         }
 
-        _boardPositions[coordinates.x][coordinates.y] = boardPosition;
+        boardPositions[coordinates.x][coordinates.y] = boardPosition;
     }
 
     public void SwapBlocks(BoardManager.Coordinates leftBlockCoords, BoardManager.Coordinates rightBlockCoords)
@@ -155,7 +160,7 @@ public class Board
         {
             for (var row = 0; row < _numRows; row++)
             {
-                if (_boardPositions[column][row].unit == null)
+                if (boardPositions[column][row].unit == null)
                 {
                     return false;
                 }
@@ -225,7 +230,7 @@ public class Board
             return Vector3.zero;
         }
 
-        return _boardPositions[coordinates.x][coordinates.y].worldSpacePosition;
+        return boardPositions[coordinates.x][coordinates.y].worldSpacePosition;
 
     }
 
@@ -257,11 +262,11 @@ public class Board
 
     public BoardManager.Coordinates? FindUnitBehaviour(UnitBehaviour unit)
     {
-        for (int i = 0; i < _boardPositions.Length; i++)
+        for (int i = 0; i < boardPositions.Length; i++)
         {
-            for (int j = 0; j < _boardPositions[i].Length; j++)
+            for (int j = 0; j < boardPositions[i].Length; j++)
             {
-                if (_boardPositions[i][j].unit == unit)
+                if (boardPositions[i][j].unit == unit)
                 {
                     return new BoardManager.Coordinates(i, j);
                 }
@@ -275,7 +280,7 @@ public class Board
     {
         var unitCoords = FindUnitBehaviour(unit);
         if (unitCoords == null) return;
-        _boardPositions[unitCoords.Value.x][unitCoords.Value.y].unit = null;
+        boardPositions[unitCoords.Value.x][unitCoords.Value.y].unit = null;
     }
 
 }

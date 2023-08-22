@@ -168,6 +168,16 @@ public class BoardManager : MonoBehaviour
     private void CreateBoard()
     {
         _board = new Board(numColumns, numRows);
+        
+        // create grid background
+        for (int i = 0; i < _board.boardPositions.Length; i++)
+        {
+            for (int j = 0; j < _board.boardPositions[i].Length; j++)
+            {
+                var backgroundCell = Instantiate(cellPrefabs[(i + j) % 2]);
+                backgroundCell.transform.position = _board.boardPositions[i][j].worldSpacePosition;
+            }
+        }
 
         EventManager.Instance.BoardReady();
     }
@@ -238,43 +248,11 @@ public class BoardManager : MonoBehaviour
     
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
-        // Retrieve blocks from board based on their grid coordinates
-        GameObject leftBlock = _board.GetUnitGameObject(leftBlockCoords);
-        GameObject rightBlock = _board.GetUnitGameObject(rightBlockCoords);
-        //AudioManager.Instance.PlayWithRandomPitch("whoosh");
-               
-        // Swap the blocks data
+
         _board.SwapBlocks(leftBlockCoords, rightBlockCoords);
-
-        // Cache the value of the left block's position before it 
-        // moves to the right block's position
-        Vector3 originalPos = leftBlock.transform.position;
-
-        // Swap the gameobjects' positions
-        StartCoroutine(LerpBlocks(leftBlock, rightBlock));
-            
-        ApplyGravity();
+        
+        //ApplyGravity();
     }
-
-    /*
-    public void ReplaceBlock(Coordinates blockCoords, GameObject newBlockPrefab)
-    {
-        GameObject newBlock;
-        if (!newBlockPrefab.activeInHierarchy)
-        {
-            newBlock = Instantiate(newBlockPrefab);
-        }
-        else
-        {
-            newBlock = newBlockPrefab;
-        }
-        GameObject blockToReplace = _board.GetUnitGameObject(blockCoords);
-        _board.SetUnitBehaviour(blockCoords, newBlock);
-        newBlock.transform.SetParent(boardGameObject.transform);
-        newBlock.transform.position = blockToReplace.transform.position;
-        Destroy(blockToReplace);
-    }
-    */
     
     private void ApplyGravity()
     {
@@ -329,33 +307,6 @@ public class BoardManager : MonoBehaviour
         List<Coordinates> coords = new List<Coordinates>();
         coords.Add(pos1);
         coords.Add(pos2);
-    }
-
-    private IEnumerator LerpBlocks(GameObject block1, GameObject block2)
-    {
-        float elapsedTime = 0;
-        float waitTime = .2f;
-
-        Vector3 targetPosition1 = block2.transform.position;
-        Vector3 targetPosition2 = block1.transform.position;
-
-        Vector3 currentPos1 = block1.transform.position;
-        Vector3 currentPos2 = block2.transform.position;
-        
-        while (elapsedTime < waitTime)
-        {
-            block1.transform.position = Vector3.Lerp(currentPos1, targetPosition1, (elapsedTime / waitTime));
-            block2.transform.position = Vector3.Lerp(currentPos2, targetPosition2, (elapsedTime / waitTime));
-            elapsedTime += Time.deltaTime;
- 
-            // Yield here
-            yield return null;
-        }  
-        // Make sure we got there
-        block1.transform.position = targetPosition1;
-        block2.transform.position = targetPosition2;
-        yield return null;
-        ApplyGravity();
     }
     
     public bool IsSelectorColliding(BoardManager.Coordinates block1, BoardManager.Coordinates block2)
