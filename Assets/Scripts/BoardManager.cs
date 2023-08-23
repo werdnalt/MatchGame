@@ -48,6 +48,10 @@ public class BoardManager : MonoBehaviour
     private List<int> accumulatedScores = new List<int>();
     private Dictionary<int, List<Coordinates>> _selectorPositions = new Dictionary<int, List<Coordinates>>();
     public bool canMove;
+
+    [SerializeField] private GameObject blocksParent;
+    [SerializeField] private GameObject cellsParent;
+    [SerializeField] private GameObject singleCellSelector;
     
     public struct Coordinates 
     {
@@ -107,6 +111,8 @@ public class BoardManager : MonoBehaviour
         canMove = true;
 
         CreateHeroes();
+        
+        SetupRound();
     }
 
     private void AddBlock(Unit unit)
@@ -180,7 +186,8 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < _board.boardPositions[i].Length; j++)
             {
-                var backgroundCell = Instantiate(cellPrefabs[(i + j) % 2]);
+                var backgroundCell = Instantiate(cellPrefabs[(i + j) % 2], cellsParent.
+                    transform);
                 backgroundCell.transform.position = _board.boardPositions[i][j].worldSpacePosition;
             }
         }
@@ -201,8 +208,6 @@ public class BoardManager : MonoBehaviour
             AddBlock(randomUnitFromWave);
             yield return new WaitForSeconds(.1f);
         }
-        
-        PrepareTurn();
     }
     
     private Coordinates? FindBlockPlacement()
@@ -256,6 +261,7 @@ public class BoardManager : MonoBehaviour
     
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
+        TurnManager.Instance.ProcessTurn();
         _board.SwapBlocks(leftBlockCoords, rightBlockCoords);
         StartCoroutine(WaitToApplyGravity(_board.blockSwapTime));
     }
@@ -263,7 +269,14 @@ public class BoardManager : MonoBehaviour
     private IEnumerator WaitToApplyGravity(float blockSwapTime)
     {
         yield return new WaitForSeconds(blockSwapTime);
+        CleanUpBoard();
+    }
+
+    private void CleanUpBoard()
+    {
+        RemoveDeadUnits();
         ApplyGravity();
+        AssignCombatTargets();
     }
     
     private void ApplyGravity()
@@ -375,7 +388,7 @@ public class BoardManager : MonoBehaviour
 
     private UnitBehaviour CreateBlock(Unit unit)
     {
-        var blockInstance = Instantiate(blockPrefab);
+        var blockInstance = Instantiate(blockPrefab, blocksParent.transform);
 
         // hydrate generic block prefab 
         return blockInstance.GetComponent<UnitBehaviour>().Initialize(unit);
@@ -388,39 +401,22 @@ public class BoardManager : MonoBehaviour
 
     public void PerformCombat()
     {
-        var heroes = _board.Heroes;
-        var enemies = _board.FrontRowEnemies;
+        StartCoroutine(SequentialCombat());
+    }
 
-        // heroes attack first
-        for (var i = 0; i < numColumns; i++)
+    private IEnumerator SequentialCombat()
+    {
+        foreach (var unit in TurnManager.Instance.orderedCombatUnits)
         {
-            if (!heroes[i] || !enemies[i]) continue;  // Use continue instead of return
+            if (unit.isDead || unit.combatTarget == null) continue;
 
-            var hero = heroes[i];
-            var enemy = enemies[i];
+            yield return StartCoroutine(unit.Attack());
 
-            var heroPos = hero.transform.position;
-            var enemyPos = enemy.transform.position;
-        
-            hero.transform.DOMove((Vector3) enemyPos, .2f).SetEase(Ease.InExpo).OnComplete(() =>
-            {
-                enemy.TakeDamage(hero.unit.attack);
-                // Move the hero back after damaging the enemy
-                hero.transform.DOMove((Vector3) heroPos, .3f).SetEase(Ease.OutQuad);
-                
-                RemoveDeadUnits();
-                
-                ApplyGravity();
-            });
+            TurnManager.Instance.RemoveUnit(unit);
+            CleanUpBoard();
         }
         
-        // then enemies
-        for (var i = 0; i < numColumns; i++)
-        {
-            if (!heroes[i] || !enemies[i]) return;
-            
-            if (enemies[i].currentHp > 0) enemies[i].TakeDamage(heroes[i].unit.attack);
-        }
+        SetupRound();
     }
 
     private void RemoveDeadUnits()
@@ -436,10 +432,43 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    private void AssignCombatTargets()
+    {
+        for (var i = 0; i < numColumns; i++)
+        {
+            var hero = _board.Heroes[i];
+            var enemy = _board.FrontRowEnemies[i];
+
+            if (enemy)
+            {
+                hero.SetCombatTarget(enemy);
+                enemy.SetCombatTarget(hero);
+            }
+            else
+            {
+                hero.SetCombatTarget(null);
+            }
+        }
+    }
+
     private void PrepareTurn()
     {
         var combatParticipants = _board.FrontRowEnemies.ToList();
         foreach (var unitBehaviour in _board.Heroes) combatParticipants.Add(unitBehaviour);
         TurnManager.Instance.ChooseTurnOrder(combatParticipants);
+    }
+
+    public void SetCellSelector(Vector3 position)
+    {
+        singleCellSelector.transform.position = position;
+    }
+
+    private void SetupRound()
+    {
+        // spawn wave
+        WaveManager.Instance.StartWaveSpawn();
+        
+        // prepare turn
+        PrepareTurn();
     }
 }

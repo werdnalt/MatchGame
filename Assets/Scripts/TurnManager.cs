@@ -8,7 +8,11 @@ public class TurnManager : MonoBehaviour
 
     [SerializeField] private GameObject turnIndicatorPrefab;
 
+    public List<UnitBehaviour> orderedCombatUnits;
     private List<GameObject> _turnIndicators;
+
+    public int numSwapsBeforeCombat;
+    private int _currentNumSwaps;
 
     private void Awake()
     {
@@ -23,12 +27,24 @@ public class TurnManager : MonoBehaviour
 
     public void ChooseTurnOrder(List<UnitBehaviour> unitsInCombat)
     {
+        orderedCombatUnits.Clear();
+        if (_turnIndicators.Count != 0)
+        {
+            for (var i = _turnIndicators.Count - 1; i >= 0; i--)
+            {
+                Destroy(_turnIndicators[i]);
+            }
+            _turnIndicators.Clear();
+        }
+        
         // Use a dictionary to store the unit and its corresponding roll
         Dictionary<UnitBehaviour, int> unitRolls = new Dictionary<UnitBehaviour, int>();
 
         // iterate through every unit in unitsInCombat
         foreach (var unit in unitsInCombat)
         {
+            if (unit == null) continue;
+
             // roll a random number from 1-100
             int roll = Random.Range(1, 101);
             
@@ -46,6 +62,8 @@ public class TurnManager : MonoBehaviour
 
         foreach (var unit in orderedUnits)
         {
+            orderedCombatUnits.Add(unit);
+            
             var turnIndicatorInstance = Instantiate(turnIndicatorPrefab, transform);
             
             var turnIndicator = turnIndicatorInstance.GetComponent<TurnIndicator>();
@@ -55,9 +73,28 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    private void ProcessTurn()
+    public void RemoveUnit(UnitBehaviour unit)
     {
+        unit.isDead = true;
+        if (!orderedCombatUnits.Contains(unit)) return;
         
+        foreach (var turnIndicator in _turnIndicators)
+        {
+            var u = turnIndicator.GetComponent<TurnIndicator>().unitBehaviour;
+            if (turnIndicator == null || u != unit) continue;
+            
+            turnIndicator.SetActive(false);
+        }
+    }
+
+    public void ProcessTurn()
+    {
+        _currentNumSwaps++;
+        if (_currentNumSwaps >= numSwapsBeforeCombat)
+        {
+            BoardManager.Instance.PerformCombat();
+            _currentNumSwaps = 0;
+        }
     }
     
     

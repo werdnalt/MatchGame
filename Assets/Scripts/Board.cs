@@ -18,7 +18,6 @@ public class Board
         {
             return boardPositions
                 .Select(row => row.First())
-                .Where(boardPosition => boardPosition.unit != null)
                 .Select(position => position.unit).ToArray();
         }
     }

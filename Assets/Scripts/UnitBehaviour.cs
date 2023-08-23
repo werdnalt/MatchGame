@@ -17,8 +17,10 @@ public class UnitBehaviour : MonoBehaviour
     private float _spriteDuration;
     private int _currentSpriteIndex;
     private bool _isAscending;
+    public bool isDead = false;
     private float _timeOfSpriteChange;
     private Vector3 _originalScale;
+    public UnitBehaviour combatTarget;
     
     private const int SpriteCount = 3; 
     private Sprite[] _sprites;
@@ -153,6 +155,32 @@ public class UnitBehaviour : MonoBehaviour
         return this;
     }
 
+    public IEnumerator Attack()
+    {
+        var combatFinished = false;
+
+        if (!combatTarget)
+        {
+            yield break; // If there's no combat target, simply exit the coroutine
+        }
+
+        var originalPos = transform.position;
+
+        transform.DOMove(combatTarget.transform.position, .2f).OnComplete(() =>
+        {
+            combatTarget.TakeDamage(unit.attack);
+            // Move the hero back after damaging the enemy
+            transform.DOMove(originalPos, .3f).SetEase(Ease.OutQuad).OnComplete(() =>
+            {
+                // Set combatFinished true after all animations are complete
+                combatFinished = true;
+            });
+        });
+
+        // Wait until combatFinished becomes true to exit the coroutine
+        yield return new WaitUntil(() => combatFinished);
+    }
+
     public void TakeDamage(int amount)
     {
         currentHp -= amount;
@@ -169,6 +197,7 @@ public class UnitBehaviour : MonoBehaviour
 
     private void Die()
     {
+        TurnManager.Instance.RemoveUnit(this);
         // remove block
         
         // play death particles
@@ -212,5 +241,9 @@ public class UnitBehaviour : MonoBehaviour
     {
         transform.DOScale(_originalScale, .2f).SetEase(Ease.InOutBounce); 
     }
-    
+
+    public void SetCombatTarget(UnitBehaviour target)
+    {
+        combatTarget = target;
+    }
 }
