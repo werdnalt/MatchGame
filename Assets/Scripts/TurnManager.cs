@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using TMPro;
 
 public class TurnManager : MonoBehaviour
 {
     public static TurnManager Instance;
 
     [SerializeField] private GameObject turnIndicatorPrefab;
+    [SerializeField] private TextMeshProUGUI swapCounter;
 
     public List<UnitBehaviour> orderedCombatUnits;
     private List<GameObject> _turnIndicators;
@@ -23,6 +25,7 @@ public class TurnManager : MonoBehaviour
         }
 
         _turnIndicators = new List<GameObject>();
+        UpdateSwapCounter();
     }
 
     public void ChooseTurnOrder(List<UnitBehaviour> unitsInCombat)
@@ -95,6 +98,12 @@ public class TurnManager : MonoBehaviour
             BoardManager.Instance.PerformCombat();
             _currentNumSwaps = 0;
         }
+        UpdateSwapCounter();
+    }
+
+    private void UpdateSwapCounter()
+    {
+        swapCounter.text = ($"{numSwapsBeforeCombat - _currentNumSwaps} swaps before combat");
     }
     
     

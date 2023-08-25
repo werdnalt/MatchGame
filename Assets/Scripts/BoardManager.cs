@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 using TMPro;
 using Random = UnityEngine.Random;
 using System.Linq;
+using JetBrains.Annotations;
 
 public class BoardManager : MonoBehaviour
 {
@@ -189,6 +190,8 @@ public class BoardManager : MonoBehaviour
                 var backgroundCell = Instantiate(cellPrefabs[(i + j) % 2], cellsParent.
                     transform);
                 backgroundCell.transform.position = _board.boardPositions[i][j].worldSpacePosition;
+
+                backgroundCell.GetComponent<Cell>().coordinates = new Coordinates(i, j);
             }
         }
 
@@ -208,6 +211,9 @@ public class BoardManager : MonoBehaviour
             AddBlock(randomUnitFromWave);
             yield return new WaitForSeconds(.1f);
         }
+        
+        // prepare turn
+        PrepareTurn();
     }
     
     private Coordinates? FindBlockPlacement()
@@ -261,6 +267,11 @@ public class BoardManager : MonoBehaviour
     
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
+        var leftUnit = _board.GetUnitBehaviour(leftBlockCoords);
+        var rightUnit = _board.GetUnitBehaviour(rightBlockCoords);
+
+        if (leftUnit == null && rightUnit == null) return;
+        
         TurnManager.Instance.ProcessTurn();
         _board.SwapBlocks(leftBlockCoords, rightBlockCoords);
         StartCoroutine(WaitToApplyGravity(_board.blockSwapTime));
@@ -311,11 +322,48 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    private List<UnitBehaviour> Chain(UnitBehaviour origin)
+    // public List<UnitBehaviour> Chain(UnitBehaviour origin)
+    // {
+    //     return GetNeighboringCoordinates(origin.coordinates)
+    //         .Select(coordinate => _board.GetUnitBehaviour(coordinate))
+    //         .Where(block => block != null && block.unit == origin.unit)
+    //         .SelectMany(block => Chain(block) ?? new List<UnitBehaviour>())
+    //         .ToList();
+    // }
+    
+    public List<UnitBehaviour> Chain(UnitBehaviour origin)
     {
-        return GetNeighboringCoordinates(origin.coordinates).Select((coordinate) 
-            => _board.GetUnitBehaviour(coordinate)).Where((block) 
-            => block.unit == origin.unit).SelectMany(Chain).ToList();
+        var visited = new HashSet<BoardManager.Coordinates>();
+        var allUnits = new List<UnitBehaviour>();
+
+        DFS(origin, visited, allUnits);
+
+        return allUnits;
+    }
+
+    private void DFS(UnitBehaviour current, HashSet<BoardManager.Coordinates> visited, List<UnitBehaviour> allUnits)
+    {
+        if (current == null)
+            return;
+
+        if (visited.Contains(current.coordinates))
+            return;
+
+        Debug.Log("Made it here");
+        visited.Add(current.coordinates);
+        allUnits.Add(current);
+
+        foreach (var neighborCoordinates in GetNeighboringCoordinates(current.coordinates))
+        {
+            var neighbor = _board.GetUnitBehaviour(neighborCoordinates);
+
+            // If neighbor is of the same tribe and hasn't been visited, we recursively call DFS on it.
+            if (neighbor != null && neighbor.unit.tribe == current.unit.tribe && !visited.Contains(neighbor.coordinates))
+            {
+                Debug.Log("Same tribe");
+                DFS(neighbor, visited, allUnits);
+            }
+        }
     }
     
     // Pass in the coordinates of the two blocks the selector is highlighting.
@@ -358,33 +406,37 @@ public class BoardManager : MonoBehaviour
         List<Coordinates> neighbors = new List<Coordinates>();
         int x = coordinates.x;
         int y = coordinates.y;
+        
+        Debug.Log($"Checking neighbors for coordinates: {coordinates.x}, {coordinates.y} ");
 
-        // west
-        if (x - 1 >= 0) neighbors.Add(new Coordinates(x - 1, y));
+        if (x - 1 >= 0)
+        {
+            neighbors.Add(new Coordinates(x - 1, y));
+            Debug.Log("Added West Neighbor");
+        }
 
-        // northwest
-        if (x - 1 >= 0 && y + 1 < numRows) neighbors.Add(new Coordinates(x - 1, y + 1));
+        if (y + 1 < numRows)
+        {
+            neighbors.Add(new Coordinates(x, y + 1));
+            Debug.Log("Added North Neighbor");
+        }
 
-        // north
-        if (y + 1 < numRows) neighbors.Add(new Coordinates(x, y + 1));
+        if (x + 1 < numColumns)
+        {
+            neighbors.Add(new Coordinates(x + 1, y));
+            Debug.Log("Added East Neighbor");
+        }
 
-        // northeast
-        if (x + 1 < numColumns && y + 1 < numRows) neighbors.Add(new Coordinates(x + 1, y + 1));
-
-        // east
-        if (x + 1 < numColumns) neighbors.Add(new Coordinates(x + 1, y));
-
-        // southeast 
-        if (x + 1 < numColumns && y - 1 >= 0) neighbors.Add(new Coordinates(x + 1, y - 1));
-            
-        // south
-        if (y - 1 >= 0) neighbors.Add(new Coordinates(x, y - 1));
-            
-        // southwest
-        if (x - 1 >= 0 && y - 1 >= 0) neighbors.Add(new Coordinates(x - 1, y - 1));
-
+        if (y - 1 >= 0)
+        {
+            neighbors.Add(new Coordinates(x, y - 1));
+            Debug.Log("Added South Neighbor");
+        }
+        
         return neighbors;
     }
+    
+    
 
     private UnitBehaviour CreateBlock(Unit unit)
     {
@@ -406,6 +458,7 @@ public class BoardManager : MonoBehaviour
 
     private IEnumerator SequentialCombat()
     {
+        yield return new WaitForSeconds(1f);
         foreach (var unit in TurnManager.Instance.orderedCombatUnits)
         {
             if (unit.isDead || unit.combatTarget == null) continue;
@@ -414,6 +467,8 @@ public class BoardManager : MonoBehaviour
 
             TurnManager.Instance.RemoveUnit(unit);
             CleanUpBoard();
+
+            yield return new WaitForSeconds(.5f);
         }
         
         SetupRound();
@@ -463,12 +518,22 @@ public class BoardManager : MonoBehaviour
         singleCellSelector.transform.position = position;
     }
 
+    public void SetCellSelector(Coordinates coordinates)
+    {
+        singleCellSelector.transform.position = _board.GetWorldSpacePositionForBoardCoordinates(coordinates);
+    }
+
     private void SetupRound()
     {
         // spawn wave
         WaveManager.Instance.StartWaveSpawn();
         
-        // prepare turn
-        PrepareTurn();
+
+    }
+
+    [CanBeNull]
+    public UnitBehaviour GetUnitBehaviourAtCoordinate(Coordinates coordinates)
+    {
+        return _board.GetUnitBehaviour(coordinates);
     }
 }

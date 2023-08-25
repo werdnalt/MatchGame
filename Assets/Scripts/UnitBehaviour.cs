@@ -24,6 +24,12 @@ public class UnitBehaviour : MonoBehaviour
     
     private const int SpriteCount = 3; 
     private Sprite[] _sprites;
+    
+    private Renderer rend;
+    private Material mat;
+    private const string HIT = "_HitEffectBlend";
+    
+    private bool _isAnimating = false;
 
     // The location that the block is being asked to move to
     public Vector3? targetPosition;
@@ -32,6 +38,7 @@ public class UnitBehaviour : MonoBehaviour
     public int currentHp;
 
     [SerializeField] private ParticleSystem deathParticles;
+    [SerializeField] private ParticleSystem hitParticles;
     [SerializeField] private GameObject healthUI;
     [SerializeField] private GameObject heartHolder;
     [SerializeField] private GameObject fullHeart;
@@ -49,13 +56,20 @@ public class UnitBehaviour : MonoBehaviour
         _timeOfSpriteChange = Time.time;
         _spriteDuration = .15f;
         _currentSpriteIndex = 0;
+        _originalScale = transform.localScale;
+        
+        rend = GetComponent<Renderer>();
+        if (rend)
+        {
+            mat = rend.material;
+        }
         
         // Preload all sprites
         _sprites = new Sprite[SpriteCount];
         for (int i = 0; i < SpriteCount; i++)
         {
-            //var sprite = Resources.Load<Sprite>($"{unit.name}{i + 1}"); // name1, name2, etc.
-            //_sprites[i] = sprite;
+            var sprite = Resources.Load<Sprite>($"{unit.name}{i + 1}"); // name1, name2, etc.
+            _sprites[i] = sprite;
         }
     }
 
@@ -166,23 +180,34 @@ public class UnitBehaviour : MonoBehaviour
 
         var originalPos = transform.position;
 
-        transform.DOMove(combatTarget.transform.position, .2f).OnComplete(() =>
+        transform.DOMove(combatTarget.transform.position, .1f).OnComplete(() =>
         {
-            combatTarget.TakeDamage(unit.attack);
+            var targets = BoardManager.Instance.Chain(combatTarget);
+            Debug.Log($"Number of combat targets: {targets.Count}");
+            foreach (var target in targets)
+            {
+                if (!target) continue;
+                target.TakeDamage(unit.attack);
+            }
+            
             // Move the hero back after damaging the enemy
+
             transform.DOMove(originalPos, .3f).SetEase(Ease.OutQuad).OnComplete(() =>
             {
                 // Set combatFinished true after all animations are complete
                 combatFinished = true;
             });
         });
-
+        
         // Wait until combatFinished becomes true to exit the coroutine
         yield return new WaitUntil(() => combatFinished);
     }
 
     public void TakeDamage(int amount)
     {
+        hitParticles.Play();
+        
+        StartCoroutine(HitEffect());
         currentHp -= amount;
 
         if (currentHp <= 0)
@@ -193,6 +218,17 @@ public class UnitBehaviour : MonoBehaviour
         healthUI.SetActive(true);
         ShowHearts();
         UpdateHearts();
+    }
+
+    private IEnumerator HitEffect()
+    {
+        if (!mat) yield break;
+        
+        mat.SetFloat(HIT, 1);
+
+        yield return new WaitForSeconds(.2f);
+        
+        mat.SetFloat(HIT, 0);
     }
 
     private void Die()
@@ -223,7 +259,13 @@ public class UnitBehaviour : MonoBehaviour
 
         for (var i = startHp; i >= endHp; i--)
         {
-            _heartObjects[i].GetComponent<Image>().sprite = emptyHeart;
+            var heart = _heartObjects[i];
+            var originalPos = heart.transform.position;
+            
+            heart.GetComponent<Image>().sprite = emptyHeart;
+
+            heart.transform.DOPunchScale(new Vector3(heart.transform.localScale.x + .2f, heart.transform.localScale.y + .2f), .3f, 1, 1);
+            heart.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1);
         }
     }
 
@@ -245,5 +287,20 @@ public class UnitBehaviour : MonoBehaviour
     public void SetCombatTarget(UnitBehaviour target)
     {
         combatTarget = target;
+    }
+
+    public void AnimateJump()
+    {
+        if (_isAnimating) return; // If already animating, don't proceed.
+
+        _isAnimating = true;
+
+        // Reset the scale before starting the animation
+        transform.localScale = _originalScale;
+
+        transform.DOPunchRotation(new Vector3(.3f, .3f, .3f), .5f, 5, .5f);
+        transform.DOPunchScale(new Vector3(.3f, .3f, .3f), .5f, 5, .5f)
+            .OnComplete(() => _isAnimating = false); // Reset flag when animation completes
+        transform.localScale = _originalScale;
     }
 }

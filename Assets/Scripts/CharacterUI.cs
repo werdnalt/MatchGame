@@ -67,7 +67,7 @@ public class CharacterUI : MonoBehaviour
     private IEnumerator IDamageFlash()
     {
         int numFlashes = 5;
-        float flashDuration = .1f;
+        float flashDuration = .3f;
         for (int i = 0; i < numFlashes; i++)
         {
             characterMaterial.SetFloat("_HitEffectBlend", 1);

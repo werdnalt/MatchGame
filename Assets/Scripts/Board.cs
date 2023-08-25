@@ -57,33 +57,30 @@ public class Board
     private Vector3 WorldPositionForBoardCoordinate(BoardManager.Coordinates boardCoordinates)
     {
         // Calculate the total width and height of the board
-        float boardWidth = _numColumns; // Assuming each board position has a width of 1 unit
-        float boardHeight = _numRows; // Assuming each board position has a height of 1 unit
+        float boardWidth = _numColumns; 
+        float boardHeight = _numRows;
 
         // Calculate the starting position for the board to be centered on the screen
-        float startX = -boardWidth / 2 + 0.5f; // +0.5f since we assume each board position has a width of 1 unit and we want to start from its center
-        float startY = -boardHeight / 2 + 0.5f; // +0.5f for the same reason as above
+        float startX = -boardWidth / 2 + 0.5f; 
+        float startY = (-boardHeight / 2) + 0.5f + boardCoordinates.y + 0.5f;  // +0.5f to account for the hero row below the board
 
-
-        // Calculate the position for each board position based on the start position
         float xPos = startX + boardCoordinates.x;
-        float yPos = startY + boardCoordinates.y;
-
-        return new Vector3(xPos, yPos);
+        return new Vector3(xPos, startY);
     }
 
     private Vector3 WorldPositionForHeroPositionIndex(int index)
     {
         // Calculate the total width and height of the board
-        float boardWidth = _numColumns; // Assuming each board position has a width of 1 unit
-        float boardHeight = _numRows; // Assuming each board position has a height of 1 unit
+        float boardWidth = _numColumns; 
+        float boardHeight = _numRows;
 
         // Calculate the starting position for the board to be centered on the screen
-        float startX = -boardWidth / 2 + 0.5f; // +0.5f since we assume each board position has a width of 1 unit and we want to start from its center
-        float  startY = -boardHeight / 2 - 1f; // Add offset to move heros lower than the board
+        float startX = -boardWidth / 2 + 0.5f; 
+
+        // Since heroes are below the board, place them half a unit below the bottom-most row of the board.
+        float startY = (-boardHeight / 2) - 0.5f;  
 
         float xPos = startX + index;
-
         return new Vector3(xPos, startY);
     }
     
@@ -133,6 +130,7 @@ public class Board
         
         if (unitBehaviour != null)
         {
+            unitBehaviour.coordinates = coordinates;
             unitBehaviour.isMovable = false;
             unitBehaviour.transform.DOMove(boardPosition.worldSpacePosition, blockSwapTime).SetEase(Ease.InQuad).OnComplete(() =>
             {

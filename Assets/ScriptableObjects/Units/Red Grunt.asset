@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: Red Grunt
   m_EditorClassIdentifier: 
-  tribe: 0
+  tribe: 1
   classification: 0
   hp: 3
   attack: 1
