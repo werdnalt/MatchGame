@@ -38,6 +38,7 @@ public class BoardManager : MonoBehaviour
     public bool isRefilling;
     public TextMeshProUGUI accumulatedPointsText;
 
+    public UnitBehaviour mostRecentlyAttackingUnit;
 
     private float blockSize;
 
@@ -144,7 +145,6 @@ public class BoardManager : MonoBehaviour
         blockGameobject.transform.position = dropFrom;
         
         Drop(blockGameobject, dropFrom, position);
-        
     }
 
     private void Drop(GameObject obj, Vector3 dropFrom, Vector3 dropTo)
@@ -198,17 +198,16 @@ public class BoardManager : MonoBehaviour
         EventManager.Instance.BoardReady();
     }
 
-    public void SpawnWave(Wave wave)
+    public void SpawnWave(List<Unit> unitsToSpawn)
     {
-        StartCoroutine(SpawnUnit(wave));
+        StartCoroutine(SpawnUnit(unitsToSpawn));
     }
 
-    private IEnumerator SpawnUnit(Wave wave)
+    private IEnumerator SpawnUnit(List<Unit> unitsToSpawn)
     {
-        for (var unitsSpawned = 0; unitsSpawned < wave.waveSize; unitsSpawned++)
+        for (var unitsSpawned = 0; unitsSpawned < unitsToSpawn.Count; unitsSpawned++)
         {
-            var randomUnitFromWave = wave.units[Random.Range(0, wave.units.Count)];
-            AddBlock(randomUnitFromWave);
+            AddBlock(unitsToSpawn[unitsSpawned]);
             yield return new WaitForSeconds(.1f);
         }
         
@@ -312,6 +311,7 @@ public class BoardManager : MonoBehaviour
                     var b = collapsedBlocks[newRow];
                     b.targetPosition = newPosition;
                     _board.SetUnitBehaviour(new Coordinates(column, newRow), b);
+                    if (newPosition != b.transform.position) Drop(b.gameObject,b.transform.position, newPosition);
                 }
                 else
                 {
@@ -322,15 +322,6 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    // public List<UnitBehaviour> Chain(UnitBehaviour origin)
-    // {
-    //     return GetNeighboringCoordinates(origin.coordinates)
-    //         .Select(coordinate => _board.GetUnitBehaviour(coordinate))
-    //         .Where(block => block != null && block.unit == origin.unit)
-    //         .SelectMany(block => Chain(block) ?? new List<UnitBehaviour>())
-    //         .ToList();
-    // }
-    
     public List<UnitBehaviour> Chain(UnitBehaviour origin)
     {
         var visited = new HashSet<BoardManager.Coordinates>();
@@ -399,6 +390,29 @@ public class BoardManager : MonoBehaviour
             }
         }
         return isColliding;
+    }
+
+    public Coordinates GetNeighborCoordinates(Coordinates origin, Direction direction)
+    {
+        switch (direction)
+        {
+            case (Direction.Left):
+                if (origin.x - 1 >= 0)
+                {
+                    return new Coordinates(origin.x - 1, origin.y);
+                }
+
+                break;
+            case (Direction.Right):
+                if (origin.x + 1 < numColumns)
+                {
+                    return new Coordinates(origin.x + 1, origin.y);
+                }
+
+                break;
+        }
+
+        return new Coordinates(-1, -1);
     }
     
     public List<Coordinates> GetNeighboringCoordinates(Coordinates coordinates)

@@ -1,19 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Unit", menuName = "ScriptableObjects/Unit", order = 1)]
 public class Unit : ScriptableObject
 {
-    private void Start()
-    {
-        
-    }
-    
-    private void Update()
-    {
-
-
-    }
-    
     public enum Tribe
     {
         Hero,
@@ -39,7 +29,9 @@ public class Unit : ScriptableObject
     public Classification classification;
     public int hp;
     public int attack;
+    public int experienceAmount;
     public Sprite unitSprite;
-
+    public List<Effect> effects;
+    public bool passive;
 
 }

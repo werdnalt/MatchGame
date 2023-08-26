@@ -15,6 +15,8 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
         
         Debug.Log($"{coordinates.x}, {coordinates.y}");
         BoardManager.Instance.SetCellSelector(transform.position);
+        
+        AudioManager.Instance.PlayWithPitch("block", .4f);
     }
     
     public void OnPointerClick(PointerEventData eventData)
@@ -23,7 +25,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
         unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
         if (!unitBehaviour) return;
         
-        unitBehaviour.AnimateJump();
+        UIManager.Instance.ShowUnitPanel(unitBehaviour);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -35,7 +37,6 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
 
     public void OnDrag(PointerEventData eventData)
     {
-        CursorAnimation.Instance.ChangeColor(Color.cyan);
         CursorAnimation.Instance.StartDraggingFrom(eventData.position, coordinates);
     }
 

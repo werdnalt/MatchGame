@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
-  m_Name: Shitty Melee Hero
+  m_Script: {fileID: 11500000, guid: 822c0ca4f25901348bbb3d6df8aba20f, type: 3}
+  m_Name: skull
   m_EditorClassIdentifier: 
-  tribe: 0
-  classification: 0
-  hp: 5
-  attack: 1
-  unitSprite: {fileID: 21300000, guid: 3ab3df0123d5c6b498fef12eb6cb9816, type: 3}
+  unit: {fileID: 11400000, guid: 63e15bba1de2717428a367c18cd949c0, type: 2}
+  weight: 20

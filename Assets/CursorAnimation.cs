@@ -22,6 +22,9 @@ public class CursorAnimation : MonoBehaviour
 
     private bool _isSwappingLeft;
 
+    [SerializeField] private GameObject cellReference; 
+    
+    [SerializeField] private Sprite smallSwappingSelector;
     [SerializeField] private Sprite regularSelector;
     [SerializeField] private Sprite swapSelector;
 
@@ -46,17 +49,22 @@ public class CursorAnimation : MonoBehaviour
 
         _mousePos = _mousePositionAction.ReadValue<Vector2>();
 
-        if (_mousePos.x < _startingDragPos.x && _startingCell.x > 0)
+        if (_mousePos.x < _startingDragPos.x - 1 && _startingCell.x > 0)
         {
             _swappingCell = new BoardManager.Coordinates(_startingCell.x - 1, _startingCell.y);
             _isSwappingLeft = true;
             _spriteRenderer.sprite = swapSelector;
         }
-        else if (_mousePos.x > _startingDragPos.x && _startingCell.x + 1 < BoardManager.Instance.numColumns)
+        else if (_mousePos.x > _startingDragPos.x + 1 && _startingCell.x + 1 < BoardManager.Instance.numColumns)
         {
             _swappingCell = new BoardManager.Coordinates(_startingCell.x + 1, _startingCell.y);
             _isSwappingLeft = false;
             _spriteRenderer.sprite = swapSelector;
+        }
+        else
+        {
+            _spriteRenderer.sprite = smallSwappingSelector;
+            _swappingCell = new BoardManager.Coordinates(0, 0);
         }
 
         SetSwapSelectorPosition();
@@ -106,7 +114,8 @@ public class CursorAnimation : MonoBehaviour
     public void StartDraggingFrom(Vector3 position, BoardManager.Coordinates startingCell)
     {
         if (isDragging) return;
-        
+
+        _spriteRenderer.sprite = smallSwappingSelector;
         _startingDragPos = position;
         isDragging = true;
         _startingCell = startingCell;
