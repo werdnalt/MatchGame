@@ -96,7 +96,7 @@ public class Board
     
     public UnitBehaviour GetUnitBehaviour(BoardManager.Coordinates coordinates)
     {
-        if (coordinates.x > _numColumns || coordinates.y > _numRows)
+        if (coordinates.x > _numColumns || coordinates.y > _numRows || coordinates.Equals(new BoardManager.Coordinates(-1, -1)))
         {
             Debug.LogAssertion("Attempting to access coordinate outside of the board space");
             return null;

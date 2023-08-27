@@ -64,15 +64,15 @@ public class CursorAnimation : MonoBehaviour
         else
         {
             _spriteRenderer.sprite = smallSwappingSelector;
-            _swappingCell = new BoardManager.Coordinates(0, 0);
+            _swappingCell = new BoardManager.Coordinates(-1, -1);
         }
-
+        
         SetSwapSelectorPosition();
     }
 
     private void SetSwapSelectorPosition()
     {
-        if (_swappingCell.Equals(new BoardManager.Coordinates(0, 0))) return;
+        if (_swappingCell.Equals(new BoardManager.Coordinates(-1, -1))) return;
 
         if (_isSwappingLeft)
         {

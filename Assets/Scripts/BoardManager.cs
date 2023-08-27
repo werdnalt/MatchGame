@@ -105,16 +105,19 @@ public class BoardManager : MonoBehaviour
 
     private void Start()
     {
-        AttackTimeManager.instance.attackTriggerListeners += PerformCombat;
-
         _player = GameObject.FindObjectOfType<Player>();
         
         EventManager.Instance.LevelLoaded();
         canMove = true;
 
-        CreateHeroes();
+        StartCoroutine(KickOffGameLoop());
+    }
+
+    private IEnumerator KickOffGameLoop()
+    {
+        yield return StartCoroutine(CreateHeroes());
         
-        SetupRound();
+        StartCoroutine(GameLoop());
     }
 
     private void AddBlock(Unit unit)
@@ -198,9 +201,10 @@ public class BoardManager : MonoBehaviour
         EventManager.Instance.BoardReady();
     }
 
-    public void SpawnWave(List<Unit> unitsToSpawn)
+    public IEnumerator SpawnWave()
     {
-        StartCoroutine(SpawnUnit(unitsToSpawn));
+        var unitsToSpawn = WaveManager.Instance.GetUnitsToSpawn();
+        yield return StartCoroutine(SpawnUnit(unitsToSpawn));
     }
 
     private IEnumerator SpawnUnit(List<Unit> unitsToSpawn)
@@ -210,9 +214,6 @@ public class BoardManager : MonoBehaviour
             AddBlock(unitsToSpawn[unitsSpawned]);
             yield return new WaitForSeconds(.1f);
         }
-        
-        // prepare turn
-        PrepareTurn();
     }
     
     private Coordinates? FindBlockPlacement()
@@ -230,7 +231,7 @@ public class BoardManager : MonoBehaviour
 
     }
     
-    private void CreateHeroes()
+    private IEnumerator CreateHeroes()
     {
         foreach (var hero in _player.allHeroes)
         {
@@ -240,6 +241,8 @@ public class BoardManager : MonoBehaviour
             {
                 DropBlock(unitBehaviour.gameObject, position.Value);
             }
+
+            yield return null;
         }
     }
 
@@ -266,13 +269,33 @@ public class BoardManager : MonoBehaviour
     
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
+        if (TurnManager.Instance.currentNumSwaps == TurnManager.Instance.numSwapsBeforeCombat) return;
+        
         var leftUnit = _board.GetUnitBehaviour(leftBlockCoords);
         var rightUnit = _board.GetUnitBehaviour(rightBlockCoords);
 
         if (leftUnit == null && rightUnit == null) return;
         
-        TurnManager.Instance.ProcessTurn();
+        TurnManager.Instance.SwapBlocks();
         _board.SwapBlocks(leftBlockCoords, rightBlockCoords);
+
+        if (leftUnit)
+        {
+            foreach (var effect in leftUnit.unit.effects)
+            {
+                effect.OnSwap();
+            }
+
+        }
+
+        if (rightUnit)
+        {
+            foreach (var effect in rightUnit.unit.effects)
+            {
+                effect.OnSwap();
+            }
+        }
+
         StartCoroutine(WaitToApplyGravity(_board.blockSwapTime));
     }
 
@@ -286,7 +309,7 @@ public class BoardManager : MonoBehaviour
     {
         RemoveDeadUnits();
         ApplyGravity();
-        AssignCombatTargets();
+        StartCoroutine(AssignCombatTargets());
     }
     
     private void ApplyGravity()
@@ -412,7 +435,7 @@ public class BoardManager : MonoBehaviour
                 break;
         }
 
-        return new Coordinates(-1, -1);
+        return new Coordinates(0, 0);
     }
     
     public List<Coordinates> GetNeighboringCoordinates(Coordinates coordinates)
@@ -426,25 +449,21 @@ public class BoardManager : MonoBehaviour
         if (x - 1 >= 0)
         {
             neighbors.Add(new Coordinates(x - 1, y));
-            Debug.Log("Added West Neighbor");
         }
 
         if (y + 1 < numRows)
         {
             neighbors.Add(new Coordinates(x, y + 1));
-            Debug.Log("Added North Neighbor");
         }
 
         if (x + 1 < numColumns)
         {
             neighbors.Add(new Coordinates(x + 1, y));
-            Debug.Log("Added East Neighbor");
         }
 
         if (y - 1 >= 0)
         {
             neighbors.Add(new Coordinates(x, y - 1));
-            Debug.Log("Added South Neighbor");
         }
         
         return neighbors;
@@ -464,19 +483,15 @@ public class BoardManager : MonoBehaviour
     {
         return _board.GetUnitBehaviour(coordinates);
     }
-
-    public void PerformCombat()
-    {
-        StartCoroutine(SequentialCombat());
-    }
-
+    
     private IEnumerator SequentialCombat()
     {
+        canMove = false;
         yield return new WaitForSeconds(1f);
         foreach (var unit in TurnManager.Instance.orderedCombatUnits)
         {
             if (unit.isDead || unit.combatTarget == null) continue;
-
+            
             yield return StartCoroutine(unit.Attack());
 
             TurnManager.Instance.RemoveUnit(unit);
@@ -484,8 +499,6 @@ public class BoardManager : MonoBehaviour
 
             yield return new WaitForSeconds(.5f);
         }
-        
-        SetupRound();
     }
 
     private void RemoveDeadUnits()
@@ -501,7 +514,7 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    private void AssignCombatTargets()
+    private IEnumerator AssignCombatTargets()
     {
         for (var i = 0; i < numColumns; i++)
         {
@@ -518,13 +531,15 @@ public class BoardManager : MonoBehaviour
                 hero.SetCombatTarget(null);
             }
         }
+        yield break;
     }
 
-    private void PrepareTurn()
+    private IEnumerator SetUpCombatTurns()
     {
         var combatParticipants = _board.FrontRowEnemies.ToList();
         foreach (var unitBehaviour in _board.Heroes) combatParticipants.Add(unitBehaviour);
-        TurnManager.Instance.ChooseTurnOrder(combatParticipants);
+        canMove = true;
+        return TurnManager.Instance.ChooseTurnOrder(combatParticipants);
     }
 
     public void SetCellSelector(Vector3 position)
@@ -537,17 +552,33 @@ public class BoardManager : MonoBehaviour
         singleCellSelector.transform.position = _board.GetWorldSpacePositionForBoardCoordinates(coordinates);
     }
 
-    private void SetupRound()
-    {
-        // spawn wave
-        WaveManager.Instance.StartWaveSpawn();
-        
-
-    }
-
     [CanBeNull]
     public UnitBehaviour GetUnitBehaviourAtCoordinate(Coordinates coordinates)
     {
         return _board.GetUnitBehaviour(coordinates);
+    }
+    
+    private IEnumerator GameLoop()
+    {
+        while (true)
+        {
+            // spawn wave 
+            yield return StartCoroutine(SpawnWave());
+
+            // choose combat targets for heroes and enemies
+            yield return StartCoroutine(AssignCombatTargets());
+        
+            // assign combatants their turn order and create turn UIs
+            yield return StartCoroutine(SetUpCombatTurns());
+            
+            // player swaps blocks
+            yield return StartCoroutine(TurnManager.Instance.CheckIfFinishedSwapping());
+            
+            // combat happens
+            yield return StartCoroutine(SequentialCombat());
+            
+            // check if units need to level up
+            //yield return StartCoroutine(LevelUpManager.Instance.LevelUpUnits());
+        }
     }
 }

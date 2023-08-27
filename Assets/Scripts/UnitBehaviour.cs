@@ -39,6 +39,7 @@ public class UnitBehaviour : MonoBehaviour
     public int currentHp;
 
     public TextMeshProUGUI combatOrderText;
+    [SerializeField] private ParticleSystem increaseHealthParticles;
     [SerializeField] private ParticleSystem healParticles;
     [SerializeField] private ParticleSystem deathParticles;
     [SerializeField] private ParticleSystem hitParticles;
@@ -57,18 +58,16 @@ public class UnitBehaviour : MonoBehaviour
     {
         _blockIcon = GetComponent<SpriteRenderer>();
         
-        foreach (var effect in unit.effects)
-        {
-            effect.SetUnit(this);
-        }
+
 
         _currentExperience = 0;
         _attack = unit.attack;
-        _maxHp = unit.hp;
+        
     }
 
     private void Start()
     {
+        _maxHp = unit.hp;
         timeSpawned = Time.time;
         _timeOfSpriteChange = Time.time;
         _spriteDuration = .2f;
@@ -81,6 +80,11 @@ public class UnitBehaviour : MonoBehaviour
         if (rend)
         {
             mat = rend.material;
+        }
+        
+        foreach (var effect in unit.effects)
+        {
+            effect.SetUnit(this);
         }
         
         // Preload all sprites
@@ -193,10 +197,12 @@ public class UnitBehaviour : MonoBehaviour
 
     public IEnumerator Attack()
     {
+        Debug.Log($"{unit.name} is attempting to attack");
         var combatFinished = false;
 
         if (!combatTarget)
         {
+            Debug.Log($"{unit.name} didn't have a combat target");
             yield break; // If there's no combat target, simply exit the coroutine
         }
         
@@ -269,6 +275,7 @@ public class UnitBehaviour : MonoBehaviour
 
     private void Die()
     {
+        isDead = true;
         Debug.Log($"dead from {attackedBy}");
         foreach(var effect in unit.effects)
         {
@@ -288,7 +295,7 @@ public class UnitBehaviour : MonoBehaviour
         // hearts have already been instantiated
         if (_heartObjects.Count >= 1) return;
         
-        for (var i = 0; i < unit.hp; i++)
+        for (var i = 0; i < _maxHp; i++)
         {
             _heartObjects.Add(Instantiate(fullHeartObject, heartHolder.transform));
         }
@@ -368,5 +375,15 @@ public class UnitBehaviour : MonoBehaviour
         healParticles.Play();
         
         // gain health
+    }
+
+    public void IncreaseHealth(int amount)
+    {
+        _maxHp += amount;
+        currentHp += amount;
+        ShowHearts();
+        UpdateHearts();
+
+        increaseHealthParticles.Play();
     }
 }

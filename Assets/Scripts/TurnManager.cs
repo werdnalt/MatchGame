@@ -1,7 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using TMPro;
+using UnityEngine.UI;
 
 public class TurnManager : MonoBehaviour
 {
@@ -14,7 +16,8 @@ public class TurnManager : MonoBehaviour
     private List<GameObject> _turnIndicators;
 
     public int numSwapsBeforeCombat;
-    private int _currentNumSwaps;
+
+    public int currentNumSwaps { get; private set; }
 
     private void Awake()
     {
@@ -28,7 +31,7 @@ public class TurnManager : MonoBehaviour
         UpdateSwapCounter();
     }
 
-    public void ChooseTurnOrder(List<UnitBehaviour> unitsInCombat)
+    public IEnumerator ChooseTurnOrder(List<UnitBehaviour> unitsInCombat)
     {
         var combatOrder = 1;
         orderedCombatUnits.Clear();
@@ -77,11 +80,11 @@ public class TurnManager : MonoBehaviour
             turnIndicator.unitBehaviour = unit;
             _turnIndicators.Add(turnIndicatorInstance);
         }
+        yield break;
     }
 
     public void RemoveUnit(UnitBehaviour unit)
     {
-        unit.isDead = true;
         if (!orderedCombatUnits.Contains(unit)) return;
         
         foreach (var turnIndicator in _turnIndicators)
@@ -93,28 +96,40 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    public void ProcessTurn()
+    public void SwapBlocks()
     {
-        _currentNumSwaps++;
-        if (_currentNumSwaps >= numSwapsBeforeCombat)
-        {
-            BoardManager.Instance.PerformCombat();
-            _currentNumSwaps = 0;
-        }
+        currentNumSwaps++;
         UpdateSwapCounter();
+    }
+
+    public IEnumerator CheckIfFinishedSwapping()
+    {
+        UpdateSwapCounter();
+        while (currentNumSwaps < numSwapsBeforeCombat)
+        {
+            yield return null;
+        }
+
+        BoardManager.Instance.canMove = false;
+        currentNumSwaps = 0;
     }
 
     private void UpdateSwapCounter()
     {
-        var numSwapsLeft = numSwapsBeforeCombat - _currentNumSwaps;
+        var numSwapsLeft = numSwapsBeforeCombat - currentNumSwaps;
 
         if (numSwapsLeft == 1)
         {
             swapCounter.text = ($"final move");
         }
+
+        if (numSwapsLeft == 0)
+        {
+            swapCounter.text = ($"combat in progress");
+        }
         else
         {
-            swapCounter.text = ($"{numSwapsBeforeCombat - _currentNumSwaps} moves left");
+            swapCounter.text = ($"{numSwapsBeforeCombat - currentNumSwaps} moves left");
         }
     }
     

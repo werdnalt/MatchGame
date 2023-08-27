@@ -13,7 +13,6 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
     {
         if (CursorAnimation.Instance.isDragging) return;
         
-        Debug.Log($"{coordinates.x}, {coordinates.y}");
         BoardManager.Instance.SetCellSelector(transform.position);
         
         AudioManager.Instance.PlayWithPitch("block", .4f);
@@ -21,7 +20,6 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
     
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log("clicking");
         unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
         if (!unitBehaviour) return;
         

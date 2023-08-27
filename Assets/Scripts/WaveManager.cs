@@ -34,16 +34,11 @@ public class WaveManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
     }
-    
-    public void StartWaveSpawn()
+
+    public List<Unit> GetUnitsToSpawn()
     {
         if (_upcomingWave == null) Debug.LogAssertion("Should not attempt to spawn a wave when there are no waves remaining");
-        BoardManager.Instance.SpawnWave(GetUnitsToSpawn());
-        waves.RemoveAt(0);
-    }
-
-    private List<Unit> GetUnitsToSpawn()
-    {
+        
         var toSpawn = new List<Unit>();
         for (var i = 0; i < _upcomingWave.waveSize; i++)
         {
@@ -54,6 +49,7 @@ public class WaveManager : MonoBehaviour
             }
         }
 
+        waves.RemoveAt(0);
         return toSpawn;
     }
     
