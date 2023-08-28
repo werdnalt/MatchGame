@@ -4,25 +4,22 @@ using UnityEngine;
 
 public abstract class Effect : ScriptableObject
 {
-    protected UnitBehaviour _unit;
+    protected UnitBehaviour _unitBehaviour;
     public string effectDescription;
 
-    public void SetUnit(UnitBehaviour unit)
+    public void SetUnitBehaviour(UnitBehaviour unitBehaviour)
     {
-        _unit = unit;
+        _unitBehaviour = unitBehaviour;
     }
     
     // This function gets called when a block dies.
-    public virtual void OnDeath() { }
-    
-    // This function gets called when a block moves.
-    public virtual void OnMove() { }
+    public virtual void OnDeath(UnitBehaviour killedBy, UnitBehaviour killed) { }
     
     // This function gets called when a block swaps.
-    public virtual void OnSwap() { }
+    public virtual void OnSwap(UnitBehaviour swappedUnit) { }
     
     // This function gets called when a block falls.
     public virtual void OnFall() { }
     
-    public virtual void OnAttack() { }
+    public virtual void OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit) { }
 }

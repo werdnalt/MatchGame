@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class UnitBehaviour : MonoBehaviour
 {
-    public Unit unit;
+    public Unit unitData;
 
     protected float timeSpawned;
     public Type blockType;
@@ -54,25 +54,20 @@ public class UnitBehaviour : MonoBehaviour
     public int _currentExperience;
     public int _attack;
 
+    public List<EffectState> effects = new List<EffectState>();
     private void Awake()
     {
         _blockIcon = GetComponent<SpriteRenderer>();
-        
-
-
         _currentExperience = 0;
-        _attack = unit.attack;
-        
     }
 
     private void Start()
     {
-        _maxHp = unit.hp;
+        _maxHp = unitData.hp;
         timeSpawned = Time.time;
         _timeOfSpriteChange = Time.time;
         _spriteDuration = .2f;
         _currentSpriteIndex = 0;
-        _originalScale = transform.localScale;
 
         combatOrderText.text = "";
         
@@ -82,13 +77,13 @@ public class UnitBehaviour : MonoBehaviour
             mat = rend.material;
         }
         
-        foreach (var effect in unit.effects)
+        foreach (var effect in unitData.effects)
         {
-            effect.SetUnit(this);
+            effect.SetUnitBehaviour(this);
         }
         
         // Preload all sprites
-        var sprites = Resources.LoadAll<Sprite>($"{unit.name}");
+        var sprites = Resources.LoadAll<Sprite>($"{unitData.name}");
         _spriteCount = sprites.Length;
         _sprites = new Sprite[_spriteCount];
         for (int i = 0; i < _spriteCount; i++)
@@ -115,43 +110,71 @@ public class UnitBehaviour : MonoBehaviour
     
     private void AnimateSprite()
     {
-        if (_sprites.Length <= 0) return;
-        // Check if it's time to change the sprite
-        if (Time.time - _timeOfSpriteChange < _spriteDuration) return;
-
-        // Set the sprite
-        if (_sprites[_currentSpriteIndex] == null)
+        if (unitData.shouldAnimateLoop)
         {
-            return;
+            if (_sprites.Length <= 0) return;
+    
+            // Check if it's time to change the sprite
+            if (Time.time - _timeOfSpriteChange < _spriteDuration) return;
+
+            // Set the sprite
+            if (_sprites[_currentSpriteIndex] == null)
+            {
+                return;
+            }
+
+            _blockIcon.sprite = _sprites[_currentSpriteIndex];
+            _timeOfSpriteChange = Time.time;
+
+            // Looping logic for sprite animation
+            _currentSpriteIndex++;
+
+            if (_currentSpriteIndex >= _sprites.Length) // If reached the last sprite
+            {
+                _currentSpriteIndex = 0; // Reset to the first sprite
+            }
         }
 
-        _blockIcon.sprite = _sprites[_currentSpriteIndex];
-        _timeOfSpriteChange = Time.time;
+        else
+        {
+            if (_sprites.Length <= 0) return;
+            // Check if it's time to change the sprite
+            if (Time.time - _timeOfSpriteChange < _spriteDuration) return;
 
-        // Ping-Pong logic for sprite animation
-        if (_isAscending)
-        {
-            if (_currentSpriteIndex + 1 >= _spriteCount)
+            // Set the sprite
+            if (_sprites[_currentSpriteIndex] == null)
             {
-                _isAscending = false;
-                _currentSpriteIndex--;
+                return;
             }
-            else
+
+            _blockIcon.sprite = _sprites[_currentSpriteIndex];
+            _timeOfSpriteChange = Time.time;
+
+            // Ping-Pong logic for sprite animation
+            if (_isAscending)
             {
-                _currentSpriteIndex++;
+                if (_currentSpriteIndex + 1 >= _spriteCount)
+                {
+                    _isAscending = false;
+                    _currentSpriteIndex--;
+                }
+                else
+                {
+                    _currentSpriteIndex++;
+                }
             }
-        }
-        else // you are descending
-        {
-            if (_currentSpriteIndex <= 0) // If reached the first sprite
+            else // you are descending
             {
-                _isAscending = true;
-                _currentSpriteIndex++;
-            }
-            else
-            {
-                _currentSpriteIndex--;
-            }
+                if (_currentSpriteIndex <= 0) // If reached the first sprite
+                {
+                    _isAscending = true;
+                    _currentSpriteIndex++;
+                }
+                else
+                {
+                    _currentSpriteIndex--;
+                }
+            } 
         }
     }
 
@@ -189,7 +212,7 @@ public class UnitBehaviour : MonoBehaviour
 
     public UnitBehaviour Initialize(Unit u)
     {
-        unit = u;
+        unitData = u;
         _blockIcon.sprite = u.unitSprite;
         currentHp = u.hp;
         return this;
@@ -197,18 +220,18 @@ public class UnitBehaviour : MonoBehaviour
 
     public IEnumerator Attack()
     {
-        Debug.Log($"{unit.name} is attempting to attack");
+        Debug.Log($"{unitData.name} is attempting to attack");
         var combatFinished = false;
 
         if (!combatTarget)
         {
-            Debug.Log($"{unit.name} didn't have a combat target");
+            Debug.Log($"{unitData.name} didn't have a combat target");
             yield break; // If there's no combat target, simply exit the coroutine
         }
         
-        foreach(var effect in unit.effects)
+        foreach(var effect in unitData.effects)
         {
-            effect.OnAttack();
+            effect.OnAttack(this, combatTarget);
         }
 
         BoardManager.Instance.mostRecentlyAttackingUnit = this;
@@ -218,6 +241,7 @@ public class UnitBehaviour : MonoBehaviour
         var originalPos = transform.position;
         mat.SetFloat("_MotionBlurDist", 1);
 
+        AudioManager.Instance.PlayWithRandomPitch("whoosh");
         transform.DOMove(combatTarget.transform.position, .1f).OnComplete(() =>
         {
             var targets = BoardManager.Instance.Chain(combatTarget);
@@ -226,7 +250,7 @@ public class UnitBehaviour : MonoBehaviour
             foreach (var target in targets)
             {
                 if (!target) continue;
-                target.TakeDamage(unit.attack, this);
+                target.TakeDamage(unitData.attack, this);
             }
             
             // Move the hero back after damaging the enemy
@@ -242,10 +266,11 @@ public class UnitBehaviour : MonoBehaviour
         yield return new WaitUntil(() => combatFinished);
     }
 
-    public void TakeDamage(int amount, UnitBehaviour from)
+    public void TakeDamage(int amount, UnitBehaviour attackedBy)
     {
-        Debug.Log($"taking damage from {from.unit.name}");
-        attackedBy = from;
+        Debug.Log($"taking damage from {attackedBy.unitData.name}");
+        this.attackedBy = attackedBy;
+        AudioManager.Instance.PlayWithRandomPitch("hit");
         hitParticles.Play();
         
         StartCoroutine(HitEffect());
@@ -253,8 +278,8 @@ public class UnitBehaviour : MonoBehaviour
 
         if (currentHp <= 0)
         {
-            Debug.Log($"killed by {from.unit.name}");
-            Die();
+            Debug.Log($"killed by {attackedBy.unitData.name}");
+            Die(attackedBy);
         }
 
         healthUI.SetActive(true);
@@ -273,13 +298,14 @@ public class UnitBehaviour : MonoBehaviour
         mat.SetFloat(HIT, 0);
     }
 
-    private void Die()
+    private void Die(UnitBehaviour killedBy)
     {
         isDead = true;
         Debug.Log($"dead from {attackedBy}");
-        foreach(var effect in unit.effects)
+        
+        foreach(var effect in unitData.effects)
         {
-            effect.OnDeath();
+            effect.OnDeath(killedBy, this);
         }
         
         TurnManager.Instance.RemoveUnit(this);
@@ -303,7 +329,7 @@ public class UnitBehaviour : MonoBehaviour
 
     private void UpdateHearts()
     {
-        int startHp = Mathf.Max(0, unit.hp - 1); // Ensure this never goes below 0
+        int startHp = Mathf.Max(0, unitData.hp - 1); // Ensure this never goes below 0
         int endHp = Mathf.Max(0, currentHp);     // Ensure this never goes below 0
 
         for (var i = startHp; i >= endHp; i--)
@@ -344,16 +370,17 @@ public class UnitBehaviour : MonoBehaviour
 
     public void Grow()
     {
-        var localScale = transform.localScale;
-        if (_originalScale == Vector3.zero) _originalScale = localScale;
+        transform.DOKill();
+        _originalScale = transform.localScale;
         
-        var newX = localScale.x * 1.5f;
-        var newY = localScale.y * 1.5f;
-        transform.DOScale(new Vector3(newX, newY, localScale.z), .2f).SetEase(Ease.InOutBounce);
+        var newX = transform.localScale.x * 1.5f;
+        var newY = transform.localScale.y * 1.5f;
+        transform.DOScale(new Vector3(newX, newY, transform.localScale.z), .2f).SetEase(Ease.InOutBounce);
     }
 
     public void Shrink()
     {
+        transform.DOKill();
         transform.DOScale(_originalScale, .2f).SetEase(Ease.InOutBounce); 
     }
 

@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image unitPortrait;
     [SerializeField] private TextMeshProUGUI attackText;
     [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private GameObject effectTextPrefab;
 
     private List<GameObject> _instantiatedEffectPrefabs = new List<GameObject>();
@@ -31,11 +32,12 @@ public class UIManager : MonoBehaviour
         }
         
         unitPanel.SetActive(true);
-        unitPortrait.sprite = unitBehaviour.unit.unitSprite;
+        unitPortrait.sprite = unitBehaviour.unitData.unitSprite;
         attackText.text = unitBehaviour._attack.ToString();
         healthText.text = ($"{unitBehaviour.currentHp}");
+        nameText.text = unitBehaviour.unitData.displayName;
 
-        foreach (var effect in unitBehaviour.unit.effects)
+        foreach (var effect in unitBehaviour.unitData.effects)
         {
             var effectTextInstance = Instantiate(effectTextPrefab, effectTextParent.transform);
             effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text = effect.effectDescription;

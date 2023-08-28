@@ -276,23 +276,24 @@ public class BoardManager : MonoBehaviour
 
         if (leftUnit == null && rightUnit == null) return;
         
+        AudioManager.Instance.PlayWithRandomPitch("whoosh");
         TurnManager.Instance.SwapBlocks();
         _board.SwapBlocks(leftBlockCoords, rightBlockCoords);
 
         if (leftUnit)
         {
-            foreach (var effect in leftUnit.unit.effects)
+            foreach (var effect in leftUnit.effects)
             {
-                effect.OnSwap();
+                effect.effect.OnSwap(leftUnit);
             }
 
         }
 
         if (rightUnit)
         {
-            foreach (var effect in rightUnit.unit.effects)
+            foreach (var effect in rightUnit.unitData.effects)
             {
-                effect.OnSwap();
+                effect.OnSwap(rightUnit);
             }
         }
 
@@ -320,7 +321,7 @@ public class BoardManager : MonoBehaviour
             for (int row = 0; row < numRows; row++)
             {
                 var b = _board.GetUnitBehaviour(new Coordinates(column, row));
-                if (b == null || !b.unit) continue;
+                if (b == null || !b.unitData) continue;
             
                 collapsedBlocks.Add(b);
             }
@@ -372,7 +373,7 @@ public class BoardManager : MonoBehaviour
             var neighbor = _board.GetUnitBehaviour(neighborCoordinates);
 
             // If neighbor is of the same tribe and hasn't been visited, we recursively call DFS on it.
-            if (neighbor != null && neighbor.unit.tribe == current.unit.tribe && !visited.Contains(neighbor.coordinates))
+            if (neighbor != null && neighbor.unitData.tribe == current.unitData.tribe && !visited.Contains(neighbor.coordinates))
             {
                 Debug.Log("Same tribe");
                 DFS(neighbor, visited, allUnits);

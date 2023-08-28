@@ -50,7 +50,7 @@ public class TurnManager : MonoBehaviour
         // iterate through every unit in unitsInCombat
         foreach (var unit in unitsInCombat)
         {
-            if (unit == null || unit.unit.passive) continue;
+            if (unit == null || unit.unitData.passive) continue;
 
             // roll a random number from 1-100
             int roll = Random.Range(1, 101);
@@ -76,7 +76,7 @@ public class TurnManager : MonoBehaviour
             var turnIndicatorInstance = Instantiate(turnIndicatorPrefab, transform);
             
             var turnIndicator = turnIndicatorInstance.GetComponent<TurnIndicator>();
-            turnIndicator.unitSprite.sprite = unit.unit.unitSprite;
+            turnIndicator.unitSprite.sprite = unit.unitData.unitSprite;
             turnIndicator.unitBehaviour = unit;
             _turnIndicators.Add(turnIndicatorInstance);
         }

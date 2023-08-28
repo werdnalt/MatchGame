@@ -7,10 +7,8 @@ public class HealEffect : Effect
 {
     public int healAmount;
 
-    public override void OnDeath()
+    public override void OnDeath(UnitBehaviour killedBy, UnitBehaviour killed)
     {
-        if (!BoardManager.Instance.mostRecentlyAttackingUnit) return;
-        
-        BoardManager.Instance.mostRecentlyAttackingUnit.Heal(healAmount);
+        killedBy.Heal(healAmount);
     }
 }

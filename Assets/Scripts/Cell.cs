@@ -15,7 +15,10 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
         
         BoardManager.Instance.SetCellSelector(transform.position);
         
-        AudioManager.Instance.PlayWithPitch("block", .4f);
+        unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
+        if (!unitBehaviour) return;
+        
+        UIManager.Instance.ShowUnitPanel(unitBehaviour);
     }
     
     public void OnPointerClick(PointerEventData eventData)
@@ -23,6 +26,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
         unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
         if (!unitBehaviour) return;
         
+        AudioManager.Instance.PlayWithRandomPitch("click");
         UIManager.Instance.ShowUnitPanel(unitBehaviour);
     }
 

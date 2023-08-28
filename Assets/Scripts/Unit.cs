@@ -25,6 +25,7 @@ public class Unit : ScriptableObject
         
     }
 
+    public bool shouldAnimateLoop;
     public Tribe tribe;
     public Classification classification;
     public int hp;
@@ -33,5 +34,6 @@ public class Unit : ScriptableObject
     public Sprite unitSprite;
     public List<Effect> effects;
     public bool passive;
+    public string displayName;
 
 }

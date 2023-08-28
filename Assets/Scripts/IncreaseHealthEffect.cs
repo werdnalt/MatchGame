@@ -7,8 +7,8 @@ public class IncreaseHealthEffect : Effect
 {
     public int increaseAmount;
     
-    public override void OnSwap()
+    public override void OnSwap(UnitBehaviour swappedUnit)
     {
-        _unit.IncreaseHealth(increaseAmount);
+        swappedUnit.IncreaseHealth(increaseAmount);
     }
 }
