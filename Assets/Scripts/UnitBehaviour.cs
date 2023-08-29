@@ -52,7 +52,7 @@ public class UnitBehaviour : MonoBehaviour
 
     public int _maxHp;
     public int _currentExperience;
-    public int _attack;
+    public int attack;
 
     public List<EffectState> effects = new List<EffectState>();
     private void Awake()
@@ -63,6 +63,7 @@ public class UnitBehaviour : MonoBehaviour
 
     private void Start()
     {
+        attack = unitData.attack;
         _maxHp = unitData.hp;
         timeSpawned = Time.time;
         _timeOfSpriteChange = Time.time;
@@ -75,11 +76,6 @@ public class UnitBehaviour : MonoBehaviour
         if (rend)
         {
             mat = rend.material;
-        }
-        
-        foreach (var effect in unitData.effects)
-        {
-            effect.SetUnitBehaviour(this);
         }
         
         // Preload all sprites
@@ -107,9 +103,11 @@ public class UnitBehaviour : MonoBehaviour
         
         AnimateSprite();
     }
-    
+
     private void AnimateSprite()
     {
+        if (_sprites == null) return;
+        
         if (unitData.shouldAnimateLoop)
         {
             if (_sprites.Length <= 0) return;
@@ -268,7 +266,11 @@ public class UnitBehaviour : MonoBehaviour
 
     public void TakeDamage(int amount, UnitBehaviour attackedBy)
     {
-        Debug.Log($"taking damage from {attackedBy.unitData.name}");
+        foreach (var effect in unitData.effects)
+        {
+            effect.OnHit(attackedBy, this, ref amount);
+        }
+        
         this.attackedBy = attackedBy;
         AudioManager.Instance.PlayWithRandomPitch("hit");
         hitParticles.Play();
@@ -278,7 +280,6 @@ public class UnitBehaviour : MonoBehaviour
 
         if (currentHp <= 0)
         {
-            Debug.Log($"killed by {attackedBy.unitData.name}");
             Die(attackedBy);
         }
 

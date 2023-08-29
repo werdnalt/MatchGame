@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7f092b97a99dd142a84368e62f555f3, type: 3}
   m_Name: Swap Increase Health 1
   m_EditorClassIdentifier: 
-  effectDescription: 'On Swap: Increases HP by 1'
+  effectDescription: Increases HP by 1
+  effectSprite: {fileID: 21300000, guid: bf2ac022c13b34d4f876d350fed534f4, type: 3}
   increaseAmount: 1

@@ -33,14 +33,19 @@ public class UIManager : MonoBehaviour
         
         unitPanel.SetActive(true);
         unitPortrait.sprite = unitBehaviour.unitData.unitSprite;
-        attackText.text = unitBehaviour._attack.ToString();
+        attackText.text = unitBehaviour.attack.ToString();
         healthText.text = ($"{unitBehaviour.currentHp}");
         nameText.text = unitBehaviour.unitData.displayName;
 
         foreach (var effect in unitBehaviour.unitData.effects)
         {
             var effectTextInstance = Instantiate(effectTextPrefab, effectTextParent.transform);
-            effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text = effect.effectDescription;
+            var effectBehaviour = effectTextInstance.GetComponent<EffectBehaviour>();
+
+            if (!effectBehaviour) continue;
+            
+            effectBehaviour.effectText.text = effect.effectDescription;
+            effectBehaviour.effectImage.sprite = effect.effectSprite;
             
             _instantiatedEffectPrefabs.Add(effectTextInstance);
         }

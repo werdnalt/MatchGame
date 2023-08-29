@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 241.4, y: -42.9}
-  m_SizeDelta: {x: 330.48, y: 62.29}
+  m_AnchoredPosition: {x: 262.73, y: -41.71}
+  m_SizeDelta: {x: 309.15, y: 75.32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8970555995721441376
 CanvasRenderer:
@@ -169,8 +169,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -202, y: 0.2}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -213.9, y: -1.67}
+  m_SizeDelta: {x: 122.83, y: 122.83}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6797336054594382398
 CanvasRenderer:
@@ -200,7 +200,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 357831cd3fde90246a6315b6f7c4cb5c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6fc9685493ad0b24b82b91a490e873c5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -221,6 +221,7 @@ GameObject:
   - component: {fileID: 7975993098968739683}
   - component: {fileID: 1956593124343468546}
   - component: {fileID: 3982461177520852998}
+  - component: {fileID: 4505038430328937316}
   m_Layer: 5
   m_Name: Effect Text
   m_TagString: Untagged
@@ -286,3 +287,17 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4505038430328937316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7768236506811915980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f87fa8cdeafc1041afb82bfe137deb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectText: {fileID: 624343225138095776}
+  effectImage: {fileID: 4501978524427511954}

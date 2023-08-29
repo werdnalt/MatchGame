@@ -78,6 +78,11 @@ public class TurnManager : MonoBehaviour
             var turnIndicator = turnIndicatorInstance.GetComponent<TurnIndicator>();
             turnIndicator.unitSprite.sprite = unit.unitData.unitSprite;
             turnIndicator.unitBehaviour = unit;
+            if (unit.unitData.tribe == Unit.Tribe.Hero)
+            {
+                turnIndicator.SetBackgroundColor(new Color32(120, 185, 65, 255));
+            }
+            
             _turnIndicators.Add(turnIndicatorInstance);
         }
         yield break;

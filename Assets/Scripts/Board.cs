@@ -8,7 +8,7 @@ public class Board
 {
     public float blockSwapTime;
     public BoardPosition[][] boardPositions;
-    private BoardPosition[] _heroPositions;
+    public BoardPosition[] heroPositions;
     private int _numColumns;
     private int _numRows;
 
@@ -32,7 +32,7 @@ public class Board
         Heroes = new UnitBehaviour[numColumns];
 
         boardPositions = new BoardPosition[_numColumns][];
-        _heroPositions = new BoardPosition[_numColumns];
+        heroPositions = new BoardPosition[_numColumns];
 
         for (int i = 0; i < numColumns; i++) // changed from numRows to _fullColumnCount
         {
@@ -50,7 +50,7 @@ public class Board
         {
             Vector3 worldPosition = WorldPositionForHeroPositionIndex(i);
             BoardManager.Coordinates coordinates = new BoardManager.Coordinates(i, 0);
-            _heroPositions[i] = new BoardPosition(coordinates, worldPosition);
+            heroPositions[i] = new BoardPosition(coordinates, worldPosition);
         }
     }
 
@@ -245,13 +245,13 @@ public class Board
 
     public Vector3? SetHero(UnitBehaviour heroUnit)
     {
-        for (int i = 0; i < _heroPositions.Length; i++)
+        for (int i = 0; i < heroPositions.Length; i++)
         {
-            if (_heroPositions[i].unit == null)
+            if (heroPositions[i].unit == null)
             {
                 Heroes[i] = heroUnit;
-                _heroPositions[i].unit = heroUnit;
-                return _heroPositions[i].worldSpacePosition;
+                heroPositions[i].unit = heroUnit;
+                return heroPositions[i].worldSpacePosition;
             }
         }
 
@@ -280,6 +280,11 @@ public class Board
         var unitCoords = FindUnitBehaviour(unit);
         if (unitCoords == null) return;
         boardPositions[unitCoords.Value.x][unitCoords.Value.y].unit = null;
+    }
+
+    public UnitBehaviour GetHeroFromColumn(int column)
+    {
+        return Heroes[column];
     }
 
 }

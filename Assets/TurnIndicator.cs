@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class TurnIndicator : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+    public Image background;
     public Image unitSprite;
     public UnitBehaviour unitBehaviour;
     public void OnPointerEnter(PointerEventData eventData)
@@ -16,5 +17,10 @@ public class TurnIndicator : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnPointerExit(PointerEventData eventData)
     {
         unitBehaviour.Shrink();
+    }
+
+    public void SetBackgroundColor(Color32 color)
+    {
+        background.color = color;
     }
 }

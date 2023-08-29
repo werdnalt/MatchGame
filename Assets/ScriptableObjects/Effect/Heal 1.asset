@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45bc3253e13f87344b75c0a9a351776b, type: 3}
   m_Name: Heal 1
   m_EditorClassIdentifier: 
-  effectDescription: 'On Death: Heal Attacker for 1'
+  effectDescription: Heal Attacker for 1
+  effectSprite: {fileID: 21300000, guid: 902dc9f6d4272cf43bb6372ce54d7ba5, type: 3}
   healAmount: 1

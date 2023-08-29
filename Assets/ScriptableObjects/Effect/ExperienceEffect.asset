@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e1fe51b119e17f4cb31fcf0d9afd044, type: 3}
   m_Name: ExperienceEffect
   m_EditorClassIdentifier: 
-  effectDescription: 'On Death: Provide Attacker 10 EXP'
+  effectDescription: Provide Attacker 10 EXP
+  effectSprite: {fileID: 21300000, guid: 902dc9f6d4272cf43bb6372ce54d7ba5, type: 3}
   experienceAmount: 10

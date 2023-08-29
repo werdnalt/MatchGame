@@ -197,6 +197,16 @@ public class BoardManager : MonoBehaviour
                 backgroundCell.GetComponent<Cell>().coordinates = new Coordinates(i, j);
             }
         }
+        
+        // create grid background
+        for (int i = 0; i < _board.heroPositions.Length; i++)
+        {
+                var backgroundCell = Instantiate(cellPrefabs[(i) % 2], cellsParent.
+                    transform);
+                backgroundCell.transform.position = _board.heroPositions[i].worldSpacePosition;
+
+                backgroundCell.GetComponent<Cell>().coordinates = new Coordinates(i, 0);
+        }
 
         EventManager.Instance.BoardReady();
     }
@@ -284,7 +294,7 @@ public class BoardManager : MonoBehaviour
         {
             foreach (var effect in leftUnit.effects)
             {
-                effect.effect.OnSwap(leftUnit);
+                effect.effect.OnSwap(leftUnit, rightUnit);
             }
 
         }
@@ -293,7 +303,7 @@ public class BoardManager : MonoBehaviour
         {
             foreach (var effect in rightUnit.unitData.effects)
             {
-                effect.OnSwap(rightUnit);
+                effect.OnSwap(rightUnit, leftUnit);
             }
         }
 
@@ -509,10 +519,15 @@ public class BoardManager : MonoBehaviour
         {
             if(unit.currentHp <= 0)
             {
-                _board.RemoveUnitFromBoard(unit);
-                Destroy(unit.gameObject);
+                RemoveUnitFromBoard(unit);
             }
         }
+    }
+
+    public void RemoveUnitFromBoard(UnitBehaviour unitBehaviour)
+    {
+        _board.RemoveUnitFromBoard(unitBehaviour);
+        Destroy(unitBehaviour.gameObject);
     }
 
     private IEnumerator AssignCombatTargets()
@@ -557,6 +572,12 @@ public class BoardManager : MonoBehaviour
     public UnitBehaviour GetUnitBehaviourAtCoordinate(Coordinates coordinates)
     {
         return _board.GetUnitBehaviour(coordinates);
+    }
+    
+    [CanBeNull]
+    public UnitBehaviour GetHeroUnitBehaviourAtCoordinate(int column)
+    {
+        return _board.GetHeroFromColumn(column);
     }
     
     private IEnumerator GameLoop()

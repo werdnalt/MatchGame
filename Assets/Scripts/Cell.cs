@@ -33,8 +33,6 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
     public void OnPointerExit(PointerEventData eventData)
     {
         if (CursorAnimation.Instance.isDragging) return;
-        
-        BoardManager.Instance.SetCellSelector(new Vector3(10000, 10000, 10000));
     }
 
     public void OnDrag(PointerEventData eventData)
