@@ -213,6 +213,8 @@ public class BoardManager : MonoBehaviour
 
     public IEnumerator SpawnWave()
     {
+        if (!WaveManager.Instance.shouldSpawnWave) yield break;
+        
         var unitsToSpawn = WaveManager.Instance.GetUnitsToSpawn();
         yield return StartCoroutine(SpawnUnit(unitsToSpawn));
     }
@@ -501,11 +503,14 @@ public class BoardManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         foreach (var unit in TurnManager.Instance.orderedCombatUnits)
         {
-            if (unit.isDead || unit.combatTarget == null) continue;
+            if (unit.isDead || unit.combatTarget == null || unit.attackTimer != 0) continue;
             
             yield return StartCoroutine(unit.Attack());
 
-            TurnManager.Instance.RemoveUnit(unit);
+            yield return StartCoroutine(TurnManager.Instance.ResetUnit(unit));
+            
+            TurnManager.Instance.ReinsertUnit(unit);
+            
             CleanUpBoard();
 
             yield return new WaitForSeconds(.5f);
@@ -598,9 +603,32 @@ public class BoardManager : MonoBehaviour
             
             // combat happens
             yield return StartCoroutine(SequentialCombat());
+        }
+    }
+    
+    
+    private IEnumerator ModifiedGameLoop()
+    {
+        while (true)
+        {
+            // check if wave should spawn
+            yield return StartCoroutine(SpawnWave());
             
-            // check if units need to level up
-            //yield return StartCoroutine(LevelUpManager.Instance.LevelUpUnits());
+            // assign combat targets
+            yield return StartCoroutine(AssignCombatTargets());
+            
+            // activate turn counters
+            yield return StartCoroutine(SetUpCombatTurns());
+            
+            // wait for player to swap blocks
+            yield return StartCoroutine(TurnManager.Instance.CheckIfFinishedSwapping());
+            
+            // count down turn counters
+            yield return StartCoroutine(TurnManager.Instance.CountDownAttackTimers());
+            
+            // execute combat if needed
+            yield return StartCoroutine(SequentialCombat());
+
         }
     }
 }

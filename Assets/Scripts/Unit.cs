@@ -25,6 +25,7 @@ public class Unit : ScriptableObject
         
     }
 
+    public int attackTimer;
     public bool shouldAnimateLoop;
     public Tribe tribe;
     public Classification classification;

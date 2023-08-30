@@ -42,6 +42,11 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        CursorAnimation.Instance.StopDragging();
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            CursorAnimation.Instance.CancelSelection();
+        }
+        
+        if (CursorAnimation.Instance.isDragging) CursorAnimation.Instance.StopDragging();
     }
 }

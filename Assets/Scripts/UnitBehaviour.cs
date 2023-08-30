@@ -29,6 +29,7 @@ public class UnitBehaviour : MonoBehaviour
     private Renderer rend;
     private Material mat;
     private const string HIT = "_HitEffectBlend";
+    private float _elapsedTime = 0f;
     
     private bool _isAnimating = false;
 
@@ -39,6 +40,8 @@ public class UnitBehaviour : MonoBehaviour
     public int currentHp;
 
     public TextMeshProUGUI combatOrderText;
+    [SerializeField] private Image swordSprite;
+    [SerializeField] private TextMeshProUGUI attackAmountText;
     [SerializeField] private ParticleSystem increaseHealthParticles;
     [SerializeField] private ParticleSystem healParticles;
     [SerializeField] private ParticleSystem deathParticles;
@@ -48,11 +51,17 @@ public class UnitBehaviour : MonoBehaviour
     [SerializeField] private GameObject fullHeartObject;
     [SerializeField] private Sprite emptyHeart;
     [SerializeField] private Sprite fullHeart;
+    [SerializeField] private GameObject attackTimerObject;
+    [SerializeField] private TextMeshProUGUI attackTimerTimeText;
     private List<GameObject> _heartObjects = new List<GameObject>();
 
     public int _maxHp;
     public int _currentExperience;
     public int attack;
+
+    public bool isCountingDown;
+    public int turnsTilAttack;
+    public int attackTimer;
 
     public List<EffectState> effects = new List<EffectState>();
     private void Awake()
@@ -63,6 +72,7 @@ public class UnitBehaviour : MonoBehaviour
 
     private void Start()
     {
+        attackTimer = unitData.attackTimer;
         attack = unitData.attack;
         _maxHp = unitData.hp;
         timeSpawned = Time.time;
@@ -104,75 +114,57 @@ public class UnitBehaviour : MonoBehaviour
         AnimateSprite();
     }
 
+    
     private void AnimateSprite()
     {
-        if (_sprites == null) return;
-        
-        if (unitData.shouldAnimateLoop)
-        {
-            if (_sprites.Length <= 0) return;
+        if (_sprites == null || _sprites.Length <= 0) return;
     
-            // Check if it's time to change the sprite
-            if (Time.time - _timeOfSpriteChange < _spriteDuration) return;
-
-            // Set the sprite
-            if (_sprites[_currentSpriteIndex] == null)
-            {
-                return;
-            }
-
-            _blockIcon.sprite = _sprites[_currentSpriteIndex];
-            _timeOfSpriteChange = Time.time;
-
-            // Looping logic for sprite animation
-            _currentSpriteIndex++;
-
-            if (_currentSpriteIndex >= _sprites.Length) // If reached the last sprite
-            {
-                _currentSpriteIndex = 0; // Reset to the first sprite
-            }
-        }
-
-        else
+        _elapsedTime += Time.deltaTime; // Time since last frame
+    
+        if (_elapsedTime >= _spriteDuration)
         {
-            if (_sprites.Length <= 0) return;
-            // Check if it's time to change the sprite
-            if (Time.time - _timeOfSpriteChange < _spriteDuration) return;
+            // Reset the elapsed time
+            _elapsedTime = 0f;
 
-            // Set the sprite
-            if (_sprites[_currentSpriteIndex] == null)
-            {
-                return;
-            }
+            // Check if the sprite is valid before setting
+            if (_sprites[_currentSpriteIndex] == null) return;
 
             _blockIcon.sprite = _sprites[_currentSpriteIndex];
-            _timeOfSpriteChange = Time.time;
 
-            // Ping-Pong logic for sprite animation
-            if (_isAscending)
+            // Update sprite index based on animation type
+            if (unitData.shouldAnimateLoop)
             {
-                if (_currentSpriteIndex + 1 >= _spriteCount)
+                // Looping logic
+                _currentSpriteIndex = (_currentSpriteIndex + 1) % _sprites.Length;
+            }
+            else
+            {
+                // Ping-Pong logic
+                if (_isAscending)
                 {
-                    _isAscending = false;
-                    _currentSpriteIndex--;
+                    if (_currentSpriteIndex + 1 >= _sprites.Length)
+                    {
+                        _isAscending = false;
+                        _currentSpriteIndex--;
+                    }
+                    else
+                    {
+                        _currentSpriteIndex++;
+                    }
                 }
-                else
+                else // Descending
                 {
-                    _currentSpriteIndex++;
+                    if (_currentSpriteIndex <= 0)
+                    {
+                        _isAscending = true;
+                        _currentSpriteIndex++;
+                    }
+                    else
+                    {
+                        _currentSpriteIndex--;
+                    }
                 }
             }
-            else // you are descending
-            {
-                if (_currentSpriteIndex <= 0) // If reached the first sprite
-                {
-                    _isAscending = true;
-                    _currentSpriteIndex++;
-                }
-                else
-                {
-                    _currentSpriteIndex--;
-                }
-            } 
         }
     }
 
@@ -235,6 +227,9 @@ public class UnitBehaviour : MonoBehaviour
         BoardManager.Instance.mostRecentlyAttackingUnit = this;
         
         combatOrderText.text = "";
+        ShowAttackAmount();
+
+        yield return new WaitForSeconds(.75f);
 
         var originalPos = transform.position;
         mat.SetFloat("_MotionBlurDist", 1);
@@ -257,6 +252,7 @@ public class UnitBehaviour : MonoBehaviour
             {
                 // Set combatFinished true after all animations are complete
                 combatFinished = true;
+                HideAttackAmount();
             });
         });
         
@@ -413,5 +409,53 @@ public class UnitBehaviour : MonoBehaviour
         UpdateHearts();
 
         increaseHealthParticles.Play();
+    }
+
+    public void ShowAttackAmount()
+    {
+        attackAmountText.text = attack.ToString();
+        swordSprite.enabled = true;
+    }
+
+    public void HideAttackAmount()
+    {
+        attackAmountText.text = "";
+        swordSprite.enabled = false;
+    }
+
+    public IEnumerator CountDownTimer()
+    {
+        if (attackTimerObject.activeSelf == false)
+        {
+            attackTimerObject.SetActive(true);
+            attackTimerTimeText.text = turnsTilAttack.ToString();
+        }
+        
+        var animationFinished = false;
+        var originalPos = attackTimerTimeText.transform.position;
+        
+        turnsTilAttack--;
+        attackTimerTimeText.text = turnsTilAttack.ToString();
+        attackTimerTimeText.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1).OnComplete(() =>
+        {
+            animationFinished = true;
+        });
+        
+        yield return new WaitUntil(() => animationFinished);
+    }
+    
+    public IEnumerator ResetAttackTimer()
+    {
+        var animationFinished = false;
+        var originalPos = attackTimerTimeText.transform.position;
+        
+        turnsTilAttack = attackTimer;
+        attackTimerTimeText.text = turnsTilAttack.ToString();
+        attackTimerTimeText.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1).OnComplete(() =>
+        {
+            animationFinished = true;
+        });
+        
+        yield return new WaitUntil(() => animationFinished);
     }
 }

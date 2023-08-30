@@ -12,6 +12,38 @@ public class WaveManager : MonoBehaviour
 
     public List<Wave> waves;
 
+    private int _numSwaps;
+
+    public bool shouldSpawnWave
+    {
+        get
+        {
+            _numSwaps++;
+            if (_numSwaps >= swapsUntilWave)
+            {
+                _numSwaps = 0;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+    
+    private int swapsUntilWave
+    {
+        get
+        {
+            if (waves.Count <= 0)
+            {
+                return -1;
+            }
+
+            return _upcomingWave.swapsUntilSpawn;
+        }
+    }
+
     private Wave _upcomingWave {
         get
         {
@@ -33,6 +65,7 @@ public class WaveManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null) Instance = this;
+        _numSwaps = 0;
     }
 
     public List<Unit> GetUnitsToSpawn()

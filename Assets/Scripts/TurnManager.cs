@@ -14,13 +14,15 @@ public class TurnManager : MonoBehaviour
 
     public List<UnitBehaviour> orderedCombatUnits;
     private List<GameObject> _turnIndicators;
-
+    private bool _hasSwapped;
+    
     public int numSwapsBeforeCombat;
 
     public int currentNumSwaps { get; private set; }
 
     private void Awake()
     {
+        _hasSwapped = false;
         if (Instance == null) Instance = this;
         else
         {
@@ -33,8 +35,9 @@ public class TurnManager : MonoBehaviour
 
     public IEnumerator ChooseTurnOrder(List<UnitBehaviour> unitsInCombat)
     {
-        var combatOrder = 1;
         orderedCombatUnits.Clear();
+
+        // Clear previous turn indicators
         if (_turnIndicators.Count != 0)
         {
             for (var i = _turnIndicators.Count - 1; i >= 0; i--)
@@ -43,48 +46,31 @@ public class TurnManager : MonoBehaviour
             }
             _turnIndicators.Clear();
         }
-        
-        // Use a dictionary to store the unit and its corresponding roll
-        Dictionary<UnitBehaviour, int> unitRolls = new Dictionary<UnitBehaviour, int>();
 
-        // iterate through every unit in unitsInCombat
-        foreach (var unit in unitsInCombat)
-        {
-            if (unit == null || unit.unitData.passive) continue;
+        // Remove dead units
+        unitsInCombat.RemoveAll(unit => unit == null || unit.isDead || unit.unitData.passive);
 
-            // roll a random number from 1-100
-            int roll = Random.Range(1, 101);
-            
-            // Ensure that we don't have a duplicate roll (This is optional and handles the edge case where two units get the same roll)
-            while (unitRolls.Values.Contains(roll))
-            {
-                roll = Random.Range(1, 101);
-            }
-
-            unitRolls.Add(unit, roll);
-        }
-
-        // Order the dictionary based on the roll values and then convert to a list of units
-        var orderedUnits = unitRolls.OrderBy(pair => pair.Value).Select(pair => pair.Key).ToList();
+        // Order the list of units by their 'turnsTilAttack' property
+        var orderedUnits = unitsInCombat.OrderBy(unit => unit.turnsTilAttack).ToList();
 
         foreach (var unit in orderedUnits)
         {
             orderedCombatUnits.Add(unit);
-            unit.combatOrderText.text = combatOrder.ToString();
-            combatOrder++;
-            
+
             var turnIndicatorInstance = Instantiate(turnIndicatorPrefab, transform);
-            
+
             var turnIndicator = turnIndicatorInstance.GetComponent<TurnIndicator>();
             turnIndicator.unitSprite.sprite = unit.unitData.unitSprite;
             turnIndicator.unitBehaviour = unit;
+
             if (unit.unitData.tribe == Unit.Tribe.Hero)
             {
                 turnIndicator.SetBackgroundColor(new Color32(120, 185, 65, 255));
             }
-            
+
             _turnIndicators.Add(turnIndicatorInstance);
         }
+    
         yield break;
     }
 
@@ -103,6 +89,7 @@ public class TurnManager : MonoBehaviour
 
     public void SwapBlocks()
     {
+        _hasSwapped = true;
         currentNumSwaps++;
         UpdateSwapCounter();
     }
@@ -110,13 +97,13 @@ public class TurnManager : MonoBehaviour
     public IEnumerator CheckIfFinishedSwapping()
     {
         UpdateSwapCounter();
-        while (currentNumSwaps < numSwapsBeforeCombat)
+        while (!_hasSwapped)
         {
             yield return null;
         }
 
         BoardManager.Instance.canMove = false;
-        currentNumSwaps = 0;
+        _hasSwapped = false;
     }
 
     private void UpdateSwapCounter()
@@ -135,6 +122,69 @@ public class TurnManager : MonoBehaviour
         else
         {
             swapCounter.text = ($"{numSwapsBeforeCombat - currentNumSwaps} moves left");
+        }
+    }
+
+    public IEnumerator CountDownAttackTimers()
+    {
+        foreach (var unit in orderedCombatUnits)
+        {
+            yield return StartCoroutine(unit.CountDownTimer());
+        }
+    }
+
+    public IEnumerator ResetUnit(UnitBehaviour unitBehaviour)
+    {
+        yield return StartCoroutine(unitBehaviour.ResetAttackTimer());
+    }
+    
+    public void ReinsertUnit(UnitBehaviour survivedUnit)
+    {
+        // If the unit is null or dead, do nothing
+        if (survivedUnit == null || survivedUnit.isDead) return;
+        
+        // Remove the unit first to avoid duplicate
+        orderedCombatUnits.Remove(survivedUnit);
+
+        // Find the proper index to insert the survived unit based on turnsTilAttack
+        int insertIndex = orderedCombatUnits.FindIndex(unit => unit.turnsTilAttack > survivedUnit.turnsTilAttack);
+
+        // Insert at the end if no such unit is found; otherwise insert at the found index
+        if (insertIndex == -1)
+        {
+            orderedCombatUnits.Add(survivedUnit);
+        }
+        else
+        {
+            orderedCombatUnits.Insert(insertIndex, survivedUnit);
+        }
+
+        // Rebuild the UI
+        RebuildCombatOrderUI();
+    }
+
+    private void RebuildCombatOrderUI()
+    {
+        // Remove all current turn indicators
+        for (var i = _turnIndicators.Count - 1; i >= 0; i--)
+        {
+            Destroy(_turnIndicators[i]);
+        }
+        _turnIndicators.Clear();
+        
+        foreach (var unit in orderedCombatUnits)
+        {
+            var turnIndicatorInstance = Instantiate(turnIndicatorPrefab, transform);
+            var turnIndicator = turnIndicatorInstance.GetComponent<TurnIndicator>();
+            turnIndicator.unitSprite.sprite = unit.unitData.unitSprite;
+            turnIndicator.unitBehaviour = unit;
+
+            if (unit.unitData.tribe == Unit.Tribe.Hero)
+            {
+                turnIndicator.SetBackgroundColor(new Color32(120, 185, 65, 255));
+            }
+
+            _turnIndicators.Add(turnIndicatorInstance);
         }
     }
     

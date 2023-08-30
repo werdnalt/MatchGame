@@ -4,9 +4,9 @@ using DG.Tweening;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-public class CursorAnimation : MonoBehaviour
+public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 {
-    //public PlayerActions playerActions;
+    public MyPlayerActions playerActions;
     public static CursorAnimation Instance;
     
     // The maximum and minimum scales for the pulse animation
@@ -49,8 +49,8 @@ public class CursorAnimation : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _mousePositionAction = inputAction.FindAction("MousePosition");
 
-        // playerActions = new PlayerActions();
-        // playerActions.Player.Cancel.performed += ctx => CancelSelection();
+        playerActions = new MyPlayerActions();
+        playerActions.Player.Cancel.performed += ctx => CancelSelection();
     }
 
     private void Update()
@@ -109,11 +109,13 @@ public class CursorAnimation : MonoBehaviour
         
     }
 
-    private void CancelSelection()
+    public void CancelSelection()
     {
+        isDragging = false;
+        SetSwapSelectorPosition();
+        Debug.Log("Canceling");
         _spriteRenderer.sprite = smallSwappingSelector;
         _swappingCell = new BoardManager.Coordinates(-1, -1);
-        SetSwapSelectorPosition();
         StartPulsing();
     }
     
@@ -221,5 +223,11 @@ public class CursorAnimation : MonoBehaviour
         BoardManager.Instance.SwapBlocks(_swappingCell, _startingCell);
         
         _spriteRenderer.sprite = regularSelector;
+    }
+    
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        Debug.Log("pointer up");
+        if (eventData.button == PointerEventData.InputButton.Right) CancelSelection();
     }
 }

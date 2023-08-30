@@ -8,6 +8,8 @@ public class AbsorbNeighbor : Effect
 {
     public override void OnSwap(UnitBehaviour swappedUnit, UnitBehaviour swappedWith)
     {
+        if (!swappedWith) return;
+        
         swappedUnit.attack += swappedWith.attack;
         swappedUnit.currentHp += swappedWith.currentHp;
         swappedWith.transform.DOKill();
