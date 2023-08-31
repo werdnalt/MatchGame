@@ -10,6 +10,7 @@ public class TurnManager : MonoBehaviour
     public static TurnManager Instance;
 
     [SerializeField] private GameObject turnIndicatorPrefab;
+    [SerializeField] private TextMeshProUGUI waveCounter;
     [SerializeField] private TextMeshProUGUI swapCounter;
 
     public List<UnitBehaviour> orderedCombatUnits;
@@ -56,6 +57,7 @@ public class TurnManager : MonoBehaviour
         foreach (var unit in orderedUnits)
         {
             orderedCombatUnits.Add(unit);
+            unit.EnableCountdownTimer();
 
             var turnIndicatorInstance = Instantiate(turnIndicatorPrefab, transform);
 
@@ -106,36 +108,38 @@ public class TurnManager : MonoBehaviour
         _hasSwapped = false;
     }
 
-    private void UpdateSwapCounter()
+    public void UpdateSwapCounter()
     {
-        var numSwapsLeft = numSwapsBeforeCombat - currentNumSwaps;
+        var numSwapsLeft = WaveManager.Instance.swapsLeftUntilWave;
+        waveCounter.text = $"Wave <color=#52bc9c>{WaveManager.Instance.currentNumWave} / {WaveManager.Instance.totalNumWaves}</color>";
 
         if (numSwapsLeft == 1)
         {
             swapCounter.text = ($"final move");
         }
 
-        if (numSwapsLeft == 0)
+        if (numSwapsLeft <= 0)
         {
-            swapCounter.text = ($"combat in progress");
+            swapCounter.text = ($"Final Wave");
         }
         else
         {
-            swapCounter.text = ($"{numSwapsBeforeCombat - currentNumSwaps} moves left");
+            swapCounter.text = ($"Next Wave in <color=#52bc9c>{numSwapsLeft}</color> swaps");
+
         }
     }
 
-    public IEnumerator CountDownAttackTimers()
+    public void CountDownAttackTimers()
     {
         foreach (var unit in orderedCombatUnits)
         {
-            yield return StartCoroutine(unit.CountDownTimer());
+            StartCoroutine(unit.CountDownTimer());
         }
     }
 
-    public IEnumerator ResetUnit(UnitBehaviour unitBehaviour)
+    public void ResetUnit(UnitBehaviour unitBehaviour)
     {
-        yield return StartCoroutine(unitBehaviour.ResetAttackTimer());
+        StartCoroutine(unitBehaviour.ResetAttackTimer());
     }
     
     public void ReinsertUnit(UnitBehaviour survivedUnit)

@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
-  m_Name: Orc Reflect
+  m_Name: skull
   m_EditorClassIdentifier: 
+  attackTimer: 2
   shouldAnimateLoop: 0
-  tribe: 1
+  tribe: 2
   classification: 0
-  hp: 4
-  attack: 1
-  experienceAmount: 0
-  unitSprite: {fileID: 21300000, guid: c759a8d3dc93ac6428cbe1fccf08b55b, type: 3}
-  effects:
-  - {fileID: 11400000, guid: eeda81ab0d703924396f1ab367d8992c, type: 2}
+  hp: 3
+  attack: -2
+  experienceAmount: 10
+  unitSprite: {fileID: 21300000, guid: a1400b5cc8f1c0c4fa2b7842f3c1c8b1, type: 3}
+  effects: []
   passive: 0
-  displayName: Orc Reflector
+  displayName: 

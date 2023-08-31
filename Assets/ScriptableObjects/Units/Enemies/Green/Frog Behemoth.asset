@@ -10,16 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
-  m_Name: Orc Thorns
+  m_Name: Frog Behemoth
   m_EditorClassIdentifier: 
+  attackTimer: 4
   shouldAnimateLoop: 0
-  tribe: 1
+  tribe: 3
   classification: 0
-  hp: 4
-  attack: 1
+  hp: 5
+  attack: 2
   experienceAmount: 0
-  unitSprite: {fileID: 21300000, guid: e86a8fa3fbc859140b77581c1c1161a5, type: 3}
+  unitSprite: {fileID: 21300000, guid: 07bbc829fb5635c43b9eb01386f64070, type: 3}
   effects:
-  - {fileID: 11400000, guid: 9134460c5d7974348bdf56967eec2db0, type: 2}
+  - {fileID: 11400000, guid: a0d732eab16caf04d86e92a793af1b72, type: 2}
   passive: 0
-  displayName: Orc Thorns
+  displayName: Frog Behemoth

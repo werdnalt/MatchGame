@@ -73,6 +73,7 @@ public class UnitBehaviour : MonoBehaviour
     private void Start()
     {
         attackTimer = unitData.attackTimer;
+        turnsTilAttack = attackTimer;
         attack = unitData.attack;
         _maxHp = unitData.hp;
         timeSpawned = Time.time;
@@ -315,30 +316,50 @@ public class UnitBehaviour : MonoBehaviour
 
     private void ShowHearts()
     {
-        // hearts have already been instantiated
-        if (_heartObjects.Count >= 1) return;
-        
-        for (var i = 0; i < _maxHp; i++)
+        // If maxHP has increased, instantiate more hearts
+        if (_heartObjects.Count < _maxHp)
         {
-            _heartObjects.Add(Instantiate(fullHeartObject, heartHolder.transform));
+            // Destroy existing hearts to refresh the display
+            foreach (var heart in _heartObjects)
+            {
+                Destroy(heart);
+            }
+            _heartObjects.Clear();
+
+            // Create new hearts based on updated _maxHp
+            for (var i = 0; i < _maxHp; i++)
+            {
+                _heartObjects.Add(Instantiate(fullHeartObject, heartHolder.transform));
+            }
         }
     }
 
-    private void UpdateHearts()
+    public void UpdateHearts()
     {
-        int startHp = Mathf.Max(0, unitData.hp - 1); // Ensure this never goes below 0
-        int endHp = Mathf.Max(0, currentHp);     // Ensure this never goes below 0
+        // Make sure _heartObjects is populated
+        if (_heartObjects.Count == 0) return;
 
-        for (var i = startHp; i >= endHp; i--)
+        // Update hearts based on currentHp
+        for (var i = 0; i < _maxHp; i++)
         {
             var heart = _heartObjects[i];
             var originalPos = heart.transform.position;
-            
-            heart.GetComponent<Image>().sprite = emptyHeart;
+        
+            if (i < currentHp)
+            {
+                // Show filled heart
+                heart.GetComponent<Image>().sprite = fullHeart;
+            }
+            else
+            {
+                // Show empty heart
+                heart.GetComponent<Image>().sprite = emptyHeart;
 
-            heart.transform.DOKill();
-            heart.transform.DOPunchScale(new Vector3(heart.transform.localScale.x + .2f, heart.transform.localScale.y + .2f), .3f, 1, 1);
-            heart.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1);
+                // Add animation effects for empty hearts
+                heart.transform.DOKill();
+                heart.transform.DOPunchScale(new Vector3(heart.transform.localScale.x + .2f, heart.transform.localScale.y + .2f), .3f, 1, 1);
+                heart.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1);
+            }
         }
     }
 
@@ -423,6 +444,12 @@ public class UnitBehaviour : MonoBehaviour
         swordSprite.enabled = false;
     }
 
+    public void EnableCountdownTimer()
+    {
+        attackTimerObject.SetActive(true);
+        attackTimerTimeText.text = turnsTilAttack.ToString();
+    }
+
     public IEnumerator CountDownTimer()
     {
         if (attackTimerObject.activeSelf == false)
@@ -436,7 +463,11 @@ public class UnitBehaviour : MonoBehaviour
         
         turnsTilAttack--;
         attackTimerTimeText.text = turnsTilAttack.ToString();
-        attackTimerTimeText.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1).OnComplete(() =>
+        if (turnsTilAttack <= 1)
+        {
+            attackTimerTimeText.color = Color.red;
+        }
+        attackTimerTimeText.transform.DOPunchScale(new Vector3(1, 1, 0), .2f, 1, 1).OnComplete(() =>
         {
             animationFinished = true;
         });
@@ -446,6 +477,7 @@ public class UnitBehaviour : MonoBehaviour
     
     public IEnumerator ResetAttackTimer()
     {
+        attackTimerTimeText.color = Color.white;
         var animationFinished = false;
         var originalPos = attackTimerTimeText.transform.position;
         

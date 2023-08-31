@@ -14,6 +14,9 @@ public class WaveManager : MonoBehaviour
 
     private int _numSwaps;
 
+    public int totalNumWaves;
+    public int currentNumWave;
+
     public bool shouldSpawnWave
     {
         get
@@ -30,8 +33,16 @@ public class WaveManager : MonoBehaviour
             }
         }
     }
+
+    public int swapsLeftUntilWave
+    {
+        get
+        {
+            return swapsUntilWave - _numSwaps;
+        }
+    }
     
-    private int swapsUntilWave
+    public int swapsUntilWave
     {
         get
         {
@@ -66,11 +77,16 @@ public class WaveManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         _numSwaps = 0;
+
+        currentNumWave = 0;
+        totalNumWaves = waves.Count;
     }
 
     public List<Unit> GetUnitsToSpawn()
     {
         if (_upcomingWave == null) Debug.LogAssertion("Should not attempt to spawn a wave when there are no waves remaining");
+
+        currentNumWave++;
         
         var toSpawn = new List<Unit>();
         for (var i = 0; i < _upcomingWave.waveSize; i++)

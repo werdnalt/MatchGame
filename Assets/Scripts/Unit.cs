@@ -10,7 +10,8 @@ public class Unit : ScriptableObject
         Red,
         Blue,
         Green,
-        Yellow
+        Yellow,
+        Purple
     }
 
     public enum Classification

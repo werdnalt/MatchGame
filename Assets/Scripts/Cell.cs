@@ -16,7 +16,11 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, I
         BoardManager.Instance.SetCellSelector(transform.position);
         
         unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
-        if (!unitBehaviour) return;
+        if (!unitBehaviour)
+        {
+            UIManager.Instance.HideUnitPanel();
+            return;
+        }
         
         UIManager.Instance.ShowUnitPanel(unitBehaviour);
     }

@@ -10,16 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
-  m_Name: Frog Behemoth
+  m_Name: Orc Reflect
   m_EditorClassIdentifier: 
+  attackTimer: 4
   shouldAnimateLoop: 0
-  tribe: 3
+  tribe: 1
   classification: 0
-  hp: 5
-  attack: 2
+  hp: 4
+  attack: 1
   experienceAmount: 0
-  unitSprite: {fileID: 21300000, guid: 07bbc829fb5635c43b9eb01386f64070, type: 3}
+  unitSprite: {fileID: 21300000, guid: 858f20dec2a19ae459aaf516518d154f, type: 3}
   effects:
-  - {fileID: 11400000, guid: a0d732eab16caf04d86e92a793af1b72, type: 2}
+  - {fileID: 11400000, guid: eeda81ab0d703924396f1ab367d8992c, type: 2}
   passive: 0
-  displayName: Frog Behemoth
+  displayName: Goblin Shaman

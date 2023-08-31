@@ -49,6 +49,7 @@ public class BoardManager : MonoBehaviour
     private int accumulatedPoints = 0;
     private List<int> accumulatedScores = new List<int>();
     private Dictionary<int, List<Coordinates>> _selectorPositions = new Dictionary<int, List<Coordinates>>();
+    private List<UnitBehaviour> _unitsToReinsert = new List<UnitBehaviour>();
     public bool canMove;
 
     [SerializeField] private GameObject blocksParent;
@@ -116,8 +117,10 @@ public class BoardManager : MonoBehaviour
     private IEnumerator KickOffGameLoop()
     {
         yield return StartCoroutine(CreateHeroes());
+
+        yield return StartCoroutine(SpawnUnit(WaveManager.Instance.GetUnitsToSpawn()));
         
-        StartCoroutine(GameLoop());
+        StartCoroutine(ModifiedGameLoop());
     }
 
     private void AddBlock(Unit unit)
@@ -219,6 +222,13 @@ public class BoardManager : MonoBehaviour
         yield return StartCoroutine(SpawnUnit(unitsToSpawn));
     }
 
+    public void ForceSpawnWave()
+    {
+        var unitsToSpawn = WaveManager.Instance.GetUnitsToSpawn();
+        StartCoroutine(SpawnUnit(unitsToSpawn));
+        TurnManager.Instance.UpdateSwapCounter();
+    }
+
     private IEnumerator SpawnUnit(List<Unit> unitsToSpawn)
     {
         for (var unitsSpawned = 0; unitsSpawned < unitsToSpawn.Count; unitsSpawned++)
@@ -281,7 +291,7 @@ public class BoardManager : MonoBehaviour
     
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
-        if (TurnManager.Instance.currentNumSwaps == TurnManager.Instance.numSwapsBeforeCombat) return;
+        if (!canMove) return;
         
         var leftUnit = _board.GetUnitBehaviour(leftBlockCoords);
         var rightUnit = _board.GetUnitBehaviour(rightBlockCoords);
@@ -503,18 +513,27 @@ public class BoardManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         foreach (var unit in TurnManager.Instance.orderedCombatUnits)
         {
-            if (unit.isDead || unit.combatTarget == null || unit.attackTimer != 0) continue;
+            if (unit.isDead || unit.turnsTilAttack != 0) continue;
+            
+            if (unit.combatTarget == null) TurnManager.Instance.ResetUnit(unit);
             
             yield return StartCoroutine(unit.Attack());
 
-            yield return StartCoroutine(TurnManager.Instance.ResetUnit(unit));
+            TurnManager.Instance.ResetUnit(unit);
             
-            TurnManager.Instance.ReinsertUnit(unit);
+            _unitsToReinsert.Add(unit);
             
             CleanUpBoard();
 
             yield return new WaitForSeconds(.5f);
         }
+        
+        foreach (var unit in _unitsToReinsert)
+        {
+            TurnManager.Instance.ReinsertUnit(unit);
+        }
+        
+        _unitsToReinsert.Clear();
     }
 
     private void RemoveDeadUnits()
@@ -552,6 +571,7 @@ public class BoardManager : MonoBehaviour
                 hero.SetCombatTarget(null);
             }
         }
+        
         yield break;
     }
 
@@ -624,7 +644,7 @@ public class BoardManager : MonoBehaviour
             yield return StartCoroutine(TurnManager.Instance.CheckIfFinishedSwapping());
             
             // count down turn counters
-            yield return StartCoroutine(TurnManager.Instance.CountDownAttackTimers());
+            TurnManager.Instance.CountDownAttackTimers();
             
             // execute combat if needed
             yield return StartCoroutine(SequentialCombat());

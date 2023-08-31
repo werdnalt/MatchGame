@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 822c0ca4f25901348bbb3d6df8aba20f, type: 3}
-  m_Name: skull
+  m_Name: Goblin Anklebiter
   m_EditorClassIdentifier: 
-  unit: {fileID: 11400000, guid: 63e15bba1de2717428a367c18cd949c0, type: 2}
+  unit: {fileID: 11400000, guid: 4b453678f08a1fb429e70f7908fd9375, type: 2}
   weight: 15
