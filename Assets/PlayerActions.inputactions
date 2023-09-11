@@ -92,6 +92,30 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "MouseDown",
+                    "type": "Button",
+                    "id": "0c0fdf08-1ad0-4194-a3ce-a373b2aafaaf",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "MouseMove",
+                    "type": "Value",
+                    "id": "f9932d8e-319c-43ea-89ad-45ef89cd32ce",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "MouseUp",
+                    "type": "Button",
+                    "id": "897d4738-f8a7-4815-90a4-4e2e6e2aa8af",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -477,6 +501,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cbf00d60-5808-4d81-9e6e-b38873cfbe7a",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MouseDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1296d755-9579-4521-9393-f0ad07148500",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MouseMove",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1ea7fdb1-bd2a-45d6-a4f3-a5c9d863cf1a",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MouseUp",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

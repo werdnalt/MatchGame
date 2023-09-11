@@ -12,7 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea9929c6014cba743823f960fa50cee1, type: 3}
   m_Name: Wave 2
   m_EditorClassIdentifier: 
+  swapsUntilSpawn: 0
   units:
-  - {fileID: 11400000, guid: 63e15bba1de2717428a367c18cd949c0, type: 2}
+  - {fileID: 11400000, guid: e86027f94a9a3654b80fb84dceb1ab2e, type: 2}
+  - {fileID: 11400000, guid: 32ac20715bba3084b8869b89258b1067, type: 2}
+  - {fileID: 11400000, guid: 0254062fa41018c4e9a0359f18507cf1, type: 2}
+  - {fileID: 11400000, guid: 489216577478c044392f3e640af05c8e, type: 2}
+  - {fileID: 11400000, guid: e14bd0c3b63400b4eb05bdc07defc218, type: 2}
+  - {fileID: 11400000, guid: 072e9f07ffed1ce4fa5a897271f6f1b3, type: 2}
+  - {fileID: 11400000, guid: 104b68201ab8fe7418216803560368ce, type: 2}
   timeBeforeSpawn: 5
   waveSize: 7

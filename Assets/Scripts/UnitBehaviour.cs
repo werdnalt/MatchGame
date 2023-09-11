@@ -53,6 +53,7 @@ public class UnitBehaviour : MonoBehaviour
     [SerializeField] private Sprite fullHeart;
     [SerializeField] private GameObject attackTimerObject;
     [SerializeField] private TextMeshProUGUI attackTimerTimeText;
+    [SerializeField] private Image attackTimerSprite;
     private List<GameObject> _heartObjects = new List<GameObject>();
 
     public int _maxHp;
@@ -81,7 +82,7 @@ public class UnitBehaviour : MonoBehaviour
         _spriteDuration = .2f;
         _currentSpriteIndex = 0;
 
-        combatOrderText.text = "";
+//        combatOrderText.text = "";
         
         rend = GetComponent<Renderer>();
         if (rend)
@@ -220,6 +221,8 @@ public class UnitBehaviour : MonoBehaviour
             yield break; // If there's no combat target, simply exit the coroutine
         }
         
+        EnergyManager.Instance.GainEnergy(EnergyManager.Instance.energyGainedPerAttack);
+        
         foreach(var effect in unitData.effects)
         {
             effect.OnAttack(this, combatTarget);
@@ -227,8 +230,8 @@ public class UnitBehaviour : MonoBehaviour
 
         BoardManager.Instance.mostRecentlyAttackingUnit = this;
         
-        combatOrderText.text = "";
-        ShowAttackAmount();
+        //combatOrderText.text = "";
+        //ShowAttackAmount();
 
         yield return new WaitForSeconds(.75f);
 
@@ -283,6 +286,11 @@ public class UnitBehaviour : MonoBehaviour
         healthUI.SetActive(true);
         ShowHearts();
         UpdateHearts();
+
+        if (currentHp > 0 && unitData.tribe != Unit.Tribe.Hero)
+        {
+            StartCoroutine(Attack());
+        }
     }
 
     private IEnumerator HitEffect()
@@ -446,26 +454,23 @@ public class UnitBehaviour : MonoBehaviour
 
     public void EnableCountdownTimer()
     {
+        if (turnsTilAttack >= 3) return;
         attackTimerObject.SetActive(true);
         attackTimerTimeText.text = turnsTilAttack.ToString();
     }
 
     public IEnumerator CountDownTimer()
     {
-        if (attackTimerObject.activeSelf == false)
-        {
-            attackTimerObject.SetActive(true);
-            attackTimerTimeText.text = turnsTilAttack.ToString();
-        }
-        
         var animationFinished = false;
-        var originalPos = attackTimerTimeText.transform.position;
-        
+
         turnsTilAttack--;
+        
+        
+        var originalPos = attackTimerTimeText.transform.position;
         attackTimerTimeText.text = turnsTilAttack.ToString();
         if (turnsTilAttack <= 1)
         {
-            attackTimerTimeText.color = Color.red;
+            attackTimerSprite.color = Color.red;
         }
         attackTimerTimeText.transform.DOPunchScale(new Vector3(1, 1, 0), .2f, 1, 1).OnComplete(() =>
         {

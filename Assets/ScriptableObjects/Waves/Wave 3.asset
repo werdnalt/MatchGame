@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea9929c6014cba743823f960fa50cee1, type: 3}
+  m_Name: Wave 3
+  m_EditorClassIdentifier: 
+  swapsUntilSpawn: 0
+  units:
+  - {fileID: 11400000, guid: 0254062fa41018c4e9a0359f18507cf1, type: 2}
+  - {fileID: 11400000, guid: 072e9f07ffed1ce4fa5a897271f6f1b3, type: 2}
+  - {fileID: 11400000, guid: 9a1bbc3a21d932143a447455e9aef936, type: 2}
+  - {fileID: 11400000, guid: a37e294b519635541a3b2296ad977cd0, type: 2}
+  - {fileID: 11400000, guid: 0254062fa41018c4e9a0359f18507cf1, type: 2}
+  - {fileID: 11400000, guid: 0f1e21fcb40f2d84baf7662c8a262e8e, type: 2}
+  - {fileID: 11400000, guid: 549581da034500d4fb38e45d2359f81e, type: 2}
+  - {fileID: 11400000, guid: 7e3dd8af240ff904da5ef0fc065551ca, type: 2}
+  timeBeforeSpawn: 5
+  waveSize: 7

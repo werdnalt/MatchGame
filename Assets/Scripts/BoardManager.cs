@@ -20,21 +20,22 @@ public class BoardManager : MonoBehaviour
     public GameObject deployObject;
 
     public List<GameObject> cellPrefabs;
+    public List<GameObject> heroCellPrefabs;
 
     public int numRows;
     public int numColumns;
 
     public GameObject boardGameObject;
-    
+
     // A list of all possible blocks that can be spawned on the board
     public List<GameObject> blockGameObjects = new List<GameObject>();
 
     // An empty block for filling blank space in the board
     public GameObject emptyBlock;
-    
+
     // A 2D array that contains the blocks that comprise the board
     private Board _board;
-    
+
     public bool isRefilling;
     public TextMeshProUGUI accumulatedPointsText;
 
@@ -114,7 +115,7 @@ public class BoardManager : MonoBehaviour
         StartCoroutine(KickOffGameLoop());
     }
 
-    private IEnumerator KickOffGameLoop()
+    public IEnumerator KickOffGameLoop()
     {
         yield return StartCoroutine(CreateHeroes());
 
@@ -186,7 +187,8 @@ public class BoardManager : MonoBehaviour
     // readjusted while in edit mode
     private void CreateBoard()
     {
-        _board = new Board(numColumns, numRows);
+        var cellSize = cellPrefabs[1].GetComponent<SpriteRenderer>().bounds.size;
+        _board = new Board(numColumns, numRows, cellSize);
         
         // create grid background
         for (int i = 0; i < _board.boardPositions.Length; i++)
@@ -201,14 +203,16 @@ public class BoardManager : MonoBehaviour
             }
         }
         
-        // create grid background
+        // create grid background for heroes
         for (int i = 0; i < _board.heroPositions.Length; i++)
         {
-                var backgroundCell = Instantiate(cellPrefabs[(i) % 2], cellsParent.
+                var backgroundCell = Instantiate(heroCellPrefabs[(i) % 2], cellsParent.
                     transform);
                 backgroundCell.transform.position = _board.heroPositions[i].worldSpacePosition;
+                Destroy(backgroundCell.GetComponent<Cell>());
+                backgroundCell.AddComponent<HeroCell>();
 
-                backgroundCell.GetComponent<Cell>().coordinates = new Coordinates(i, 0);
+                backgroundCell.GetComponent<HeroCell>().column = i;
         }
 
         EventManager.Instance.BoardReady();
@@ -292,6 +296,10 @@ public class BoardManager : MonoBehaviour
     public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
         if (!canMove) return;
+
+        if (!EnergyManager.Instance.DoHaveEnoughEnergy(EnergyManager.Instance.energyPerSwap)) return;
+        
+        EnergyManager.Instance.SpendEnergy(EnergyManager.Instance.energyPerSwap);
         
         var leftUnit = _board.GetUnitBehaviour(leftBlockCoords);
         var rightUnit = _board.GetUnitBehaviour(rightBlockCoords);
@@ -322,13 +330,13 @@ public class BoardManager : MonoBehaviour
         StartCoroutine(WaitToApplyGravity(_board.blockSwapTime));
     }
 
-    private IEnumerator WaitToApplyGravity(float blockSwapTime)
+    public IEnumerator WaitToApplyGravity(float blockSwapTime)
     {
         yield return new WaitForSeconds(blockSwapTime);
         CleanUpBoard();
     }
 
-    private void CleanUpBoard()
+    public void CleanUpBoard()
     {
         RemoveDeadUnits();
         ApplyGravity();
@@ -424,20 +432,6 @@ public class BoardManager : MonoBehaviour
         coords.Add(pos2);
     }
     
-    public bool IsSelectorColliding(BoardManager.Coordinates block1, BoardManager.Coordinates block2)
-    {
-        bool isColliding = false;
-
-        foreach (var player in GameManager.Instance.playersInGame)
-        {
-            if ((block1.Equals(player.selector._leftBlockCoordinates) || (block1.Equals(player.selector._rightBlockCoordinates)) || block2.Equals(player.selector._leftBlockCoordinates) || (block2.Equals(player.selector._rightBlockCoordinates))))
-            {
-                isColliding = true;
-            }
-        }
-        return isColliding;
-    }
-
     public Coordinates GetNeighborCoordinates(Coordinates origin, Direction direction)
     {
         switch (direction)
@@ -509,7 +503,7 @@ public class BoardManager : MonoBehaviour
     
     private IEnumerator SequentialCombat()
     {
-        canMove = false;
+        //canMove = false;
         yield return new WaitForSeconds(1f);
         foreach (var unit in TurnManager.Instance.orderedCombatUnits)
         {
@@ -546,6 +540,11 @@ public class BoardManager : MonoBehaviour
                 RemoveUnitFromBoard(unit);
             }
         }
+    }
+
+    public UnitBehaviour[] GetAllUnits()
+    {
+        return _board.GetAllUnits();
     }
 
     public void RemoveUnitFromBoard(UnitBehaviour unitBehaviour)
@@ -631,24 +630,16 @@ public class BoardManager : MonoBehaviour
     {
         while (true)
         {
-            // check if wave should spawn
-            yield return StartCoroutine(SpawnWave());
-            
             // assign combat targets
             yield return StartCoroutine(AssignCombatTargets());
             
-            // activate turn counters
-            yield return StartCoroutine(SetUpCombatTurns());
-            
             // wait for player to swap blocks
             yield return StartCoroutine(TurnManager.Instance.CheckIfFinishedSwapping());
-            
-            // count down turn counters
-            TurnManager.Instance.CountDownAttackTimers();
-            
-            // execute combat if needed
-            yield return StartCoroutine(SequentialCombat());
-
         }
+    }
+
+    public Coordinates? GetCoordinatesForUnit(UnitBehaviour unitBehaviour)
+    {
+        return _board.FindUnitBehaviour(unitBehaviour);
     }
 }

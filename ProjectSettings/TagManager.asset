@@ -55,3 +55,6 @@ TagManager:
   - name: Everything Else
     uniqueID: 3995336153
     locked: 0
+  - name: Ignore Raycast
+    uniqueID: 1033991413
+    locked: 0

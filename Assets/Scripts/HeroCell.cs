@@ -3,45 +3,43 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class HeroCell: MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, IPointerExitHandler, IDragHandler, IPointerUpHandler
+public class HeroCell: Cell, IPointerEnterHandler, IPointerExitHandler, IDragHandler, IPointerUpHandler, IPointerDownHandler
 {
-    public int column;
-
-    public UnitBehaviour unitBehaviour;
-    
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (CursorAnimation.Instance.isDragging) return;
+        //if (CursorAnimation.Instance.isDragging) return;
         
         BoardManager.Instance.SetCellSelector(transform.position);
         
         unitBehaviour = BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(column);
         if (!unitBehaviour) return;
         
-        UIManager.Instance.ShowUnitPanel(unitBehaviour);
-    }
-    
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        unitBehaviour = BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(column);
-        if (!unitBehaviour) return;
-        
-        AudioManager.Instance.PlayWithRandomPitch("click");
+        //CursorAnimation.Instance.HighlightChain(unitBehaviour.combatTarget);
         UIManager.Instance.ShowUnitPanel(unitBehaviour);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (CursorAnimation.Instance.isDragging) return;
+        //if (CursorAnimation.Instance.isDragging) return;
+        
+        //CursorAnimation.Instance.UnhighlightChain();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        CursorAnimation.Instance.StartDraggingHeroFrom(eventData.position, column);
+        //CursorAnimation.Instance.StartDraggingHeroFrom(eventData.position, column);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        CursorAnimation.Instance.StopDragging();
+        StartCoroutine(ActionHandler.Instance.ResolveAction());
+    }
+    
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        unitBehaviour = BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(column);
+        ActionHandler.Instance.SetClickedCell(this);
+        
+        AudioManager.Instance.PlayWithRandomPitch("click");
     }
 }

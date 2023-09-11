@@ -104,7 +104,7 @@ public class TurnManager : MonoBehaviour
             yield return null;
         }
 
-        BoardManager.Instance.canMove = false;
+        //BoardManager.Instance.canMove = false;
         _hasSwapped = false;
     }
 

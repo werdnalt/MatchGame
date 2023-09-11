@@ -17,6 +17,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private GameObject effectTextPrefab;
 
+    [SerializeField] private TextMeshProUGUI energyText;
+
     private List<GameObject> _instantiatedEffectPrefabs = new List<GameObject>();
 
     private void Awake()
@@ -59,5 +61,10 @@ public class UIManager : MonoBehaviour
         {
             Destroy(_instantiatedEffectPrefabs[i].gameObject);
         }
+    }
+
+    public void UpdateEnergyText(int amountLeft)
+    {
+        energyText.text = $"Actions: {amountLeft}";
     }
 }

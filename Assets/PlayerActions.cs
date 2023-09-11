@@ -105,6 +105,30 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""MouseDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""0c0fdf08-1ad0-4194-a3ce-a373b2aafaaf"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""MouseMove"",
+                    ""type"": ""Value"",
+                    ""id"": ""f9932d8e-319c-43ea-89ad-45ef89cd32ce"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""MouseUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""897d4738-f8a7-4815-90a4-4e2e6e2aa8af"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -490,6 +514,39 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cbf00d60-5808-4d81-9e6e-b38873cfbe7a"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MouseDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1296d755-9579-4521-9393-f0ad07148500"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MouseMove"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1ea7fdb1-bd2a-45d6-a4f3-a5c9d863cf1a"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MouseUp"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1179,6 +1236,9 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
         m_Player_Reset = m_Player.FindAction("Reset", throwIfNotFound: true);
         m_Player_MousePosition = m_Player.FindAction("MousePosition", throwIfNotFound: true);
         m_Player_Cancel = m_Player.FindAction("Cancel", throwIfNotFound: true);
+        m_Player_MouseDown = m_Player.FindAction("MouseDown", throwIfNotFound: true);
+        m_Player_MouseMove = m_Player.FindAction("MouseMove", throwIfNotFound: true);
+        m_Player_MouseUp = m_Player.FindAction("MouseUp", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1254,6 +1314,9 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Reset;
     private readonly InputAction m_Player_MousePosition;
     private readonly InputAction m_Player_Cancel;
+    private readonly InputAction m_Player_MouseDown;
+    private readonly InputAction m_Player_MouseMove;
+    private readonly InputAction m_Player_MouseUp;
     public struct PlayerActions
     {
         private @MyPlayerActions m_Wrapper;
@@ -1269,6 +1332,9 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
         public InputAction @Reset => m_Wrapper.m_Player_Reset;
         public InputAction @MousePosition => m_Wrapper.m_Player_MousePosition;
         public InputAction @Cancel => m_Wrapper.m_Player_Cancel;
+        public InputAction @MouseDown => m_Wrapper.m_Player_MouseDown;
+        public InputAction @MouseMove => m_Wrapper.m_Player_MouseMove;
+        public InputAction @MouseUp => m_Wrapper.m_Player_MouseUp;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1311,6 +1377,15 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
                 @Cancel.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCancel;
                 @Cancel.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCancel;
                 @Cancel.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCancel;
+                @MouseDown.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseDown;
+                @MouseDown.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseDown;
+                @MouseDown.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseDown;
+                @MouseMove.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseMove;
+                @MouseMove.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseMove;
+                @MouseMove.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseMove;
+                @MouseUp.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseUp;
+                @MouseUp.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseUp;
+                @MouseUp.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseUp;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -1348,6 +1423,15 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
                 @Cancel.started += instance.OnCancel;
                 @Cancel.performed += instance.OnCancel;
                 @Cancel.canceled += instance.OnCancel;
+                @MouseDown.started += instance.OnMouseDown;
+                @MouseDown.performed += instance.OnMouseDown;
+                @MouseDown.canceled += instance.OnMouseDown;
+                @MouseMove.started += instance.OnMouseMove;
+                @MouseMove.performed += instance.OnMouseMove;
+                @MouseMove.canceled += instance.OnMouseMove;
+                @MouseUp.started += instance.OnMouseUp;
+                @MouseUp.performed += instance.OnMouseUp;
+                @MouseUp.canceled += instance.OnMouseUp;
             }
         }
     }
@@ -1539,6 +1623,9 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
         void OnReset(InputAction.CallbackContext context);
         void OnMousePosition(InputAction.CallbackContext context);
         void OnCancel(InputAction.CallbackContext context);
+        void OnMouseDown(InputAction.CallbackContext context);
+        void OnMouseMove(InputAction.CallbackContext context);
+        void OnMouseUp(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

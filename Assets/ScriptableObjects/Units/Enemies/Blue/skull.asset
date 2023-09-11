@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: skull
   m_EditorClassIdentifier: 
-  attackTimer: 2
+  attackTimer: 5
   shouldAnimateLoop: 0
   tribe: 2
   classification: 0

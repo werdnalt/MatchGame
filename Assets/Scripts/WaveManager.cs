@@ -82,8 +82,14 @@ public class WaveManager : MonoBehaviour
         totalNumWaves = waves.Count;
     }
 
+    private void Start()
+    {
+        //waves = new List<Wave>(GameManager.Instance.levelData.waves);
+    }
+
     public List<Unit> GetUnitsToSpawn()
     {
+        if (waves.Count == 0) waves = new List<Wave>(GameManager.Instance.levelData.waves);
         if (_upcomingWave == null) Debug.LogAssertion("Should not attempt to spawn a wave when there are no waves remaining");
 
         currentNumWave++;

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.EventSystems;
@@ -41,6 +42,10 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 
     // Duration of each pulse (half of the full cycle since it will be one way only)
     private float pulseDuration = 0.5f;
+
+    private Vector3 localScale;
+
+    private List<UnitBehaviour> highlightedUnits = new List<UnitBehaviour>();
 
     private void Awake()
     {
@@ -136,7 +141,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 
     void Start()
     {
-        var localScale = transform.localScale;
+        localScale = transform.localScale;
         
         maxScale = new Vector3(localScale.x + .01f, localScale.x + .01f, localScale.z + .01f);
         minScale = new Vector3(localScale.x, localScale.y, localScale.z);
@@ -183,7 +188,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 
         _spriteRenderer.sprite = smallSwappingSelector;
         _startingDragPos = position;
-        isDragging = true;
+        isDraggingHero = true;
         _startingIndex = startingIndex;
     }
     
@@ -229,5 +234,53 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
     {
         Debug.Log("pointer up");
         if (eventData.button == PointerEventData.InputButton.Right) CancelSelection();
+    }
+
+    public void HoldingAnimation()
+    {
+        var newScale = new Vector3(localScale.x / 2, localScale.y / 2, localScale.z);
+        transform.DOPunchScale(newScale, .2f, 1, 1);
+    }
+
+    public void HighlightChain(UnitBehaviour hoveredUnit)
+    {
+        if (!hoveredUnit) return;
+
+        var chainedUnits = BoardManager.Instance.Chain(hoveredUnit);
+
+        // Get a list of all the units on the board
+        var allUnits = BoardManager.Instance.GetAllUnits();
+
+        // Iterate through all the units on the board
+        foreach (var unit in allUnits)
+        {
+            var rend = unit.GetComponent<Renderer>();
+            if (rend)
+            {
+                var mat = rend.material;
+
+                // Check if the unit is not found in the chainedUnits list
+                if (!chainedUnits.Contains(unit))
+                {
+                    // Adjust the HsvSaturation property
+                    mat.SetFloat("_HsvSaturation", .2f);
+                }
+            }
+        }
+    }
+
+    public void UnhighlightChain()
+    {
+        var allUnits = BoardManager.Instance.GetAllUnits();
+
+        foreach (var unit in allUnits)
+        {
+            var rend = unit.GetComponent<Renderer>();
+            if (rend)
+            {
+                var mat = rend.material;
+                mat.SetFloat("_HsvSaturation", 1);
+            }
+        }
     }
 }

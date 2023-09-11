@@ -24,7 +24,7 @@ public class Board
 
     public UnitBehaviour[] Heroes { get; }
 
-    public Board(int numColumns, int numRows)
+    public Board(int numColumns, int numRows, Vector2 prefabSize)
     {
         blockSwapTime = .2f;
         _numColumns = numColumns;
@@ -41,48 +41,49 @@ public class Board
             for (int j = 0; j < _numRows; j++) 
             {
                 BoardManager.Coordinates boardCoordinates = new BoardManager.Coordinates(i, j);
-                Vector3 worldPosition = WorldPositionForBoardCoordinate(boardCoordinates);
+                Vector3 worldPosition = WorldPositionForBoardCoordinate(boardCoordinates, prefabSize);
                 column[j] = new BoardPosition(boardCoordinates, worldPosition);
             }
         }
 
         for (int i = 0; i < numColumns; i++)
         {
-            Vector3 worldPosition = WorldPositionForHeroPositionIndex(i);
+            Vector3 worldPosition = WorldPositionForHeroPositionIndex(i, prefabSize); // Assuming hero size is the same, or you can adjust as needed
             BoardManager.Coordinates coordinates = new BoardManager.Coordinates(i, 0);
             heroPositions[i] = new BoardPosition(coordinates, worldPosition);
         }
     }
 
-    private Vector3 WorldPositionForBoardCoordinate(BoardManager.Coordinates boardCoordinates)
+    private Vector3 WorldPositionForBoardCoordinate(BoardManager.Coordinates boardCoordinates, Vector2 prefabSize)
     {
-        // Calculate the total width and height of the board
-        float boardWidth = _numColumns; 
-        float boardHeight = _numRows;
+        // Calculate the total width and height of the board based on prefab size
+        float boardWidth = _numColumns * prefabSize.x; 
+        float boardHeight = _numRows * prefabSize.y;
 
         // Calculate the starting position for the board to be centered on the screen
-        float startX = -boardWidth / 2 + 0.5f; 
-        float startY = (-boardHeight / 2) + 0.5f + boardCoordinates.y + 0.5f;  // +0.5f to account for the hero row below the board
+        float startX = -boardWidth / 2 + prefabSize.x / 2; 
+        float startY = (-boardHeight / 2) + prefabSize.y / 2 + boardCoordinates.y * prefabSize.y;  
 
-        float xPos = startX + boardCoordinates.x;
-        return new Vector3(xPos, startY);
+        float xPos = startX + boardCoordinates.x * prefabSize.x;
+        return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
     }
 
-    private Vector3 WorldPositionForHeroPositionIndex(int index)
+    private Vector3 WorldPositionForHeroPositionIndex(int index, Vector2 prefabSize)
     {
-        // Calculate the total width and height of the board
-        float boardWidth = _numColumns; 
-        float boardHeight = _numRows;
+        // Calculate the total width and height of the board based on prefab size
+        float boardWidth = _numColumns * prefabSize.x; 
+        float boardHeight = _numRows * prefabSize.y;
 
         // Calculate the starting position for the board to be centered on the screen
-        float startX = -boardWidth / 2 + 0.5f; 
+        float startX = -boardWidth / 2 + prefabSize.x / 2; 
 
-        // Since heroes are below the board, place them half a unit below the bottom-most row of the board.
-        float startY = (-boardHeight / 2) - 0.5f;  
+        // Since heroes are below the board, place them half a unit (in terms of prefab size) below the bottom-most row of the board.
+        float startY = (-boardHeight / 2) - prefabSize.y / 2;  
 
-        float xPos = startX + index;
-        return new Vector3(xPos, startY);
+        float xPos = startX + index * prefabSize.x;
+        return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
     }
+
     
     public GameObject GetUnitGameObject(BoardManager.Coordinates coordinates)
     {

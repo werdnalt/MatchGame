@@ -7,8 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
-    public Selector selector;
-    
     public List<Unit> allHeroes;
     private List<Unit> _benchedHeroes;
     private List<Unit> _activateHeroes;
