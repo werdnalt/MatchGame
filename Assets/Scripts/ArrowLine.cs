@@ -25,6 +25,8 @@ public class ArrowLine : MonoBehaviour
     
     private GameObject _arrowHeadInstance; // The instance of the arrow head
     private GameObject _indicatorInstance;
+
+    public Material lineMat;
     
     public enum IndicatorType
     {
@@ -45,9 +47,7 @@ public class ArrowLine : MonoBehaviour
 
     private void Start()
     {
-        _lineRenderer = gameObject.AddComponent<LineRenderer>();
-        _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        _lineRenderer.widthMultiplier = 0.1f;
+        _lineRenderer = GetComponent<LineRenderer>();
         _lineRenderer.positionCount = 2;
 
         _arrowHeadInstance = Instantiate(arrowHeadPrefab, Vector3.zero, Quaternion.identity);
@@ -59,7 +59,7 @@ public class ArrowLine : MonoBehaviour
     
     void OnEnable()
     {
-        _mouseDownAction.started += OnMouseDown;
+        // _mouseDownAction.started += OnMouseDown;
         _mouseUpAction.canceled += OnMouseUp;
         _mouseMoveAction.performed += OnMouseMove;
 
@@ -70,7 +70,7 @@ public class ArrowLine : MonoBehaviour
     
     void OnDisable()
     {
-        _mouseDownAction.started -= OnMouseDown;
+        // _mouseDownAction.started -= OnMouseDown;
         _mouseUpAction.canceled -= OnMouseUp;
         _mouseMoveAction.performed -= OnMouseMove;
 
@@ -78,23 +78,19 @@ public class ArrowLine : MonoBehaviour
         _mouseUpAction.Disable();
         _mouseMoveAction.Disable();
     }
-
-    public void OnMouseDown(InputAction.CallbackContext context)
+    
+    public void StartDrawingLine(Vector3 startPos)
     {
-        if (context.started)
-        {
-            
-            _mouseStartPos = GetMouseWorldPos();
+        _mouseStartPos = startPos;
 
-            _lineRenderer.positionCount = 2;
-            _lineRenderer.SetPosition(0, _mouseStartPos);
-            _lineRenderer.SetPosition(1, _mouseStartPos);
+        _lineRenderer.positionCount = 2;
+        _lineRenderer.SetPosition(0, startPos);
+        _lineRenderer.SetPosition(1, GetMouseWorldPos());
             
-            _arrowHeadInstance.SetActive(true);
-            Cursor.visible = false; // Hide default cursor
+        _arrowHeadInstance.SetActive(true);
+        Cursor.visible = false; // Hide default cursor
             
-            _isDrawing = true;
-        }
+        _isDrawing = true;
     }
 
     // New method to handle mouse button up

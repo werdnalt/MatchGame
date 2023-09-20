@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: Goblin Anklebiter
   m_EditorClassIdentifier: 
+  animatedCharacterPrefab: {fileID: 1121936079205025678, guid: f2d675539ce0b424ebd0c27d7ad5d967, type: 3}
   attackTimer: 3
   shouldAnimateLoop: 0
   tribe: 1

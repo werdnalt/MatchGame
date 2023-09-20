@@ -143,15 +143,16 @@ public class BoardManager : MonoBehaviour
         _board.SetUnitBehaviour(blockCoordinates.Value, unitBehaviour);
 
         // drop block gameobject into position
-        DropBlock(unitBehaviour.gameObject, _board.GetWorldSpacePositionForBoardCoordinates(blockCoordinates.Value));
+        DropBlock(unitBehaviour.gameObject, _board.GetWorldSpacePositionForBoardCoordinates(blockCoordinates.Value), blockCoordinates.Value);
     }
 
-    private void DropBlock(GameObject blockGameobject, Vector3 position)
+    private void DropBlock(GameObject blockGameobject, Vector3 position, Coordinates blockCoords)
     {
         var dropFrom = new Vector3(position.x, Camera.main.orthographicSize + 1, position.z);
         blockGameobject.transform.position = dropFrom;
-        
-        Drop(blockGameobject, dropFrom, position);
+
+        var newPos = new Vector3(position.x, position.y, blockCoords.y);
+        Drop(blockGameobject, dropFrom, newPos);
     }
 
     private void Drop(GameObject obj, Vector3 dropFrom, Vector3 dropTo)
@@ -265,7 +266,7 @@ public class BoardManager : MonoBehaviour
             Vector3? position = _board.SetHero(unitBehaviour);
             if (position != null)
             {
-                DropBlock(unitBehaviour.gameObject, position.Value);
+                DropBlock(unitBehaviour.gameObject, position.Value, new Coordinates(0, 0));
             }
 
             yield return null;
@@ -358,14 +359,16 @@ public class BoardManager : MonoBehaviour
 
             for (int newRow = 0; newRow < numRows; newRow++)
             {
-                Vector3 newPosition = _board.GetWorldSpacePositionForBoardCoordinates(new Coordinates(column, newRow));
+                var coords = _board.GetWorldSpacePositionForBoardCoordinates(new Coordinates(column, newRow));
+                Vector3 newPosition = new Vector3(coords.x, coords.y, coords.y);
+                    
                 if (newRow < collapsedBlocks.Count)
                 {
                     // Instruct all non-empty blocks to be compressed to the bottom of the board
                     var b = collapsedBlocks[newRow];
                     b.targetPosition = newPosition;
                     _board.SetUnitBehaviour(new Coordinates(column, newRow), b);
-                    if (newPosition != b.transform.position) Drop(b.gameObject,b.transform.position, newPosition);
+                    if (newPosition.y < b.transform.position.y - 1) Drop(b.gameObject,b.transform.position, newPosition);
                 }
                 else
                 {
@@ -486,8 +489,65 @@ public class BoardManager : MonoBehaviour
         return neighbors;
     }
     
-    
+    public List<Coordinates> GetAllNeighboringCoordinates(Coordinates coordinates)
+    {
+        List<Coordinates> neighbors = new List<Coordinates>();
+        int x = coordinates.x;
+        int y = coordinates.y;
 
+        Debug.Log($"Checking neighbors for coordinates: {coordinates.x}, {coordinates.y} ");
+
+        // Top neighbor
+        if (y + 1 < numRows)
+        {
+            neighbors.Add(new Coordinates(x, y + 1));
+        }
+
+        // Right neighbor
+        if (x + 1 < numColumns)
+        {
+            neighbors.Add(new Coordinates(x + 1, y));
+        }
+
+        // Bottom neighbor
+        if (y - 1 >= 0)
+        {
+            neighbors.Add(new Coordinates(x, y - 1));
+        }
+
+        // Left neighbor
+        if (x - 1 >= 0)
+        {
+            neighbors.Add(new Coordinates(x - 1, y));
+        }
+
+        // Top-left diagonal neighbor
+        if (x - 1 >= 0 && y + 1 < numRows)
+        {
+            neighbors.Add(new Coordinates(x - 1, y + 1));
+        }
+
+        // Top-right diagonal neighbor
+        if (x + 1 < numColumns && y + 1 < numRows)
+        {
+            neighbors.Add(new Coordinates(x + 1, y + 1));
+        }
+
+        // Bottom-left diagonal neighbor
+        if (x - 1 >= 0 && y - 1 >= 0)
+        {
+            neighbors.Add(new Coordinates(x - 1, y - 1));
+        }
+
+        // Bottom-right diagonal neighbor
+        if (x + 1 < numColumns && y - 1 >= 0)
+        {
+            neighbors.Add(new Coordinates(x + 1, y - 1));
+        }
+
+        return neighbors;
+    }
+    
     private UnitBehaviour CreateBlock(Unit unit)
     {
         var blockInstance = Instantiate(blockPrefab, blocksParent.transform);
@@ -507,7 +567,7 @@ public class BoardManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         foreach (var unit in TurnManager.Instance.orderedCombatUnits)
         {
-            if (unit.isDead || unit.turnsTilAttack != 0) continue;
+
             
             if (unit.combatTarget == null) TurnManager.Instance.ResetUnit(unit);
             
@@ -537,6 +597,7 @@ public class BoardManager : MonoBehaviour
         {
             if(unit.currentHp <= 0)
             {
+                unit.transform.DOKill();
                 RemoveUnitFromBoard(unit);
             }
         }

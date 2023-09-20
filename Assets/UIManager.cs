@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class UIManager : MonoBehaviour
 {
@@ -21,9 +22,16 @@ public class UIManager : MonoBehaviour
 
     private List<GameObject> _instantiatedEffectPrefabs = new List<GameObject>();
 
+    private Vector3 _originalPos;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
+    }
+
+    private void Start()
+    {
+        _originalPos = transform.localPosition;
     }
 
     public void ShowUnitPanel(UnitBehaviour unitBehaviour)
@@ -34,8 +42,17 @@ public class UIManager : MonoBehaviour
         }
         
         unitPanel.SetActive(true);
+        
+        var endingPos = new Vector3(0, 30f, 0);
+        
+        // unitPanel.transform.DOKill();
+        // unitPanel.transform.position = _originalPos;
+        // unitPanel.transform.DOPunchPosition(endingPos, .2f, 1, 1).SetEase(Ease.OutQuad);
+        
         unitPortrait.sprite = unitBehaviour.unitData.unitSprite;
+        
         attackText.text = unitBehaviour.attack.ToString();
+
         healthText.text = ($"{unitBehaviour.currentHp}");
         nameText.text = unitBehaviour.unitData.displayName;
 

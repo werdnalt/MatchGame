@@ -7,6 +7,8 @@ public class ActionHandler : MonoBehaviour
 {
     public static ActionHandler Instance;
 
+    
+
     public Cell clickedCell;
     public Cell draggedCell;
 
@@ -19,16 +21,16 @@ public class ActionHandler : MonoBehaviour
     {
         clickedCell = cell;
         
-        if (cell.unitBehaviour != null) cell.unitBehaviour.Grow();
+       // if (cell.unitBehaviour != null) cell.unitBehaviour.Grow();
     }
 
     public void SetDraggedCell(Cell cell)
     {
-        if (draggedCell)
-        {
-            if (draggedCell.unitBehaviour)
-                draggedCell.unitBehaviour.Shrink();
-        }
+        // if (draggedCell)
+        // {
+        //     if (draggedCell.unitBehaviour)
+        //         draggedCell.unitBehaviour.Shrink();
+        // }
         // Early exit if the input cell is null
         if (cell == null || clickedCell == null) return;
 
@@ -83,6 +85,8 @@ public class ActionHandler : MonoBehaviour
 
     public IEnumerator ResolveAction()
     {
+        CursorAnimation.Instance.UnhighlightChain();
+        
         if (!clickedCell || !draggedCell)
         {
             ClearUnits();
@@ -138,15 +142,15 @@ public class ActionHandler : MonoBehaviour
 
     private void ResetUnitSize()
     {
-        if (clickedCell)
-        {
-            if (clickedCell.unitBehaviour) clickedCell.unitBehaviour.Shrink();
-        }
-
-        if (draggedCell)
-        {
-            if (draggedCell.unitBehaviour) draggedCell.unitBehaviour.Shrink();
-        }
+        // if (clickedCell)
+        // {
+        //     if (clickedCell.unitBehaviour) clickedCell.unitBehaviour.Shrink();
+        // }
+        //
+        // if (draggedCell)
+        // {
+        //     if (draggedCell.unitBehaviour) draggedCell.unitBehaviour.Shrink();
+        // }
     }
 
     private void ClearUnits()

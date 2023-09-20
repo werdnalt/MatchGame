@@ -19,7 +19,7 @@ TagManager:
   - VFX
   - Water
   - UI
-  - 
+  - RenderLayerForCameraB
   - 
   - 
   - 
@@ -57,4 +57,7 @@ TagManager:
     locked: 0
   - name: Ignore Raycast
     uniqueID: 1033991413
+    locked: 0
+  - name: SpriteLayerB
+    uniqueID: 1813961481
     locked: 0

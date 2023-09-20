@@ -29,7 +29,7 @@ public class Bomb : UnitBehaviour
     
     private void Update()
     {
-        endTime = timeSpawned + bombLifetime;
+        //endTime = timeSpawned + bombLifetime;
         timeLeft = endTime - Time.time;
 
         if (timeLeft <= 5 && timeLeft > 0)

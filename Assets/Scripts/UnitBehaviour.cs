@@ -8,38 +8,22 @@ using UnityEngine.UI;
 
 public class UnitBehaviour : MonoBehaviour
 {
+    // Public properties
     public Unit unitData;
-
-    protected float timeSpawned;
+    public bool isDragging;
     public Type blockType;
-    private SpriteRenderer _blockIcon;
     public BoardManager.Coordinates coordinates;
-    private float _spriteDuration;
-    private int _currentSpriteIndex;
-    private bool _isAscending;
     public bool isDead = false;
-    private float _timeOfSpriteChange;
-    private Vector3 _originalScale;
-    public UnitBehaviour combatTarget;
-    public UnitBehaviour attackedBy;
-
-    private int _spriteCount;
-    private Sprite[] _sprites;
-    
-    private Renderer rend;
-    private Material mat;
-    private const string HIT = "_HitEffectBlend";
-    private float _elapsedTime = 0f;
-    
-    private bool _isAnimating = false;
-
-    // The location that the block is being asked to move to
     public Vector3? targetPosition;
     public bool isMovable;
-
     public int currentHp;
-
+    public int attack;
     public TextMeshProUGUI combatOrderText;
+    public UnitBehaviour combatTarget;
+    public UnitBehaviour attackedBy;
+    public GameObject defaultAnimatedCharacter;
+
+    // Serialized fields
     [SerializeField] private Image swordSprite;
     [SerializeField] private TextMeshProUGUI attackAmountText;
     [SerializeField] private ParticleSystem increaseHealthParticles;
@@ -54,17 +38,33 @@ public class UnitBehaviour : MonoBehaviour
     [SerializeField] private GameObject attackTimerObject;
     [SerializeField] private TextMeshProUGUI attackTimerTimeText;
     [SerializeField] private Image attackTimerSprite;
+    [SerializeField] private GameObject animatedCharacter;
+
+    // Private fields
+    private SpriteRenderer _blockIcon;
+    private float _spriteDuration;
+    private int _currentSpriteIndex;
+    private bool _isAscending;
+    private float _timeOfSpriteChange;
+    private Vector3 _originalScale;
+    private int _spriteCount;
+    private Sprite[] _sprites;
+    private Renderer rend;
+    private Material mat;
+    private const string HIT = "_HitEffectBlend";
+    private float _elapsedTime = 0f;
+    private bool _isAnimating = false;
     private List<GameObject> _heartObjects = new List<GameObject>();
+    private int _maxHp;
+    private int _currentExperience;
+    private bool isCountingDown;
+    private int turnsTilAttack;
+    private int attackTimer;
+    private List<GameObject> animatedCharacterParts = new List<GameObject>();
 
-    public int _maxHp;
-    public int _currentExperience;
-    public int attack;
-
-    public bool isCountingDown;
-    public int turnsTilAttack;
-    public int attackTimer;
-
+    // Public Lists
     public List<EffectState> effects = new List<EffectState>();
+    
     private void Awake()
     {
         _blockIcon = GetComponent<SpriteRenderer>();
@@ -77,10 +77,10 @@ public class UnitBehaviour : MonoBehaviour
         turnsTilAttack = attackTimer;
         attack = unitData.attack;
         _maxHp = unitData.hp;
-        timeSpawned = Time.time;
         _timeOfSpriteChange = Time.time;
         _spriteDuration = .2f;
         _currentSpriteIndex = 0;
+        isDragging = false;
 
 //        combatOrderText.text = "";
         
@@ -98,6 +98,28 @@ public class UnitBehaviour : MonoBehaviour
         {
             var sprite = sprites[i]; // name1, name2, etc.
             _sprites[i] = sprite;
+        }
+
+        // set animated Character
+        if (unitData.animatedCharacterPrefab)
+        {
+            animatedCharacter = Instantiate(unitData.animatedCharacterPrefab, transform);
+        }
+        else
+        {
+            animatedCharacter = Instantiate(defaultAnimatedCharacter, transform);
+        }
+        GetAllChildObjects();
+    }
+    
+    private void GetAllChildObjects()
+    {
+        if (!animatedCharacter) return;
+        
+        foreach (Transform child in animatedCharacter.transform)
+        {
+            child.GetComponent<SpriteRenderer>().material = Resources.Load<Material>("CharacterShader");
+            animatedCharacterParts.Add(child.gameObject);
         }
     }
 
@@ -247,8 +269,13 @@ public class UnitBehaviour : MonoBehaviour
             foreach (var target in targets)
             {
                 if (!target) continue;
+                if (attack >= target.currentHp)
+                {
+                    // TODO: execute any OnKill effects
+                }
                 target.TakeDamage(unitData.attack, this);
             }
+            
             
             // Move the hero back after damaging the enemy
 
@@ -266,6 +293,11 @@ public class UnitBehaviour : MonoBehaviour
 
     public void TakeDamage(int amount, UnitBehaviour attackedBy)
     {
+        StartCoroutine(ProcessDamage(amount, attackedBy));
+    }
+
+    private IEnumerator ProcessDamage(int amount, UnitBehaviour attackedBy)
+    {
         foreach (var effect in unitData.effects)
         {
             effect.OnHit(attackedBy, this, ref amount);
@@ -273,20 +305,21 @@ public class UnitBehaviour : MonoBehaviour
         
         this.attackedBy = attackedBy;
         AudioManager.Instance.PlayWithRandomPitch("hit");
-        hitParticles.Play();
+        FXManager.Instance.PlayParticles(FXManager.ParticleType.Hit, transform.position);
         
-        StartCoroutine(HitEffect());
+        
         currentHp -= amount;
-
+        
+        yield return StartCoroutine(HitEffect());
+        
+        
         if (currentHp <= 0)
         {
             Die(attackedBy);
+            yield break;
         }
 
-        healthUI.SetActive(true);
-        ShowHearts();
-        UpdateHearts();
-
+        
         if (currentHp > 0 && unitData.tribe != Unit.Tribe.Hero)
         {
             StartCoroutine(Attack());
@@ -294,14 +327,55 @@ public class UnitBehaviour : MonoBehaviour
     }
 
     private IEnumerator HitEffect()
-    {
-        if (!mat) yield break;
+    {        
+        healthUI.SetActive(true);
+        ShowHearts();
+        UpdateHearts();
         
-        mat.SetFloat(HIT, 1);
+        //CameraShake.Instance.Shake(.05f);
+        float punchDuration = 0.3f;
+        Vector3 newScale = new Vector3(transform.localScale.x * 1.1f, transform.localScale.y * 1.1f, 1);
+    
+        // Start the punch scale. OnComplete callback is used to set a flag when the punch animation is finished.
+        bool punchFinished = false;
+        transform.DOKill();
+        transform.DOPunchScale(newScale, punchDuration, 1, 1).OnComplete(() => punchFinished = true);
+    
+        // Enable hit effect
+        foreach (var part in animatedCharacterParts)
+        {
+            var mat = part.GetComponent<Renderer>().material;
+            if (mat) mat.SetFloat(HIT, 1);
+        }
+    
+        yield return new WaitForSeconds(0.2f);
 
-        yield return new WaitForSeconds(.2f);
-        
-        mat.SetFloat(HIT, 0);
+        foreach (var part in animatedCharacterParts)
+        {
+            var mat = part.GetComponent<Renderer>().material;
+            if (mat) mat.SetFloat(HIT, 0);
+        }
+    
+        // Wait for the punch animation to complete
+        yield return new WaitUntil(() => punchFinished);
+    }
+
+    public void ReduceSaturation()
+    {
+        foreach (var part in animatedCharacterParts)
+        {
+            var mat = part.GetComponent<Renderer>().material;
+            if (mat) mat.SetFloat("_HsvSaturation", .3f);
+        }
+    }
+
+    public void IncreaseSaturation()
+    {
+        foreach (var part in animatedCharacterParts)
+        {
+            var mat = part.GetComponent<Renderer>().material;
+            if (mat) mat.SetFloat("_HsvSaturation", 1f);
+        }
     }
 
     private void Die(UnitBehaviour killedBy)
@@ -375,23 +449,38 @@ public class UnitBehaviour : MonoBehaviour
     {
         ShowHearts();
         StartCoroutine(HitEffect());
-        
+
         var startingHpIndex = currentHp - 1;
-        var maxHeal = _maxHp = 1;
 
-        amountToHeal = Mathf.Max(amountToHeal, maxHeal);
+        // Ensure you don't heal more than the difference between max HP and current HP.
+        var maxHeal = _maxHp - currentHp;
+        amountToHeal = Mathf.Min(amountToHeal, maxHeal);
 
-        for (var i = startingHpIndex; i < startingHpIndex + amountToHeal; i++)
+        currentHp += amountToHeal;
+
+        // Ensure we don't exceed the boundaries of _heartObjects array
+        int maxIndex = Mathf.Min(startingHpIndex + amountToHeal, _heartObjects.Count);
+
+        for (var i = 0; i < currentHp; i++)
         {
             var heart = _heartObjects[i];
             var originalPos = heart.transform.position;
-            
+        
             heart.GetComponent<Image>().sprite = fullHeart;
 
             heart.transform.DOKill();
             heart.transform.DOPunchScale(new Vector3(heart.transform.localScale.x + .2f, heart.transform.localScale.y + .2f), .3f, 1, 1);
             heart.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1);
         }
+    }
+
+
+    public void Jump()
+    {
+        var endingPos = new Vector3(0, .4f, 0);
+        
+        transform.DOKill();
+        transform.DOPunchPosition(endingPos, .3f, 1, 1).SetEase(Ease.OutQuad);
     }
 
     public void Grow()

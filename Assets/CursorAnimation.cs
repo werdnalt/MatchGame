@@ -244,6 +244,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 
     public void HighlightChain(UnitBehaviour hoveredUnit)
     {
+        UnhighlightChain();
         if (!hoveredUnit) return;
 
         var chainedUnits = BoardManager.Instance.Chain(hoveredUnit);
@@ -254,18 +255,12 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
         // Iterate through all the units on the board
         foreach (var unit in allUnits)
         {
-            var rend = unit.GetComponent<Renderer>();
-            if (rend)
-            {
-                var mat = rend.material;
-
-                // Check if the unit is not found in the chainedUnits list
+            // Check if the unit is not found in the chainedUnits list
                 if (!chainedUnits.Contains(unit))
                 {
-                    // Adjust the HsvSaturation property
-                    mat.SetFloat("_HsvSaturation", .2f);
+                    unit.ReduceSaturation();
                 }
-            }
+            
         }
     }
 
@@ -275,12 +270,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 
         foreach (var unit in allUnits)
         {
-            var rend = unit.GetComponent<Renderer>();
-            if (rend)
-            {
-                var mat = rend.material;
-                mat.SetFloat("_HsvSaturation", 1);
-            }
+            unit.IncreaseSaturation();
         }
     }
 }

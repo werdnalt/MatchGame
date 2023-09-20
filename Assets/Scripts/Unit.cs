@@ -26,6 +26,7 @@ public class Unit : ScriptableObject
         
     }
 
+    public GameObject animatedCharacterPrefab;
     public int attackTimer;
     public bool shouldAnimateLoop;
     public Tribe tribe;

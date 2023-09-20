@@ -58,11 +58,11 @@ public class Board
     {
         // Calculate the total width and height of the board based on prefab size
         float boardWidth = _numColumns * prefabSize.x; 
-        float boardHeight = _numRows * prefabSize.y;
+        float boardHeight = (_numRows - 1) * prefabSize.x;
 
         // Calculate the starting position for the board to be centered on the screen
         float startX = -boardWidth / 2 + prefabSize.x / 2; 
-        float startY = (-boardHeight / 2) + prefabSize.y / 2 + boardCoordinates.y * prefabSize.y;  
+        float startY = (-boardHeight / 2) + prefabSize.x / 2 + boardCoordinates.y * prefabSize.y;  
 
         float xPos = startX + boardCoordinates.x * prefabSize.x;
         return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
@@ -72,13 +72,13 @@ public class Board
     {
         // Calculate the total width and height of the board based on prefab size
         float boardWidth = _numColumns * prefabSize.x; 
-        float boardHeight = _numRows * prefabSize.y;
+        float boardHeight = (_numRows - 1) * prefabSize.x;
 
         // Calculate the starting position for the board to be centered on the screen
         float startX = -boardWidth / 2 + prefabSize.x / 2; 
 
         // Since heroes are below the board, place them half a unit (in terms of prefab size) below the bottom-most row of the board.
-        float startY = (-boardHeight / 2) - prefabSize.y / 2;  
+        float startY = (-boardHeight / 2) - prefabSize.y;  
 
         float xPos = startX + index * prefabSize.x;
         return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
@@ -128,13 +128,16 @@ public class Board
     {
         BoardPosition boardPosition = boardPositions[coordinates.x][coordinates.y];
         boardPosition.unit = unitBehaviour;
+
+        var newPos = new Vector3(boardPosition.worldSpacePosition.x, boardPosition.worldSpacePosition.y, coordinates.y);
         
         if (unitBehaviour != null)
         {
             unitBehaviour.coordinates = coordinates;
             unitBehaviour.isMovable = false;
-            unitBehaviour.transform.DOMove(boardPosition.worldSpacePosition, blockSwapTime).SetEase(Ease.InQuad).OnComplete(() =>
+            unitBehaviour.transform.DOMove(newPos, blockSwapTime).SetEase(Ease.InQuad).OnComplete(() =>
             {
+                unitBehaviour.transform.position = newPos;
                 unitBehaviour.isMovable = true;
             });
         }

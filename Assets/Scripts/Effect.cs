@@ -14,6 +14,9 @@ public abstract class Effect : ScriptableObject
     }
     
     // This function gets called when a block dies.
+    public virtual void OnKill(UnitBehaviour killedBy, UnitBehaviour killed) { }
+    
+    // This function gets called when a block dies.
     public virtual void OnDeath(UnitBehaviour killedBy, UnitBehaviour killed) { }
     
     // This function gets called when a block swaps.

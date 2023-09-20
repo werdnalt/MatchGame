@@ -52,26 +52,8 @@ public class TurnManager : MonoBehaviour
         unitsInCombat.RemoveAll(unit => unit == null || unit.isDead || unit.unitData.passive);
 
         // Order the list of units by their 'turnsTilAttack' property
-        var orderedUnits = unitsInCombat.OrderBy(unit => unit.turnsTilAttack).ToList();
-
-        foreach (var unit in orderedUnits)
-        {
-            orderedCombatUnits.Add(unit);
-            unit.EnableCountdownTimer();
-
-            var turnIndicatorInstance = Instantiate(turnIndicatorPrefab, transform);
-
-            var turnIndicator = turnIndicatorInstance.GetComponent<TurnIndicator>();
-            turnIndicator.unitSprite.sprite = unit.unitData.unitSprite;
-            turnIndicator.unitBehaviour = unit;
-
-            if (unit.unitData.tribe == Unit.Tribe.Hero)
-            {
-                turnIndicator.SetBackgroundColor(new Color32(120, 185, 65, 255));
-            }
-
-            _turnIndicators.Add(turnIndicatorInstance);
-        }
+        // var orderedUnits = unitsInCombat.OrderBy(unit => unit.turnsTilAttack).ToList();
+        
     
         yield break;
     }
@@ -149,19 +131,6 @@ public class TurnManager : MonoBehaviour
         
         // Remove the unit first to avoid duplicate
         orderedCombatUnits.Remove(survivedUnit);
-
-        // Find the proper index to insert the survived unit based on turnsTilAttack
-        int insertIndex = orderedCombatUnits.FindIndex(unit => unit.turnsTilAttack > survivedUnit.turnsTilAttack);
-
-        // Insert at the end if no such unit is found; otherwise insert at the found index
-        if (insertIndex == -1)
-        {
-            orderedCombatUnits.Add(survivedUnit);
-        }
-        else
-        {
-            orderedCombatUnits.Insert(insertIndex, survivedUnit);
-        }
 
         // Rebuild the UI
         RebuildCombatOrderUI();
