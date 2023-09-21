@@ -38,5 +38,6 @@ public class Unit : ScriptableObject
     public List<Effect> effects;
     public bool passive;
     public string displayName;
+    public int attackRange;
 
 }

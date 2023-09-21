@@ -67,6 +67,13 @@ public class EnergyManager : MonoBehaviour
         UIManager.Instance.UpdateEnergyText(_currentEnergy);
     }
 
+    public void FlashEnergy(int amount)
+    {
+        // gaining energy
+        
+        // losing energy
+    }
+
     public bool DoHaveEnoughEnergy(int amount)
     {
         return amount <= _currentEnergy;

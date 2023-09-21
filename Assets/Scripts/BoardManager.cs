@@ -571,7 +571,7 @@ public class BoardManager : MonoBehaviour
             
             if (unit.combatTarget == null) TurnManager.Instance.ResetUnit(unit);
             
-            yield return StartCoroutine(unit.Attack());
+            // yield return StartCoroutine(unit.Attack());
 
             TurnManager.Instance.ResetUnit(unit);
             
@@ -702,5 +702,43 @@ public class BoardManager : MonoBehaviour
     public Coordinates? GetCoordinatesForUnit(UnitBehaviour unitBehaviour)
     {
         return _board.FindUnitBehaviour(unitBehaviour);
+    }
+
+    public bool IsNeighbor(Cell cell1, Cell cell2)
+    {
+        var coordinates1 = cell1.coordinates;
+        var coordinates2 = cell2.coordinates;
+
+        if (coordinates1.y != coordinates2.y) return false;
+        
+        if (Mathf.Abs(coordinates1.x - coordinates2.x) == 1)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsHeroNeighbor(Cell cell1, Cell cell2)
+    {
+        if (Mathf.Abs(cell1.column - cell2.column) == 1)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool CanAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit)
+    {
+        var combatTarget = attackingUnit.combatTarget;
+
+        if (Mathf.Abs(attackedUnit.coordinates.x - combatTarget.coordinates.x) <= attackingUnit.unitData.attackRange && 
+            Mathf.Abs(attackedUnit.coordinates.y - combatTarget.coordinates.y) <= attackingUnit.unitData.attackRange)
+        {
+            return true;
+        }
+
+        return false;
     }
 }

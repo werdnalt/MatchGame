@@ -22,8 +22,12 @@ public class ArrowLine : MonoBehaviour
     private InputAction _mouseDownAction;
     private InputAction _mouseUpAction;
     private InputAction _mouseMoveAction;
+
+    [SerializeField] private GameObject noSwapIndicator;
+    [SerializeField] private GameObject swapIndicator;
+    [SerializeField] private GameObject combatIndicator;
+    [SerializeField] private GameObject noCombatIndicator;
     
-    private GameObject _arrowHeadInstance; // The instance of the arrow head
     private GameObject _indicatorInstance;
 
     public Material lineMat;
@@ -32,7 +36,9 @@ public class ArrowLine : MonoBehaviour
     {
         Combat,
         Swap,
-        None
+        None,
+        NoCombat,
+        NoSwap
     }
 
     private void Awake()
@@ -49,9 +55,6 @@ public class ArrowLine : MonoBehaviour
     {
         _lineRenderer = GetComponent<LineRenderer>();
         _lineRenderer.positionCount = 2;
-
-        _arrowHeadInstance = Instantiate(arrowHeadPrefab, Vector3.zero, Quaternion.identity);
-        _arrowHeadInstance.SetActive(false); // Initially hidden
         
         _indicatorInstance = Instantiate(indicatorPrefab, Vector3.zero, Quaternion.identity);
         _indicatorInstance.SetActive(false);
@@ -86,8 +89,7 @@ public class ArrowLine : MonoBehaviour
         _lineRenderer.positionCount = 2;
         _lineRenderer.SetPosition(0, startPos);
         _lineRenderer.SetPosition(1, GetMouseWorldPos());
-            
-        _arrowHeadInstance.SetActive(true);
+
         Cursor.visible = false; // Hide default cursor
             
         _isDrawing = true;
@@ -100,7 +102,6 @@ public class ArrowLine : MonoBehaviour
         {
             _isDrawing = false;
             _lineRenderer.positionCount = 0; // Remove line
-            _arrowHeadInstance.SetActive(false);
             _indicatorInstance.SetActive(false);
             Cursor.visible = true; // Unhide default cursor
         }
@@ -113,11 +114,6 @@ public class ArrowLine : MonoBehaviour
         {
             Vector3 mousePos = GetMouseWorldPos();
             _lineRenderer.SetPosition(1, mousePos);
-
-            // Arrow head logic
-            _arrowHeadInstance.transform.position = mousePos;
-            Vector3 direction = (mousePos - _mouseStartPos).normalized;
-            _arrowHeadInstance.transform.right = direction;
             
             Vector3 middlePoint = (_mouseStartPos + mousePos) / 2;
             _indicatorInstance.transform.position = middlePoint;
@@ -131,27 +127,47 @@ public class ArrowLine : MonoBehaviour
         return Camera.main.ScreenToWorldPoint(new Vector3(mouseScreenPos.x, mouseScreenPos.y, -Camera.main.transform.position.z));
     }
 
-    public void SetIndicator(IndicatorType indicatorType)
+    public void SetIndicator(IndicatorType indicatorType, Cell cell)
     {
         if (!_isDrawing) return;
         
         Debug.Log($"setting indicator to {indicatorType}");
         
+        HideIndicators();
+
         switch (indicatorType)
         {
             case (IndicatorType.Combat):
-                _indicatorInstance.SetActive(true);
-                _indicatorInstance.GetComponent<SpriteRenderer>().sprite = combatSprite;
+                combatIndicator.SetActive(true);
+                combatIndicator.transform.position = cell.transform.position;
                 break;
             
             case (IndicatorType.Swap):
-                _indicatorInstance.SetActive(true);
-                _indicatorInstance.GetComponent<SpriteRenderer>().sprite = swapSprite;
+                swapIndicator.SetActive(true);
+                swapIndicator.transform.position = cell.transform.position;
+                break;
+            
+            case (IndicatorType.NoSwap):
+                noSwapIndicator.SetActive(true);
+                noSwapIndicator.transform.position = cell.transform.position;
+                break;
+            
+            case (IndicatorType.NoCombat):
+                noCombatIndicator.SetActive(true);
+                noCombatIndicator.transform.position = cell.transform.position;
                 break;
             
             case (IndicatorType.None):
                 _indicatorInstance.SetActive(false);
                 break;
         }
+    }
+
+    public void HideIndicators()
+    {
+        combatIndicator.SetActive(false);
+        noCombatIndicator.SetActive(false);
+        swapIndicator.SetActive(false);
+        noSwapIndicator.SetActive(false);
     }
 }

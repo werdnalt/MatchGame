@@ -35,7 +35,10 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     {
         _timeEnteredCell = Time.time;
         unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
-        if (eventData.dragging) ActionHandler.Instance.SetDraggedCell(this);
+        if (eventData.dragging)
+        {
+            ActionHandler.Instance.SetDraggedCell(this);
+        }
         if (!unitBehaviour)
         {
             

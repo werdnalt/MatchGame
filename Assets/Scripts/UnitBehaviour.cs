@@ -232,7 +232,7 @@ public class UnitBehaviour : MonoBehaviour
         return this;
     }
 
-    public IEnumerator Attack()
+    public IEnumerator Attack(UnitBehaviour attackingTarget)
     {
         Debug.Log($"{unitData.name} is attempting to attack");
         var combatFinished = false;
@@ -247,7 +247,7 @@ public class UnitBehaviour : MonoBehaviour
         
         foreach(var effect in unitData.effects)
         {
-            effect.OnAttack(this, combatTarget);
+            effect.OnAttack(this, attackingTarget);
         }
 
         BoardManager.Instance.mostRecentlyAttackingUnit = this;
@@ -261,9 +261,9 @@ public class UnitBehaviour : MonoBehaviour
         mat.SetFloat("_MotionBlurDist", 1);
 
         AudioManager.Instance.PlayWithRandomPitch("whoosh");
-        transform.DOMove(combatTarget.transform.position, .1f).OnComplete(() =>
+        transform.DOMove(attackingTarget.transform.position, .1f).OnComplete(() =>
         {
-            var targets = BoardManager.Instance.Chain(combatTarget);
+            var targets = BoardManager.Instance.Chain(attackingTarget);
             Debug.Log($"Number of combat targets: {targets.Count}");
             mat.SetFloat("_MotionBlurDist", 0);
             foreach (var target in targets)
@@ -322,7 +322,7 @@ public class UnitBehaviour : MonoBehaviour
         
         if (currentHp > 0 && unitData.tribe != Unit.Tribe.Hero)
         {
-            StartCoroutine(Attack());
+            StartCoroutine(Attack(combatTarget));
         }
     }
 

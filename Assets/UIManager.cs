@@ -64,7 +64,6 @@ public class UIManager : MonoBehaviour
             if (!effectBehaviour) continue;
             
             effectBehaviour.effectText.text = effect.effectDescription;
-            effectBehaviour.effectImage.sprite = effect.effectSprite;
             
             _instantiatedEffectPrefabs.Add(effectTextInstance);
         }
