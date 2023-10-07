@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: Wizard
   m_EditorClassIdentifier: 
+  animatedCharacterPrefab: {fileID: 1394688569729529245, guid: f20a45fa26ea28e45b9cfb32ab00a564, type: 3}
   attackTimer: 2
   shouldAnimateLoop: 0
   tribe: 0
@@ -23,3 +24,4 @@ MonoBehaviour:
   effects: []
   passive: 0
   displayName: 
+  attackRange: 0

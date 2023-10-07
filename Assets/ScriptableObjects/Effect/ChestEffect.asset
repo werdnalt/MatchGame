@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1336fa88df3ef2b49856ff90aabca693, type: 3}
+  m_Name: ChestEffect
+  m_EditorClassIdentifier: 
+  effectDescription: Rewards a random treasure
+  effectSprite: {fileID: 0}
+  numUses: 0
+  treasures:
+  - {fileID: 11400000, guid: 1a6681d836057e2489809ecab808c3ed, type: 2}
+  - {fileID: 11400000, guid: c52a87911eb1f474085d176cd6163ced, type: 2}

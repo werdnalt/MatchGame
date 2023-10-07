@@ -78,7 +78,7 @@ public class Board
         float startX = -boardWidth / 2 + prefabSize.x / 2; 
 
         // Since heroes are below the board, place them half a unit (in terms of prefab size) below the bottom-most row of the board.
-        float startY = (-boardHeight / 2) - prefabSize.y;  
+        float startY = (-boardHeight / 2) - prefabSize.y * 1.2f;  
 
         float xPos = startX + index * prefabSize.x;
         return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
@@ -144,6 +144,27 @@ public class Board
 
         boardPositions[coordinates.x][coordinates.y] = boardPosition;
     }
+    
+    public void SetHeroUnitBehaviour(int newColumn, UnitBehaviour unitBehaviour)
+    {
+        BoardPosition boardPosition = heroPositions[newColumn];
+        boardPosition.unit = unitBehaviour;
+
+        var newPos = new Vector3(boardPosition.worldSpacePosition.x, boardPosition.worldSpacePosition.y, 10);
+        
+        if (unitBehaviour != null)
+        {
+            unitBehaviour.isMovable = false;
+            unitBehaviour.transform.DOMove(newPos, blockSwapTime).SetEase(Ease.InQuad).OnComplete(() =>
+            {
+                unitBehaviour.transform.position = newPos;
+                unitBehaviour.isMovable = true;
+            });
+        }
+
+        Heroes[newColumn] = unitBehaviour;
+        heroPositions[newColumn] = boardPosition;
+    }
 
     public void SwapBlocks(BoardManager.Coordinates leftBlockCoords, BoardManager.Coordinates rightBlockCoords)
     {
@@ -154,6 +175,17 @@ public class Board
         // Now you can swap the blocks
         SetUnitBehaviour(leftBlockCoords, originalRightBlock);
         SetUnitBehaviour(rightBlockCoords, originalLeftBlock);
+    }
+    
+    public void SwapHeroBlocks(int heroColumn1, int heroColumn2)
+    {
+        // Cache original blocks
+        var originalLeftBlock = BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(heroColumn1);
+        var originalRightBlock = BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(heroColumn2);
+    
+        // Now you can swap the blocks
+        SetHeroUnitBehaviour(heroColumn1, originalRightBlock);
+        SetHeroUnitBehaviour(heroColumn2, originalLeftBlock);
     }
     
     public bool AreColumnsFull()

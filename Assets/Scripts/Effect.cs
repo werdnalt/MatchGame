@@ -7,7 +7,8 @@ public abstract class Effect : ScriptableObject
     protected UnitBehaviour _unitBehaviour;
     public string effectDescription;
     public Sprite effectSprite;
-
+    public int numUses;
+    
     public void SetUnitBehaviour(UnitBehaviour unitBehaviour)
     {
         _unitBehaviour = unitBehaviour;

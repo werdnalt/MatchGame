@@ -22,6 +22,7 @@ public class UnitBehaviour : MonoBehaviour
     public UnitBehaviour combatTarget;
     public UnitBehaviour attackedBy;
     public GameObject defaultAnimatedCharacter;
+    public int turnsTilAttack;
 
     // Serialized fields
     [SerializeField] private Image swordSprite;
@@ -38,7 +39,7 @@ public class UnitBehaviour : MonoBehaviour
     [SerializeField] private GameObject attackTimerObject;
     [SerializeField] private TextMeshProUGUI attackTimerTimeText;
     [SerializeField] private Image attackTimerSprite;
-    [SerializeField] private GameObject animatedCharacter;
+    public GameObject animatedCharacter;
 
     // Private fields
     private SpriteRenderer _blockIcon;
@@ -58,7 +59,6 @@ public class UnitBehaviour : MonoBehaviour
     private int _maxHp;
     private int _currentExperience;
     private bool isCountingDown;
-    private int turnsTilAttack;
     private int attackTimer;
     private List<GameObject> animatedCharacterParts = new List<GameObject>();
 
@@ -234,6 +234,8 @@ public class UnitBehaviour : MonoBehaviour
 
     public IEnumerator Attack(UnitBehaviour attackingTarget)
     {
+        if (isDead) yield break;
+        
         Debug.Log($"{unitData.name} is attempting to attack");
         var combatFinished = false;
 
@@ -242,9 +244,7 @@ public class UnitBehaviour : MonoBehaviour
             Debug.Log($"{unitData.name} didn't have a combat target");
             yield break; // If there's no combat target, simply exit the coroutine
         }
-        
-        EnergyManager.Instance.GainEnergy(EnergyManager.Instance.energyGainedPerAttack);
-        
+
         foreach(var effect in unitData.effects)
         {
             effect.OnAttack(this, attackingTarget);
@@ -284,6 +284,12 @@ public class UnitBehaviour : MonoBehaviour
                 // Set combatFinished true after all animations are complete
                 combatFinished = true;
                 HideAttackAmount();
+                StartCoroutine(TurnManager.Instance.TakeTurn());
+                if (unitData.tribe == Unit.Tribe.Hero)
+                {
+                    TurnManager.Instance.CountDownAttackTimers();
+                    EnergyManager.Instance.GainEnergy(EnergyManager.Instance.energyGainedPerAttack);
+                }
             });
         });
         
@@ -322,7 +328,7 @@ public class UnitBehaviour : MonoBehaviour
         
         if (currentHp > 0 && unitData.tribe != Unit.Tribe.Hero)
         {
-            StartCoroutine(Attack(combatTarget));
+            //StartCoroutine(Attack(combatTarget));
         }
     }
 
@@ -543,45 +549,56 @@ public class UnitBehaviour : MonoBehaviour
 
     public void EnableCountdownTimer()
     {
-        if (turnsTilAttack >= 3) return;
+        if (attackTimer < 0) return;
+        
         attackTimerObject.SetActive(true);
         attackTimerTimeText.text = turnsTilAttack.ToString();
     }
 
     public IEnumerator CountDownTimer()
     {
+        if (attackTimer < 0) yield break;
+        
+        Debug.Log("Counting down timers");
         var animationFinished = false;
 
         turnsTilAttack--;
         
-        
-        var originalPos = attackTimerTimeText.transform.position;
+        var originalScale = attackTimerObject.transform.localScale;
         attackTimerTimeText.text = turnsTilAttack.ToString();
-        if (turnsTilAttack <= 1)
+
+        attackTimerObject.transform.DOPunchScale(new Vector3(originalScale.x * 1.2f, originalScale.y * 1.2f + 1, 0), .3f, 1, 1).OnComplete(() =>
         {
-            attackTimerSprite.color = Color.red;
-        }
-        attackTimerTimeText.transform.DOPunchScale(new Vector3(1, 1, 0), .2f, 1, 1).OnComplete(() =>
+            animationFinished = true;
+        });
+
+        animationFinished = true;
+        yield return new WaitUntil(() => animationFinished);
+    }
+    
+    public IEnumerator ResetAttackTimer()
+    {
+        if (attackTimer < 0) yield break;
+        
+        attackTimerTimeText.color = Color.white;
+        var animationFinished = false;
+        var originalScale = attackTimerObject.transform.localScale;
+        
+        turnsTilAttack = attackTimer;
+        attackTimerTimeText.text = turnsTilAttack.ToString();
+        attackTimerObject.transform.DOPunchScale(new Vector3(originalScale.x * 1.2f, originalScale.y * 1.2f + 1, 0), .3f, 1, 1).OnComplete(() =>
         {
             animationFinished = true;
         });
         
         yield return new WaitUntil(() => animationFinished);
     }
-    
-    public IEnumerator ResetAttackTimer()
+
+    public void AddEffect(Effect effect)
     {
-        attackTimerTimeText.color = Color.white;
-        var animationFinished = false;
-        var originalPos = attackTimerTimeText.transform.position;
+        effects.Add(new EffectState(effect));
         
-        turnsTilAttack = attackTimer;
-        attackTimerTimeText.text = turnsTilAttack.ToString();
-        attackTimerTimeText.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1).OnComplete(() =>
-        {
-            animationFinished = true;
-        });
-        
-        yield return new WaitUntil(() => animationFinished);
+        Jump();
+        deathParticles.Play();
     }
 }

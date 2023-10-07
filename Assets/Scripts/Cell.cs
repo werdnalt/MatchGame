@@ -5,7 +5,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IDragHandler, IPointerUpHandler, IPointerDownHandler
+public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IDragHandler, IPointerUpHandler, IPointerDownHandler, IPointerClickHandler
 {
     public BoardManager.Coordinates coordinates;
     public int column;
@@ -30,6 +30,8 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     private Vector3 stretchedScale = new Vector3(0.9f, 1.1f, 0.9f);
     [SerializeField]
     private float jiggleDuration = 0.9f;
+
+    private float _cachedZIndex;
     
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -39,17 +41,27 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         {
             ActionHandler.Instance.SetDraggedCell(this);
         }
+        else
+        {
+            ArrowLine.Instance.SetHoverIndicator(transform.position);
+        }
         if (!unitBehaviour)
         {
             
             return;
         }
+        //UIManager.Instance.ShowUnitPanel(unitBehaviour);
+
+        _cachedZIndex = unitBehaviour.transform.position.z;
+        var cachedPos = unitBehaviour.transform.position;
+        unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, -3);
         
         ApplyJelloEffect(unitBehaviour);
     }
     
     public void OnPointerExit(PointerEventData eventData)
     {
+        ArrowLine.Instance.HideHoverIndicator();
         _timeEnteredCell = Mathf.Infinity;
         
         UIManager.Instance.HideUnitPanel();
@@ -57,11 +69,17 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         //
         CursorAnimation.Instance.UnhighlightChain();
         _hasShownPanel = false;
+
+        if (unitBehaviour)
+        {
+            var cachedPos = unitBehaviour.transform.position;
+            unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, _cachedZIndex);
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!unitBehaviour || unitBehaviour.isDragging) return;
+        if (!unitBehaviour || unitBehaviour.isDragging || !BoardManager.Instance.canMove) return;
         
         unitBehaviour.Jump();
         unitBehaviour.isDragging = true;
@@ -90,13 +108,14 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
             }
         
             CursorAnimation.Instance.HighlightChain(unitBehaviour);
-            UIManager.Instance.ShowUnitPanel(unitBehaviour);
             _hasShownPanel = true;
         }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (!BoardManager.Instance.canMove) return;
+        
         unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
         ApplyJelloEffect(unitBehaviour);
         ActionHandler.Instance.SetClickedCell(this);
@@ -106,13 +125,15 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     
     private void ApplyJelloEffect(UnitBehaviour unitBehaviour)
     {
-        if (!unitBehaviour) return;
+        if (!unitBehaviour || DOTween.IsTweening(unitBehaviour.gameObject)) return;
         
-        GameObject go = unitBehaviour.gameObject;
+        var go = unitBehaviour.gameObject;
+
+        go.transform.DOKill();
 
         if (!scaleSet)
         {
-            originalScale = go.transform.localScale;
+            originalScale = new Vector3(1, 1, 1);
             scaleSet = true;
         }
         
@@ -124,5 +145,10 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
             .OnKill(() => go.transform.localScale = originalScale); // Ensure it always returns to the original state when sequence is killed.
 
         jelloSequence.Play();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        UIManager.Instance.ShowUnitPanel(unitBehaviour);
     }
 }

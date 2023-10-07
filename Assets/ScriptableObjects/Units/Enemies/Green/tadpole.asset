@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: tadpole
   m_EditorClassIdentifier: 
-  animatedCharacterPrefab: {fileID: 0}
+  animatedCharacterPrefab: {fileID: 8878839851912577382, guid: e1f94d505ff926841a636488f82fc76d, type: 3}
   attackTimer: 4
   shouldAnimateLoop: 0
   tribe: 3
@@ -25,3 +25,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c5906b5935740d240acbc37521eaa7ff, type: 2}
   passive: 0
   displayName: Tadpole
+  attackRange: 0

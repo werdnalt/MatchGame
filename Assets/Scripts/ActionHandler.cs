@@ -70,6 +70,8 @@ public class ActionHandler : MonoBehaviour
                 {
                     ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoSwap, draggedCell);
                 }
+
+                return;
             }
 
             if (BoardManager.Instance.CanAttack(clickedUnit, draggedUnit))
@@ -97,7 +99,7 @@ public class ActionHandler : MonoBehaviour
         
         if (draggedUnit) draggedUnit.Grow();
     }
-
+    
     private UnitBehaviour GetUnitBasedOnTribe(Cell cell)
     {
         if (cell.unitBehaviour.unitData.tribe == Unit.Tribe.Hero)
@@ -114,7 +116,7 @@ public class ActionHandler : MonoBehaviour
     {
         CursorAnimation.Instance.UnhighlightChain();
         ArrowLine.Instance.HideIndicators();
-        clickedCell.unitBehaviour.isDragging = false;
+        
         
         if (!clickedCell || !draggedCell)
         {
@@ -130,6 +132,8 @@ public class ActionHandler : MonoBehaviour
         
         if (!clickedCell) yield break;
         
+        clickedCell.unitBehaviour.isDragging = false;
+        
         // clicked a hero
         if (clickedCell.unitBehaviour.unitData.tribe == Unit.Tribe.Hero)
         {
@@ -137,7 +141,8 @@ public class ActionHandler : MonoBehaviour
             
             if (draggedCell.unitBehaviour.unitData.tribe == Unit.Tribe.Hero)
             {
-                // swap the units
+                BoardManager.Instance.SwapHeroBlocks(clickedCell.column, draggedCell.column);
+                yield break;
             }
             
             UnitBehaviour clickedUnit = GetUnitBasedOnTribe(clickedCell);

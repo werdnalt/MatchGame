@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 668a2e6ca2c655a44bae94b4779279c4, type: 3}
   m_Name: HealNeighborsOnDeath
   m_EditorClassIdentifier: 
-  effectDescription: Heal neighbors on death
+  effectDescription: <color=#e83b3b>ON DEATH:</color> <color=#0b8a8f>HEAL</color>
+    neighbors for <color=#0b8a8f>1</color>
   effectSprite: {fileID: 0}
   healAmount: 1

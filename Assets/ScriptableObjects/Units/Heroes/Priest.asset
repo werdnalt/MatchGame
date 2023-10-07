@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: Priest
   m_EditorClassIdentifier: 
-  animatedCharacterPrefab: {fileID: 0}
+  animatedCharacterPrefab: {fileID: 7255530061341473968, guid: 54a658e67e1514f4fad875d3aadc04de, type: 3}
   attackTimer: 3
   shouldAnimateLoop: 0
   tribe: 0

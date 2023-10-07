@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0eb26beacc8e44bd477fa145c7c1d, type: 3}
+  m_Name: Heal Gun Treasure
+  m_EditorClassIdentifier: 
+  effect: {fileID: 11400000, guid: c3b9e75fa18b32d4694dff8dc71a629e, type: 2}
+  treasureDescription: 'On Hit: Heal for attack amount'
+  treasureSprite: {fileID: 21300000, guid: ee4d1a0327291de4793a1d5a2d3c9158, type: 3}

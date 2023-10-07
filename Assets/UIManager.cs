@@ -5,10 +5,16 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using Random = UnityEngine.Random;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
+    
+    [SerializeField] private GameObject chestOverlay;
+    [SerializeField] private Image treasureImage;
+    [SerializeField] private TextMeshProUGUI treasureNameText;
+    [SerializeField] private TextMeshProUGUI treasureEffectText;
 
     [SerializeField] private GameObject unitPanel;
     [SerializeField] private GameObject effectTextParent;
@@ -23,6 +29,10 @@ public class UIManager : MonoBehaviour
     private List<GameObject> _instantiatedEffectPrefabs = new List<GameObject>();
 
     private Vector3 _originalPos;
+    private PopEffect _popEffect;
+
+    public bool chestDestroyed;
+    private List<Treasure> _currentTreasure;
 
     private void Awake()
     {
@@ -32,6 +42,7 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         _originalPos = transform.localPosition;
+        _popEffect = unitPanel.GetComponent<PopEffect>();
     }
 
     public void ShowUnitPanel(UnitBehaviour unitBehaviour)
@@ -41,7 +52,7 @@ public class UIManager : MonoBehaviour
             Destroy(_instantiatedEffectPrefabs[i].gameObject);
         }
         
-        unitPanel.SetActive(true);
+        _popEffect.EnableAndPop();
         
         var endingPos = new Vector3(0, 30f, 0);
         
@@ -82,5 +93,34 @@ public class UIManager : MonoBehaviour
     public void UpdateEnergyText(int amountLeft)
     {
         energyText.text = $"Actions: {amountLeft}";
+    }
+
+    public void ChestDestroyed(List<Treasure> treasures)
+    {
+        chestDestroyed = true;
+        _currentTreasure = treasures;
+    }
+
+    public IEnumerator ChestEvent()
+    {
+        SetUpChestEvent();
+        
+        yield return new WaitUntil(() => !chestDestroyed);
+    }
+
+    private void SetUpChestEvent()
+    {
+        var randomTreasure = _currentTreasure[Random.Range(0, _currentTreasure.Count)];
+        
+        chestOverlay.GetComponent<PopEffect>().EnableAndPop();
+        treasureImage.sprite = randomTreasure.treasureSprite;
+        treasureNameText.text = randomTreasure.name;
+        treasureEffectText.text = randomTreasure.treasureDescription;
+    }
+
+    public void CollectTreasure()
+    {
+        chestOverlay.SetActive(false);
+        chestDestroyed = false;
     }
 }

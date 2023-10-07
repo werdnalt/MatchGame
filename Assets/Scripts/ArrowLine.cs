@@ -27,6 +27,7 @@ public class ArrowLine : MonoBehaviour
     [SerializeField] private GameObject swapIndicator;
     [SerializeField] private GameObject combatIndicator;
     [SerializeField] private GameObject noCombatIndicator;
+    [SerializeField] private GameObject hoverIndicator;
     
     private GameObject _indicatorInstance;
 
@@ -54,8 +55,8 @@ public class ArrowLine : MonoBehaviour
     private void Start()
     {
         _lineRenderer = GetComponent<LineRenderer>();
-        _lineRenderer.positionCount = 2;
-        
+        _lineRenderer.positionCount = 10; // Changed from 2 to 10 for a smoother curve
+    
         _indicatorInstance = Instantiate(indicatorPrefab, Vector3.zero, Quaternion.identity);
         _indicatorInstance.SetActive(false);
     }
@@ -86,12 +87,10 @@ public class ArrowLine : MonoBehaviour
     {
         _mouseStartPos = startPos;
 
-        _lineRenderer.positionCount = 2;
-        _lineRenderer.SetPosition(0, startPos);
-        _lineRenderer.SetPosition(1, GetMouseWorldPos());
+        _lineRenderer.positionCount = 10; // Set to 10 for a smoother curve
+        SetInitialPositions(startPos, GetMouseWorldPos()); 
 
         Cursor.visible = false; // Hide default cursor
-            
         _isDrawing = true;
     }
 
@@ -113,10 +112,31 @@ public class ArrowLine : MonoBehaviour
         if (_isDrawing)
         {
             Vector3 mousePos = GetMouseWorldPos();
-            _lineRenderer.SetPosition(1, mousePos);
-            
+            SetParabolicLine(_mouseStartPos, mousePos, 1.0f); // Adjust 1.0f for desired curve height
+        
             Vector3 middlePoint = (_mouseStartPos + mousePos) / 2;
             _indicatorInstance.transform.position = middlePoint;
+        }
+    }
+    
+    private void SetInitialPositions(Vector3 start, Vector3 end)
+    {
+        for (int i = 0; i < _lineRenderer.positionCount; i++)
+        {
+            _lineRenderer.SetPosition(i, start);
+        }
+    }
+
+    void SetParabolicLine(Vector3 start, Vector3 end, float height)
+    {
+        Vector3 midPoint = (start + end) / 2.0f;
+        Vector3 controlPoint = midPoint + new Vector3(0, height, 0);
+    
+        for (int i = 0; i < _lineRenderer.positionCount; i++)
+        {
+            float t = i / (float)(_lineRenderer.positionCount - 1);
+            Vector3 pointOnCurve = Vector3.Lerp(Vector3.Lerp(start, controlPoint, t), Vector3.Lerp(controlPoint, end, t), t);
+            _lineRenderer.SetPosition(i, pointOnCurve);
         }
     }
 
@@ -169,5 +189,16 @@ public class ArrowLine : MonoBehaviour
         noCombatIndicator.SetActive(false);
         swapIndicator.SetActive(false);
         noSwapIndicator.SetActive(false);
+    }
+    
+    public void SetHoverIndicator(Vector3 indicatorPosition)
+    {
+        hoverIndicator.SetActive(true);
+        hoverIndicator.transform.position = indicatorPosition;
+    }
+    
+    public void HideHoverIndicator()
+    {
+        hoverIndicator.SetActive(false);
     }
 }

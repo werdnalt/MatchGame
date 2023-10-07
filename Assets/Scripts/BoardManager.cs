@@ -308,7 +308,7 @@ public class BoardManager : MonoBehaviour
         if (leftUnit == null && rightUnit == null) return;
         
         AudioManager.Instance.PlayWithRandomPitch("whoosh");
-        TurnManager.Instance.SwapBlocks();
+        StartCoroutine(TurnManager.Instance.TakeTurn());
         _board.SwapBlocks(leftBlockCoords, rightBlockCoords);
 
         if (leftUnit)
@@ -329,6 +329,41 @@ public class BoardManager : MonoBehaviour
         }
 
         StartCoroutine(WaitToApplyGravity(_board.blockSwapTime));
+    }
+    
+    public void SwapHeroBlocks(int heroColumn1, int heroColumn2)
+    {
+        if (!canMove) return;
+
+        if (!EnergyManager.Instance.DoHaveEnoughEnergy(EnergyManager.Instance.energyPerSwap)) return;
+        
+        EnergyManager.Instance.SpendEnergy(EnergyManager.Instance.energyPerSwap);
+
+        var leftUnit = _board.GetHeroFromColumn(heroColumn1);
+        var rightUnit = _board.GetHeroFromColumn(heroColumn2);
+
+        if (leftUnit == null && rightUnit == null) return;
+        
+        AudioManager.Instance.PlayWithRandomPitch("whoosh");
+        StartCoroutine(TurnManager.Instance.TakeTurn());
+        _board.SwapHeroBlocks(heroColumn1, heroColumn2);
+
+        if (leftUnit)
+        {
+            foreach (var effect in leftUnit.effects)
+            {
+                effect.effect.OnSwap(leftUnit, rightUnit);
+            }
+
+        }
+
+        if (rightUnit)
+        {
+            foreach (var effect in rightUnit.unitData.effects)
+            {
+                effect.OnSwap(rightUnit, leftUnit);
+            }
+        }
     }
 
     public IEnumerator WaitToApplyGravity(float blockSwapTime)
@@ -369,6 +404,7 @@ public class BoardManager : MonoBehaviour
                     b.targetPosition = newPosition;
                     _board.SetUnitBehaviour(new Coordinates(column, newRow), b);
                     if (newPosition.y < b.transform.position.y - 1) Drop(b.gameObject,b.transform.position, newPosition);
+                    if (newRow == 0) b.EnableCountdownTimer();
                 }
                 else
                 {
@@ -563,30 +599,34 @@ public class BoardManager : MonoBehaviour
     
     private IEnumerator SequentialCombat()
     {
-        //canMove = false;
-        yield return new WaitForSeconds(1f);
+        Debug.Log("Sequential Combat");
+        canMove = false;
+        
         foreach (var unit in TurnManager.Instance.orderedCombatUnits)
         {
-
+            if (unit.isDead) yield break;
             
             if (unit.combatTarget == null) TurnManager.Instance.ResetUnit(unit);
-            
-            // yield return StartCoroutine(unit.Attack());
 
-            TurnManager.Instance.ResetUnit(unit);
-            
-            _unitsToReinsert.Add(unit);
-            
-            CleanUpBoard();
+            if (unit.turnsTilAttack <= 0 && unit.turnsTilAttack != -1)
+            {
+                yield return new WaitForSeconds(1f);
+                yield return StartCoroutine(unit.Attack(unit.combatTarget));
+                TurnManager.Instance.ResetUnit(unit);
+                _unitsToReinsert.Add(unit);
+                
+                CleanUpBoard();
 
-            yield return new WaitForSeconds(.5f);
+                yield return new WaitForSeconds(.5f);
+            }
         }
         
         foreach (var unit in _unitsToReinsert)
         {
             TurnManager.Instance.ReinsertUnit(unit);
         }
-        
+
+        canMove = true;
         _unitsToReinsert.Clear();
     }
 
@@ -638,7 +678,6 @@ public class BoardManager : MonoBehaviour
     private IEnumerator SetUpCombatTurns()
     {
         var combatParticipants = _board.FrontRowEnemies.ToList();
-        foreach (var unitBehaviour in _board.Heroes) combatParticipants.Add(unitBehaviour);
         canMove = true;
         return TurnManager.Instance.ChooseTurnOrder(combatParticipants);
     }
@@ -694,8 +733,17 @@ public class BoardManager : MonoBehaviour
             // assign combat targets
             yield return StartCoroutine(AssignCombatTargets());
             
+            yield return StartCoroutine(SetUpCombatTurns());
+            
             // wait for player to swap blocks
             yield return StartCoroutine(TurnManager.Instance.CheckIfFinishedSwapping());
+            
+            if (UIManager.Instance.chestDestroyed)
+            {
+                yield return StartCoroutine(UIManager.Instance.ChestEvent());
+            }
+
+            yield return StartCoroutine(SequentialCombat());
         }
     }
 
@@ -731,6 +779,8 @@ public class BoardManager : MonoBehaviour
 
     public bool CanAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit)
     {
+        if (!attackedUnit || !attackedUnit) return false;
+        
         var combatTarget = attackingUnit.combatTarget;
 
         if (Mathf.Abs(attackedUnit.coordinates.x - combatTarget.coordinates.x) <= attackingUnit.unitData.attackRange && 

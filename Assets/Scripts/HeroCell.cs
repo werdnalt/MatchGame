@@ -21,8 +21,19 @@ public class HeroCell: Cell, IPointerEnterHandler, IPointerExitHandler, IDragHan
     public void OnPointerEnter(PointerEventData eventData)
     {
         BoardManager.Instance.SetCellSelector(transform.position);
+
+        if (!BoardManager.Instance.canMove) return;
         
         unitBehaviour = BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(column);
+
+        if (eventData.dragging)
+        {
+            ActionHandler.Instance.SetDraggedCell(this);
+        }
+        if (!eventData.dragging)
+        {
+            ArrowLine.Instance.SetHoverIndicator(transform.position);
+        }
         if (!unitBehaviour)
         {
             UIManager.Instance.HideUnitPanel();
@@ -35,6 +46,7 @@ public class HeroCell: Cell, IPointerEnterHandler, IPointerExitHandler, IDragHan
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        ArrowLine.Instance.HideHoverIndicator();
         //if (CursorAnimation.Instance.isDragging) return;
         
         //CursorAnimation.Instance.UnhighlightChain();

@@ -52,8 +52,14 @@ public class TurnManager : MonoBehaviour
         unitsInCombat.RemoveAll(unit => unit == null || unit.isDead || unit.unitData.passive);
 
         // Order the list of units by their 'turnsTilAttack' property
-        // var orderedUnits = unitsInCombat.OrderBy(unit => unit.turnsTilAttack).ToList();
-        
+        var orderedUnits = unitsInCombat.OrderBy(unit => unit.turnsTilAttack).ToList();
+
+        foreach (var unit in orderedUnits)
+        {
+            unit.EnableCountdownTimer();
+        }
+
+        orderedCombatUnits = orderedUnits;
     
         yield break;
     }
@@ -71,8 +77,9 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    public void SwapBlocks()
+    public IEnumerator TakeTurn()
     {
+        yield return new WaitForSeconds(.25f);
         _hasSwapped = true;
         currentNumSwaps++;
         UpdateSwapCounter();

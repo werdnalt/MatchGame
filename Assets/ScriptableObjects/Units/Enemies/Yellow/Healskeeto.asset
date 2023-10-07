@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
+  m_Name: Healskeeto
+  m_EditorClassIdentifier: 
+  animatedCharacterPrefab: {fileID: 9010468193562447122, guid: 2ad4c81b2c7d12841964f0272da6592a, type: 3}
+  attackTimer: 5
+  shouldAnimateLoop: 1
+  tribe: 4
+  classification: 2
+  hp: 4
+  attack: 2
+  experienceAmount: 5
+  unitSprite: {fileID: 21300000, guid: d68ee9dc7a3444f4fb9d966c3e8d02ab, type: 3}
+  effects:
+  - {fileID: 11400000, guid: 86a56b5ccdf448b49b91c98c04d7b495, type: 2}
+  passive: 0
+  displayName: Healthskeeto
+  attackRange: 0
