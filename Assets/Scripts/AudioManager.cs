@@ -65,7 +65,7 @@ public class AudioManager : MonoBehaviour
         if (audioEnabled)
         {
             Sound s = sounds.Find(sound => sound.name == name);
-            s.source.volume = SoundLevel.Level();
+            s.source.volume = s.volume;
             if (s != null) s.source.Play();
             return s;
         }

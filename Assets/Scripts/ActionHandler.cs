@@ -99,6 +99,13 @@ public class ActionHandler : MonoBehaviour
         
         if (draggedUnit) draggedUnit.Grow();
     }
+
+    public void RemoveDraggedCell()
+    {
+        draggedCell = null;
+        ArrowLine.Instance.HideHoverIndicator();
+        
+    }
     
     private UnitBehaviour GetUnitBasedOnTribe(Cell cell)
     {

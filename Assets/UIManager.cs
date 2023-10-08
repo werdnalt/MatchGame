@@ -22,6 +22,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI attackText;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private TextMeshProUGUI tribeText;
+    [SerializeField] private Image tribePlacard;
     [SerializeField] private GameObject effectTextPrefab;
 
     [SerializeField] private TextMeshProUGUI energyText;
@@ -33,6 +35,7 @@ public class UIManager : MonoBehaviour
 
     public bool chestDestroyed;
     private List<Treasure> _currentTreasure;
+    private Treasure _chosenTreasure;
 
     private void Awake()
     {
@@ -53,28 +56,45 @@ public class UIManager : MonoBehaviour
         }
         
         _popEffect.EnableAndPop();
+
+        var panelPos = new Vector3(unitBehaviour.transform.position.x + 3.5f, unitBehaviour.transform.position.y, 1);
+        unitPanel.transform.position = panelPos;
         
         var endingPos = new Vector3(0, 30f, 0);
+
+        switch (unitBehaviour.unitData.tribe)
+        {
+            case Unit.Tribe.Beasts:
+                tribePlacard.color = new Color(249, 194, 43, 100);
+                break;
+            case Unit.Tribe.Void:
+                tribePlacard.color = new Color(107,62,117, 100);
+                break;
+            case Unit.Tribe.Plants:
+                tribePlacard.color = new Color(213,224,75, 100);
+                break;
+        }
         
         // unitPanel.transform.DOKill();
         // unitPanel.transform.position = _originalPos;
         // unitPanel.transform.DOPunchPosition(endingPos, .2f, 1, 1).SetEase(Ease.OutQuad);
         
-        unitPortrait.sprite = unitBehaviour.unitData.unitSprite;
-        
         attackText.text = unitBehaviour.attack.ToString();
 
         healthText.text = ($"{unitBehaviour.currentHp}");
         nameText.text = unitBehaviour.unitData.displayName;
+        tribeText.text = unitBehaviour.unitData.tribe.ToString();
+        
 
         foreach (var effect in unitBehaviour.unitData.effects)
         {
             var effectTextInstance = Instantiate(effectTextPrefab, effectTextParent.transform);
-            var effectBehaviour = effectTextInstance.GetComponent<EffectBehaviour>();
-
-            if (!effectBehaviour) continue;
+            Debug.Log("spawned effect prefab");
+            // var effectBehaviour = effectTextInstance.GetComponent<EffectBehaviour>();
+            //
+            // if (!effectBehaviour) continue;
             
-            effectBehaviour.effectText.text = effect.effectDescription;
+            effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text = effect.effectDescription;
             
             _instantiatedEffectPrefabs.Add(effectTextInstance);
         }
@@ -111,6 +131,7 @@ public class UIManager : MonoBehaviour
     private void SetUpChestEvent()
     {
         var randomTreasure = _currentTreasure[Random.Range(0, _currentTreasure.Count)];
+        _chosenTreasure = randomTreasure;
         
         chestOverlay.GetComponent<PopEffect>().EnableAndPop();
         treasureImage.sprite = randomTreasure.treasureSprite;
@@ -120,6 +141,7 @@ public class UIManager : MonoBehaviour
 
     public void CollectTreasure()
     {
+        TreasureManager.Instance.AddTreasure(_chosenTreasure);
         chestOverlay.SetActive(false);
         chestDestroyed = false;
     }

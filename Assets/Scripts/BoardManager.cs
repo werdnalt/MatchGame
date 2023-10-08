@@ -113,6 +113,8 @@ public class BoardManager : MonoBehaviour
         canMove = true;
 
         StartCoroutine(KickOffGameLoop());
+        
+        AudioManager.Instance.PlayAndLoop("forest");
     }
 
     public IEnumerator KickOffGameLoop()
@@ -608,7 +610,7 @@ public class BoardManager : MonoBehaviour
             
             if (unit.combatTarget == null) TurnManager.Instance.ResetUnit(unit);
 
-            if (unit.turnsTilAttack <= 0 && unit.turnsTilAttack != -1)
+            if (unit.turnsTilAttack == 0)
             {
                 yield return new WaitForSeconds(1f);
                 yield return StartCoroutine(unit.Attack(unit.combatTarget));
@@ -779,7 +781,7 @@ public class BoardManager : MonoBehaviour
 
     public bool CanAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit)
     {
-        if (!attackedUnit || !attackedUnit) return false;
+        if (!attackingUnit || !attackedUnit) return false;
         
         var combatTarget = attackingUnit.combatTarget;
 

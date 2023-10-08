@@ -9,9 +9,9 @@ public class Unit : ScriptableObject
         Hero,
         Red,
         Blue,
-        Green,
-        Yellow,
-        Purple,
+        Plants,
+        Beasts,
+        Void,
         NA
     }
 

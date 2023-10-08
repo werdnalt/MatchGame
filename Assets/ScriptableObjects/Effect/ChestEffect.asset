@@ -18,3 +18,4 @@ MonoBehaviour:
   treasures:
   - {fileID: 11400000, guid: 1a6681d836057e2489809ecab808c3ed, type: 2}
   - {fileID: 11400000, guid: c52a87911eb1f474085d176cd6163ced, type: 2}
+  - {fileID: 11400000, guid: 35ebbbbaaea579e4a85c5e66a3cd235c, type: 2}

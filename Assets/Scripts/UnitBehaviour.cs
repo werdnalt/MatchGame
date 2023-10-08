@@ -30,6 +30,7 @@ public class UnitBehaviour : MonoBehaviour
     [SerializeField] private ParticleSystem increaseHealthParticles;
     [SerializeField] private ParticleSystem healParticles;
     [SerializeField] private ParticleSystem deathParticles;
+    [SerializeField] private ParticleSystem attackUpParticles;
     [SerializeField] private ParticleSystem hitParticles;
     [SerializeField] private GameObject healthUI;
     [SerializeField] private GameObject heartHolder;
@@ -233,34 +234,40 @@ public class UnitBehaviour : MonoBehaviour
     }
 
     public IEnumerator Attack(UnitBehaviour attackingTarget)
+{
+    if (isDead) yield break;
+
+    Debug.Log($"{unitData.name} is attempting to attack");
+    var combatFinished = false;
+
+    if (!combatTarget)
     {
-        if (isDead) yield break;
-        
-        Debug.Log($"{unitData.name} is attempting to attack");
-        var combatFinished = false;
+        Debug.Log($"{unitData.name} didn't have a combat target");
+        yield break; // If there's no combat target, simply exit the coroutine
+    }
 
-        if (!combatTarget)
-        {
-            Debug.Log($"{unitData.name} didn't have a combat target");
-            yield break; // If there's no combat target, simply exit the coroutine
-        }
+    foreach (var effect in unitData.effects)
+    {
+        effect.OnAttack(this, attackingTarget);
+    }
 
-        foreach(var effect in unitData.effects)
-        {
-            effect.OnAttack(this, attackingTarget);
-        }
+    BoardManager.Instance.mostRecentlyAttackingUnit = this;
 
-        BoardManager.Instance.mostRecentlyAttackingUnit = this;
-        
-        //combatOrderText.text = "";
-        //ShowAttackAmount();
+    // combatOrderText.text = "";
+    // ShowAttackAmount();
 
-        yield return new WaitForSeconds(.75f);
+    yield return new WaitForSeconds(.75f);
 
-        var originalPos = transform.position;
-        mat.SetFloat("_MotionBlurDist", 1);
+    var originalPos = transform.position;
+    var slightBackwardPos = originalPos - (attackingTarget.transform.position - originalPos).normalized * 0.5f; // Modify this value to control the distance moved backward
+    mat.SetFloat("_MotionBlurDist", 1);
 
-        AudioManager.Instance.PlayWithRandomPitch("whoosh");
+    AudioManager.Instance.PlayWithRandomPitch("whoosh");
+
+    // First, move slightly backward
+    transform.DOMove(slightBackwardPos, 0.05f).OnComplete(() =>
+    {
+        // After the slight backward motion, charge forward towards the target
         transform.DOMove(attackingTarget.transform.position, .1f).OnComplete(() =>
         {
             var targets = BoardManager.Instance.Chain(attackingTarget);
@@ -273,12 +280,10 @@ public class UnitBehaviour : MonoBehaviour
                 {
                     // TODO: execute any OnKill effects
                 }
-                target.TakeDamage(unitData.attack, this);
+                target.TakeDamage(attack, this);
             }
-            
-            
-            // Move the hero back after damaging the enemy
 
+            // Move the hero back after damaging the enemy
             transform.DOMove(originalPos, .3f).SetEase(Ease.OutQuad).OnComplete(() =>
             {
                 // Set combatFinished true after all animations are complete
@@ -292,10 +297,12 @@ public class UnitBehaviour : MonoBehaviour
                 }
             });
         });
-        
-        // Wait until combatFinished becomes true to exit the coroutine
-        yield return new WaitUntil(() => combatFinished);
-    }
+    });
+
+    // Wait until combatFinished becomes true to exit the coroutine
+    yield return new WaitUntil(() => combatFinished);
+}
+
 
     public void TakeDamage(int amount, UnitBehaviour attackedBy)
     {
@@ -557,6 +564,8 @@ public class UnitBehaviour : MonoBehaviour
 
     public IEnumerator CountDownTimer()
     {
+        if (isDead) yield break;
+        
         if (attackTimer < 0) yield break;
         
         Debug.Log("Counting down timers");
@@ -600,5 +609,10 @@ public class UnitBehaviour : MonoBehaviour
         
         Jump();
         deathParticles.Play();
+    }
+
+    public void PlayIncreaseHealthParticles()
+    {
+        attackUpParticles.Play();
     }
 }

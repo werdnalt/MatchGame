@@ -41,7 +41,6 @@ public class HeroCell: Cell, IPointerEnterHandler, IPointerExitHandler, IDragHan
         }
         
         ApplyJelloEffect(unitBehaviour);
-        UIManager.Instance.ShowUnitPanel(unitBehaviour);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -64,6 +63,7 @@ public class HeroCell: Cell, IPointerEnterHandler, IPointerExitHandler, IDragHan
     public void OnPointerUp(PointerEventData eventData)
     {
         StartCoroutine(ActionHandler.Instance.ResolveAction());
+        BoardManager.Instance.SetCellSelector(transform.position);
     }
     
     public void OnPointerDown(PointerEventData eventData)
@@ -76,6 +76,7 @@ public class HeroCell: Cell, IPointerEnterHandler, IPointerExitHandler, IDragHan
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        UIManager.Instance.ShowUnitPanel(unitBehaviour);
         CursorAnimation.Instance.HighlightChain(unitBehaviour.combatTarget);
     }
     

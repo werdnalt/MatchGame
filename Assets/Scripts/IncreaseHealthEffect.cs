@@ -10,6 +10,6 @@ public class IncreaseHealthEffect : Effect
     public override void OnSwap(UnitBehaviour swappedUnit, UnitBehaviour swappedWith)
     {
         swappedUnit.IncreaseHealth(increaseAmount);
-        UIManager.Instance.ShowUnitPanel(swappedUnit);
+        //UIManager.Instance.ShowUnitPanel(swappedUnit);
     }
 }

@@ -248,6 +248,7 @@ Transform:
   - {fileID: 8557847166442368291}
   - {fileID: 4905199465381738951}
   - {fileID: 6228844878419496224}
+  - {fileID: 8419695867820095659}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -331,6 +332,7 @@ MonoBehaviour:
   increaseHealthParticles: {fileID: 1388865763545139969}
   healParticles: {fileID: 8440279286575314698}
   deathParticles: {fileID: 7640867311808884852}
+  attackUpParticles: {fileID: 8419695867820095668}
   hitParticles: {fileID: 4527682790098464069}
   healthUI: {fileID: 5966710840712602365}
   heartHolder: {fileID: 5966710840712602365}
@@ -1168,14 +1170,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bccb458cf4f1ff743b5e1c320f7f0cf0, type: 3}
---- !u!198 &1388865763545139969 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 6940797502304920352, guid: bccb458cf4f1ff743b5e1c320f7f0cf0, type: 3}
-  m_PrefabInstance: {fileID: 8292416092480137249}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1388865763545139998 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6940797502304920383, guid: bccb458cf4f1ff743b5e1c320f7f0cf0, type: 3}
+  m_PrefabInstance: {fileID: 8292416092480137249}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &1388865763545139969 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 6940797502304920352, guid: bccb458cf4f1ff743b5e1c320f7f0cf0, type: 3}
   m_PrefabInstance: {fileID: 8292416092480137249}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8734494724043446280
@@ -1326,4 +1328,71 @@ Transform:
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 857545899212834972, guid: be23401086201094c865476fd9c3479f, type: 3}
   m_PrefabInstance: {fileID: 9135402556498132886}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &9168864555010437160
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 2200278036780051956}
+    m_Modifications:
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_RootOrder
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 857545899212834974, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+      propertyPath: m_Name
+      value: Attack Up Particles
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+--- !u!4 &8419695867820095659 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 857545899212834947, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+  m_PrefabInstance: {fileID: 9168864555010437160}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &8419695867820095668 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 857545899212834972, guid: e341ff4d77399774e8327b8aa3c6a4f9, type: 3}
+  m_PrefabInstance: {fileID: 9168864555010437160}
   m_PrefabAsset: {fileID: 0}

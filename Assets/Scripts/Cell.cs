@@ -35,6 +35,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     
     public void OnPointerEnter(PointerEventData eventData)
     {
+        AudioManager.Instance.PlayWithRandomPitch("wood2");
         _timeEnteredCell = Time.time;
         unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
         if (eventData.dragging)
@@ -61,7 +62,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     
     public void OnPointerExit(PointerEventData eventData)
     {
-        ArrowLine.Instance.HideHoverIndicator();
+        ActionHandler.Instance.RemoveDraggedCell();
         _timeEnteredCell = Mathf.Infinity;
         
         UIManager.Instance.HideUnitPanel();
@@ -80,7 +81,8 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     public void OnDrag(PointerEventData eventData)
     {
         if (!unitBehaviour || unitBehaviour.isDragging || !BoardManager.Instance.canMove) return;
-        
+
+        AudioManager.Instance.Play("wood");
         unitBehaviour.Jump();
         unitBehaviour.isDragging = true;
         ArrowLine.Instance.StartDrawingLine(unitBehaviour.transform.position);
@@ -149,6 +151,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (!unitBehaviour) return;
         UIManager.Instance.ShowUnitPanel(unitBehaviour);
     }
 }

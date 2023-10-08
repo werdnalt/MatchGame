@@ -14,7 +14,7 @@ public class AbsorbNeighbor : Effect
         swappedUnit.currentHp += swappedWith.currentHp;
         swappedWith.transform.DOKill();
         swappedUnit.UpdateHearts();
-        UIManager.Instance.ShowUnitPanel(swappedUnit);
+        //UIManager.Instance.ShowUnitPanel(swappedUnit);
         BoardManager.Instance.RemoveUnitFromBoard(swappedWith);
     }
     
