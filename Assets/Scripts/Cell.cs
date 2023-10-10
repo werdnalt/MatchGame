@@ -53,6 +53,10 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         }
         //UIManager.Instance.ShowUnitPanel(unitBehaviour);
 
+        if (!unitBehaviour.healthUI.activeSelf) unitBehaviour.ShowAndUpdateHealth();
+        
+        unitBehaviour.ShowAttack();
+        
         _cachedZIndex = unitBehaviour.transform.position.z;
         var cachedPos = unitBehaviour.transform.position;
         unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, -3);
@@ -62,7 +66,8 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     
     public void OnPointerExit(PointerEventData eventData)
     {
-        ActionHandler.Instance.RemoveDraggedCell();
+        Debug.Log("Exit");
+        ActionHandler.Instance.HideIndicators();
         _timeEnteredCell = Mathf.Infinity;
         
         UIManager.Instance.HideUnitPanel();
@@ -75,6 +80,8 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         {
             var cachedPos = unitBehaviour.transform.position;
             unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, _cachedZIndex);
+            if (unitBehaviour.coordinates.y != 0) unitBehaviour.HideHealth();
+            if (unitBehaviour.coordinates.y != 0) unitBehaviour.HideAttack();
         }
     }
 

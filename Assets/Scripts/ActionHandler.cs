@@ -102,9 +102,10 @@ public class ActionHandler : MonoBehaviour
 
     public void RemoveDraggedCell()
     {
-        draggedCell = null;
-        ArrowLine.Instance.HideHoverIndicator();
+        if (clickedCell) clickedCell.unitBehaviour.isDragging = false;
         
+        draggedCell = null;
+        ArrowLine.Instance.HideIndicators();
     }
     
     private UnitBehaviour GetUnitBasedOnTribe(Cell cell)
@@ -119,8 +120,15 @@ public class ActionHandler : MonoBehaviour
         }
     }
 
+    public void HideIndicators()
+    {
+        ArrowLine.Instance.HideIndicators();
+    }
+
     public IEnumerator ResolveAction()
     {
+        if (clickedCell) clickedCell.unitBehaviour.isDragging = false;
+        
         CursorAnimation.Instance.UnhighlightChain();
         ArrowLine.Instance.HideIndicators();
         

@@ -5720,6 +5720,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1266859124}
   - component: {fileID: 1266859125}
+  - component: {fileID: 1266859126}
   m_Layer: 0
   m_Name: selector 1
   m_TagString: Untagged
@@ -5793,6 +5794,21 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1266859126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266859123}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea99416df1d10534d93e23ca71231f56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetImage: {fileID: 0}
+  maxPulseScale: 1.1
+  rotationDuration: 10
 --- !u!1 &1283487086
 GameObject:
   m_ObjectHideFlags: 0
@@ -6227,7 +6243,7 @@ PrefabInstance:
     - target: {fileID: -5392929243832141697, guid: 18ed225541a674149ad15c39adaef27e, type: 3}
       propertyPath: allHeroes.Array.data[2]
       value: 
-      objectReference: {fileID: 11400000, guid: a67dcb0af838c5043b50091937657079, type: 2}
+      objectReference: {fileID: 11400000, guid: 87dce8eb22334a4418e8a1402b16c75f, type: 2}
     - target: {fileID: -5392929243832141697, guid: 18ed225541a674149ad15c39adaef27e, type: 3}
       propertyPath: allHeroes.Array.data[3]
       value: 
@@ -7833,7 +7849,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.40803888, g: 0.5, b: 0.2476415, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

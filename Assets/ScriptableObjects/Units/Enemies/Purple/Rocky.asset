@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
-  m_Name: Priest
+  m_Name: Rocky
   m_EditorClassIdentifier: 
-  animatedCharacterPrefab: {fileID: 7255530061341473968, guid: 54a658e67e1514f4fad875d3aadc04de, type: 3}
+  animatedCharacterPrefab: {fileID: 2686477127496976166, guid: 0cba576d03a87ef46aaf23066a4d744a, type: 3}
   attackTimer: 3
   shouldAnimateLoop: 0
-  tribe: 0
-  classification: 0
-  hp: 2
-  attack: 2
-  experienceAmount: 0
-  unitSprite: {fileID: 21300000, guid: 934a79781969a78489c1a3e50b285375, type: 3}
-  effects: []
+  tribe: 5
+  classification: 2
+  hp: 3
+  attack: 1
+  experienceAmount: 5
+  unitSprite: {fileID: 21300000, guid: 9f9edc0be7ad5294f8be4bbe3d0c9111, type: 3}
+  effects:
+  - {fileID: 11400000, guid: e3fa23c9f79d18c4cacf175917ee1c18, type: 2}
   passive: 0
-  displayName: 
-  attackRange: 3
+  displayName: Rocky
+  attackRange: 0

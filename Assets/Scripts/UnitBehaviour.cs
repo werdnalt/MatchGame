@@ -23,6 +23,7 @@ public class UnitBehaviour : MonoBehaviour
     public UnitBehaviour attackedBy;
     public GameObject defaultAnimatedCharacter;
     public int turnsTilAttack;
+    public bool isChained;
 
     // Serialized fields
     [SerializeField] private Image swordSprite;
@@ -32,14 +33,19 @@ public class UnitBehaviour : MonoBehaviour
     [SerializeField] private ParticleSystem deathParticles;
     [SerializeField] private ParticleSystem attackUpParticles;
     [SerializeField] private ParticleSystem hitParticles;
-    [SerializeField] private GameObject healthUI;
+    [SerializeField] public GameObject healthUI;
     [SerializeField] private GameObject heartHolder;
     [SerializeField] private GameObject fullHeartObject;
     [SerializeField] private Sprite emptyHeart;
-    [SerializeField] private Sprite fullHeart;
+    [SerializeField] private Image fullHeart;
     [SerializeField] private GameObject attackTimerObject;
     [SerializeField] private TextMeshProUGUI attackTimerTimeText;
     [SerializeField] private Image attackTimerSprite;
+    [SerializeField] private GameObject floatingTextStartingPoint;
+    [SerializeField] private GameObject floatingTextEndingPoint;
+    [SerializeField] private TextMeshProUGUI floatingText;
+    [SerializeField] private TextMeshProUGUI healthAmountText;
+    [SerializeField] public GameObject attackUI;
     public GameObject animatedCharacter;
 
     // Private fields
@@ -111,6 +117,12 @@ public class UnitBehaviour : MonoBehaviour
             animatedCharacter = Instantiate(defaultAnimatedCharacter, transform);
         }
         GetAllChildObjects();
+
+        if (unitData.tribe == Unit.Tribe.Hero)
+        {
+            ShowAndUpdateHealth();
+            ShowAttack();
+        }
     }
     
     private void GetAllChildObjects()
@@ -288,7 +300,6 @@ public class UnitBehaviour : MonoBehaviour
             {
                 // Set combatFinished true after all animations are complete
                 combatFinished = true;
-                HideAttackAmount();
                 StartCoroutine(TurnManager.Instance.TakeTurn());
                 if (unitData.tribe == Unit.Tribe.Hero)
                 {
@@ -341,9 +352,7 @@ public class UnitBehaviour : MonoBehaviour
 
     private IEnumerator HitEffect()
     {        
-        healthUI.SetActive(true);
-        ShowHearts();
-        UpdateHearts();
+        ShowAndUpdateHealth();
         
         //CameraShake.Instance.Shake(.05f);
         float punchDuration = 0.3f;
@@ -378,7 +387,7 @@ public class UnitBehaviour : MonoBehaviour
         foreach (var part in animatedCharacterParts)
         {
             var mat = part.GetComponent<Renderer>().material;
-            if (mat) mat.SetFloat("_HsvSaturation", .3f);
+            if (mat) mat.SetFloat("_HsvSaturation", .1f);
         }
     }
 
@@ -408,85 +417,6 @@ public class UnitBehaviour : MonoBehaviour
 
         deathParticles.Play();
     }
-
-    private void ShowHearts()
-    {
-        // If maxHP has increased, instantiate more hearts
-        if (_heartObjects.Count < _maxHp)
-        {
-            // Destroy existing hearts to refresh the display
-            foreach (var heart in _heartObjects)
-            {
-                Destroy(heart);
-            }
-            _heartObjects.Clear();
-
-            // Create new hearts based on updated _maxHp
-            for (var i = 0; i < _maxHp; i++)
-            {
-                _heartObjects.Add(Instantiate(fullHeartObject, heartHolder.transform));
-            }
-        }
-    }
-
-    public void UpdateHearts()
-    {
-        // Make sure _heartObjects is populated
-        if (_heartObjects.Count == 0) return;
-
-        // Update hearts based on currentHp
-        for (var i = 0; i < _maxHp; i++)
-        {
-            var heart = _heartObjects[i];
-            var originalPos = heart.transform.position;
-        
-            if (i < currentHp)
-            {
-                // Show filled heart
-                heart.GetComponent<Image>().sprite = fullHeart;
-            }
-            else
-            {
-                // Show empty heart
-                heart.GetComponent<Image>().sprite = emptyHeart;
-
-                // Add animation effects for empty hearts
-                heart.transform.DOKill();
-                heart.transform.DOPunchScale(new Vector3(heart.transform.localScale.x + .2f, heart.transform.localScale.y + .2f), .3f, 1, 1);
-                heart.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1);
-            }
-        }
-    }
-
-    private void UpdateHeartsHeal(int amountToHeal)
-    {
-        ShowHearts();
-        StartCoroutine(HitEffect());
-
-        var startingHpIndex = currentHp - 1;
-
-        // Ensure you don't heal more than the difference between max HP and current HP.
-        var maxHeal = _maxHp - currentHp;
-        amountToHeal = Mathf.Min(amountToHeal, maxHeal);
-
-        currentHp += amountToHeal;
-
-        // Ensure we don't exceed the boundaries of _heartObjects array
-        int maxIndex = Mathf.Min(startingHpIndex + amountToHeal, _heartObjects.Count);
-
-        for (var i = 0; i < currentHp; i++)
-        {
-            var heart = _heartObjects[i];
-            var originalPos = heart.transform.position;
-        
-            heart.GetComponent<Image>().sprite = fullHeart;
-
-            heart.transform.DOKill();
-            heart.transform.DOPunchScale(new Vector3(heart.transform.localScale.x + .2f, heart.transform.localScale.y + .2f), .3f, 1, 1);
-            heart.transform.DOPunchPosition(new Vector3(0, originalPos.y + 1, 0), .3f, 1, 1);
-        }
-    }
-
 
     public void Jump()
     {
@@ -524,42 +454,41 @@ public class UnitBehaviour : MonoBehaviour
 
     public void Heal(int amount)
     {
-        // play animation
-        UpdateHeartsHeal(amount);
+        var maxHeal = _maxHp - currentHp;
+        var amountToHeal = Mathf.Min(amount, maxHeal);
+
+        currentHp += amountToHeal;
+        
+        ShowAndUpdateHealth();
         
         healParticles.Play();
-        
-        // gain health
     }
 
     public void IncreaseHealth(int amount)
     {
         _maxHp += amount;
         currentHp += amount;
-        ShowHearts();
-        UpdateHearts();
-
+        ShowAndUpdateHealth();
+        
         increaseHealthParticles.Play();
-    }
-
-    public void ShowAttackAmount()
-    {
-        attackAmountText.text = attack.ToString();
-        swordSprite.enabled = true;
-    }
-
-    public void HideAttackAmount()
-    {
-        attackAmountText.text = "";
-        swordSprite.enabled = false;
     }
 
     public void EnableCountdownTimer()
     {
         if (attackTimer < 0) return;
+
+        if (!attackTimerObject.activeSelf)
+        {
+            attackTimerObject.transform.DOKill();
+            var currentTimerSize = attackTimerObject.transform.localScale;
+            var newTimerSize = new Vector3(currentTimerSize.x * 1.3f, currentTimerSize.y * 1.3f, 1);
+            attackTimerObject.transform.DOPunchScale(newTimerSize, .5f, 1, .3f).SetEase(Ease.OutQuad);
+        }
         
         attackTimerObject.SetActive(true);
         attackTimerTimeText.text = turnsTilAttack.ToString();
+        
+        if (attackTimer <= 1) StartPulsing();
     }
 
     public IEnumerator CountDownTimer()
@@ -580,6 +509,8 @@ public class UnitBehaviour : MonoBehaviour
         {
             animationFinished = true;
         });
+        
+        if (attackTimer <= 1) StartPulsing();
 
         animationFinished = true;
         yield return new WaitUntil(() => animationFinished);
@@ -588,6 +519,8 @@ public class UnitBehaviour : MonoBehaviour
     public IEnumerator ResetAttackTimer()
     {
         if (attackTimer < 0) yield break;
+        
+        StopPulsing();
         
         attackTimerTimeText.color = Color.white;
         var animationFinished = false;
@@ -600,7 +533,35 @@ public class UnitBehaviour : MonoBehaviour
             animationFinished = true;
         });
         
+        if (attackTimer <= 1) StartPulsing();
+        
         yield return new WaitUntil(() => animationFinished);
+    }
+    
+    public void StartPulsing()
+    {
+        var localScale = attackTimerObject.transform.localScale;
+        var maxScale = new Vector3(localScale.x * 1.3f, localScale.x * 1.3f, localScale.z);
+        var minScale = new Vector3(localScale.x, localScale.y, localScale.z);
+
+        var pulseDuration = .3f;
+    
+        attackTimerObject.transform.DOScale(maxScale, pulseDuration)
+            .SetEase(Ease.InOutSine) // Smooth in and out
+            .SetId(attackTimerObject.GetInstanceID()) // Set unique ID for this tween
+            .OnComplete(() =>
+            {
+                attackTimerObject.transform.DOScale(minScale, pulseDuration)
+                    .SetEase(Ease.InOutSine)
+                    .SetId(attackTimerObject.GetInstanceID()) // Set unique ID for this tween
+                    .OnComplete(StartPulsing); // Recursively call to create a loop
+            });
+    }
+
+    private void StopPulsing()
+    {
+        // Only kill the tween that has the specific ID for this GameObject
+        DOTween.Kill(attackTimerObject.GetInstanceID());
     }
 
     public void AddEffect(Effect effect)
@@ -614,5 +575,79 @@ public class UnitBehaviour : MonoBehaviour
     public void PlayIncreaseHealthParticles()
     {
         attackUpParticles.Play();
+    }
+
+    public void DisplayFloatingText(string textToDisplay, float duration)
+    {
+        floatingText.transform.position = floatingTextStartingPoint.transform.position;
+        floatingText.gameObject.SetActive(true);
+        floatingText.text = textToDisplay;
+
+        floatingText.transform.DOMove(floatingTextEndingPoint.transform.position, .75f, false).SetEase(Ease.OutExpo);
+        StartCoroutine(TurnOffFloatingText(duration));
+    }
+
+    private IEnumerator TurnOffFloatingText(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        
+        floatingText.gameObject.SetActive(false);
+    }
+
+    public void ShowAndUpdateHealth()
+    {
+        healthUI.SetActive(true);
+        healthAmountText.text = currentHp.ToString();
+
+        if (isDead) return;
+        
+        if (currentHp > _maxHp)
+        {
+            healthAmountText.color = new Color32(39, 246, 81, 255);
+            fullHeart.fillAmount = 100;
+        }
+        
+        if (currentHp == _maxHp)
+        {
+            fullHeart.fillAmount = 100;
+        }
+        
+        if (currentHp < _maxHp)
+        {
+            fullHeart.fillAmount = ((float)currentHp / _maxHp);
+        }
+        
+        // play animation
+        healthUI.transform.DOKill();
+        var currentHeartSize = healthUI.transform.localScale;
+        var newHeartSize = new Vector3(currentHeartSize.x * 1.2f, currentHeartSize.y * 1.2f, 1);
+        healthUI.transform.DOPunchScale(newHeartSize, .25f, 0, .3f).SetEase(Ease.OutQuad);
+    }
+
+    public void HideHealth()
+    {
+        if (coordinates.y == 0) return;
+        
+        healthUI.SetActive(false);
+    }
+
+    public void ShowAttack()
+    {
+        attackUI.SetActive(true);
+
+        if (!attackUI.activeSelf)
+        {
+            healthUI.transform.DOKill();
+            var currentSwordSize = attackUI.transform.localScale;
+            var newSwordSize = new Vector3(currentSwordSize.x * 1.2f, currentSwordSize.y * 1.2f, 1);
+            attackUI.transform.DOPunchScale(newSwordSize, .25f, 0, .3f).SetEase(Ease.OutQuad);
+        }
+        
+        attackAmountText.text = attack.ToString();
+    }
+
+    public void HideAttack()
+    {
+        attackUI.SetActive(false);
     }
 }

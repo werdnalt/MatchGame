@@ -23,5 +23,5 @@ MonoBehaviour:
   unitSprite: {fileID: 21300000, guid: 62711eb6260c7774ea0eb1e70d9b21dc, type: 3}
   effects: []
   passive: 0
-  displayName: 
+  displayName: Mage
   attackRange: 0

@@ -11,6 +11,8 @@ public class IncreaseAttackEffect : Effect
     {
         attackingUnit.attack += increaseAmount;
         
+        attackingUnit.ShowAttack();
         attackingUnit.PlayIncreaseHealthParticles();
+        attackingUnit.DisplayFloatingText("ATK UP!", 1);
     }
 }

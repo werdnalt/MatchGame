@@ -45,7 +45,8 @@ public class HeroCell: Cell, IPointerEnterHandler, IPointerExitHandler, IDragHan
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        ArrowLine.Instance.HideHoverIndicator();
+        ActionHandler.Instance.HideIndicators();
+        UIManager.Instance.HideUnitPanel();
         //if (CursorAnimation.Instance.isDragging) return;
         
         //CursorAnimation.Instance.UnhighlightChain();

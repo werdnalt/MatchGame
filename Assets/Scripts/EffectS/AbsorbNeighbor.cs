@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ public class AbsorbNeighbor : Effect
         swappedUnit.attack += swappedWith.attack;
         swappedUnit.currentHp += swappedWith.currentHp;
         swappedWith.transform.DOKill();
-        swappedUnit.UpdateHearts();
+        swappedUnit.ShowAndUpdateHealth();
         //UIManager.Instance.ShowUnitPanel(swappedUnit);
         BoardManager.Instance.RemoveUnitFromBoard(swappedWith);
     }

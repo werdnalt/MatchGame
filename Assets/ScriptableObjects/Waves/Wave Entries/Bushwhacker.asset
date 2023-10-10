@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Bushwhacker
   m_EditorClassIdentifier: 
   unit: {fileID: 11400000, guid: fb1ec5a942617bc46bd34b8f11c7d888, type: 2}
-  weight: 15
+  weight: 100

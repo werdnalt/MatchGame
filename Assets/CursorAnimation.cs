@@ -258,9 +258,14 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
             // Check if the unit is not found in the chainedUnits list
                 if (!chainedUnits.Contains(unit))
                 {
+                    unit.isChained = false;
                     unit.ReduceSaturation();
                 }
-            
+                else
+                {
+                    unit.isChained = true;
+                    unit.ShowAndUpdateHealth();
+                }
         }
     }
 
@@ -270,6 +275,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 
         foreach (var unit in allUnits)
         {
+            if (unit.isChained) unit.HideHealth();
             unit.IncreaseSaturation();
         }
     }

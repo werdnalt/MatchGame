@@ -270,7 +270,7 @@ public class BoardManager : MonoBehaviour
             {
                 DropBlock(unitBehaviour.gameObject, position.Value, new Coordinates(0, 0));
             }
-
+            
             yield return null;
         }
     }

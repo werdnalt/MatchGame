@@ -22,5 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5a9de20f551cf424aa52916dd497a06a, type: 2}
   - {fileID: 11400000, guid: 0f1e21fcb40f2d84baf7662c8a262e8e, type: 2}
   - {fileID: 11400000, guid: 527e939690fa3834582f279aa0e62875, type: 2}
+  - {fileID: 11400000, guid: 7cb3600ecccd97d468912bd08b75022d, type: 2}
+  - {fileID: 11400000, guid: 007d30f86eb2f284abeb6c11f6e7f48f, type: 2}
   timeBeforeSpawn: 5
   waveSize: 8

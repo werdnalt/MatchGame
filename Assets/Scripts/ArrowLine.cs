@@ -97,6 +97,8 @@ public class ArrowLine : MonoBehaviour
     // New method to handle mouse button up
     public void OnMouseUp(InputAction.CallbackContext context)
     {
+        ActionHandler.Instance.ResolveAction();
+        
         if (context.canceled)
         {
             _isDrawing = false;
@@ -189,6 +191,7 @@ public class ArrowLine : MonoBehaviour
         noCombatIndicator.SetActive(false);
         swapIndicator.SetActive(false);
         noSwapIndicator.SetActive(false);
+        hoverIndicator.SetActive(false);
     }
     
     public void SetHoverIndicator(Vector3 indicatorPosition)

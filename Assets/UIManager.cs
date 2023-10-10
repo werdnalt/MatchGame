@@ -65,19 +65,15 @@ public class UIManager : MonoBehaviour
         switch (unitBehaviour.unitData.tribe)
         {
             case Unit.Tribe.Beasts:
-                tribePlacard.color = new Color(249, 194, 43, 100);
+                tribePlacard.color = new Color32(249, 194, 43, 255);
                 break;
             case Unit.Tribe.Void:
-                tribePlacard.color = new Color(107,62,117, 100);
+                tribePlacard.color = new Color32(107,62,117, 255);
                 break;
             case Unit.Tribe.Plants:
-                tribePlacard.color = new Color(213,224,75, 100);
+                tribePlacard.color = new Color32(213,224,75, 255);
                 break;
         }
-        
-        // unitPanel.transform.DOKill();
-        // unitPanel.transform.position = _originalPos;
-        // unitPanel.transform.DOPunchPosition(endingPos, .2f, 1, 1).SetEase(Ease.OutQuad);
         
         attackText.text = unitBehaviour.attack.ToString();
 
@@ -85,7 +81,6 @@ public class UIManager : MonoBehaviour
         nameText.text = unitBehaviour.unitData.displayName;
         tribeText.text = unitBehaviour.unitData.tribe.ToString();
         
-
         foreach (var effect in unitBehaviour.unitData.effects)
         {
             var effectTextInstance = Instantiate(effectTextPrefab, effectTextParent.transform);

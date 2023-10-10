@@ -57,6 +57,8 @@ public class TurnManager : MonoBehaviour
         foreach (var unit in orderedUnits)
         {
             unit.EnableCountdownTimer();
+            if (!unit.healthUI.activeSelf) unit.ShowAndUpdateHealth();
+            if (!unit.attackUI.activeSelf) unit.ShowAttack();
         }
 
         orderedCombatUnits = orderedUnits;
