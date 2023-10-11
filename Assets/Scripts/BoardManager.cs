@@ -137,7 +137,7 @@ public class BoardManager : MonoBehaviour
         // TODO: fix this
         if (blockCoordinates == null || blockCoordinates.Equals(new Coordinates(-1, -1)))
         {
-            Destroy(unitBehaviour.gameObject);
+            unitBehaviour.Remove();
             return;
         }
 
@@ -159,9 +159,10 @@ public class BoardManager : MonoBehaviour
 
     private void Drop(GameObject obj, Vector3 dropFrom, Vector3 dropTo)
     {
+        obj.transform.DOKill();
         // Initial scale
         var initialScale = obj.transform.localScale;
-        obj.transform.localScale = new Vector3(.7f, initialScale.y, initialScale.z);
+        //obj.transform.localScale = new Vector3(initialScale.x * .7f, initialScale.y, initialScale.z);
 
         // Set a constant falling speed
         float fallSpeed = 15.0f;  // Unity units per second. Adjust as necessary.
@@ -606,12 +607,19 @@ public class BoardManager : MonoBehaviour
         
         foreach (var unit in TurnManager.Instance.orderedCombatUnits)
         {
+            if (!unit) continue;
+            
+            Debug.Log($"{unit.name} is next up for sequential combat");
             if (unit.isDead) yield break;
             
+            Debug.Log($"{unit.name} is not dead");
+            
             if (unit.combatTarget == null) TurnManager.Instance.ResetUnit(unit);
+            Debug.Log($"{unit.name} has a combat target");
 
             if (unit.turnsTilAttack == 0)
             {
+                Debug.Log($"{unit.name} has 0 turns til attack");
                 yield return new WaitForSeconds(1f);
                 yield return StartCoroutine(unit.Attack(unit.combatTarget));
                 TurnManager.Instance.ResetUnit(unit);
@@ -627,8 +635,6 @@ public class BoardManager : MonoBehaviour
         {
             TurnManager.Instance.ReinsertUnit(unit);
         }
-
-        canMove = true;
         _unitsToReinsert.Clear();
     }
 
@@ -639,7 +645,6 @@ public class BoardManager : MonoBehaviour
         {
             if(unit.currentHp <= 0)
             {
-                unit.transform.DOKill();
                 RemoveUnitFromBoard(unit);
             }
         }
@@ -653,7 +658,7 @@ public class BoardManager : MonoBehaviour
     public void RemoveUnitFromBoard(UnitBehaviour unitBehaviour)
     {
         _board.RemoveUnitFromBoard(unitBehaviour);
-        Destroy(unitBehaviour.gameObject);
+        unitBehaviour.Remove();
     }
 
     private IEnumerator AssignCombatTargets()

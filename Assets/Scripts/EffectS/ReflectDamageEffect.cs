@@ -5,8 +5,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "ReflectDamageEffect", menuName = "ScriptableObjects/Effects/ReflectDamageEffect", order = 3)]
 public class ReflectDamageEffect : Effect
 {
-    public override void OnHit(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
+    public override bool OnHit(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
     {
         attackingUnit.TakeDamage(attackingUnit.attack, attackedUnit);
+        return true;
     }
 }

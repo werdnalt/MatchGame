@@ -9,13 +9,13 @@ public class HeroCell: Cell, IPointerEnterHandler, IPointerExitHandler, IDragHan
     private Vector3 originalScale;
     private bool scaleSet = false;
     
-    [SerializeField]
+    
     private float squashDuration = 0.1f;
-    [SerializeField]
+    
     private Vector3 squashedScale = new Vector3(1.2f, 0.8f, 1.2f); //Adjust these as per your object's original size and desired effect
-    [SerializeField]
+    
     private Vector3 stretchedScale = new Vector3(0.9f, 1.1f, 0.9f);
-    [SerializeField]
+    
     private float jiggleDuration = 0.9f;
     
     public void OnPointerEnter(PointerEventData eventData)
@@ -54,7 +54,7 @@ public class HeroCell: Cell, IPointerEnterHandler, IPointerExitHandler, IDragHan
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!unitBehaviour || unitBehaviour.isDragging) return;
+        if (!unitBehaviour || unitBehaviour.isDragging || !BoardManager.Instance.canMove) return;
         
         unitBehaviour.Jump();
         unitBehaviour.isDragging = true;

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   effect: {fileID: 11400000, guid: c3b9e75fa18b32d4694dff8dc71a629e, type: 2}
   treasureDescription: Adds 1 Extra Heart to a Hero
-  treasureSprite: {fileID: 21300000, guid: 357831cd3fde90246a6315b6f7c4cb5c, type: 3}
+  treasureSprite: {fileID: 21300000, guid: cf94e2e3886e06544b40875a675a1385, type: 3}

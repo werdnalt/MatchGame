@@ -25,8 +25,9 @@ public abstract class Effect : ScriptableObject
     
     // This function gets called when a block falls.
     public virtual void OnFall() { }
-    
-    public virtual void OnHit(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount) { }
+
+    public virtual bool OnHit(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
+    { return false; }
     
     public virtual void OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit) { }
 }

@@ -63,7 +63,6 @@ public class ArrowLine : MonoBehaviour
     
     void OnEnable()
     {
-        // _mouseDownAction.started += OnMouseDown;
         _mouseUpAction.canceled += OnMouseUp;
         _mouseMoveAction.performed += OnMouseMove;
 
@@ -191,7 +190,7 @@ public class ArrowLine : MonoBehaviour
         noCombatIndicator.SetActive(false);
         swapIndicator.SetActive(false);
         noSwapIndicator.SetActive(false);
-        hoverIndicator.SetActive(false);
+        //hoverIndicator.SetActive(false);
     }
     
     public void SetHoverIndicator(Vector3 indicatorPosition)

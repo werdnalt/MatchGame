@@ -322,5 +322,5 @@ public class Board
     {
         return Heroes[column];
     }
-
+    
 }

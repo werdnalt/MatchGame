@@ -24,6 +24,7 @@ public class UnitBehaviour : MonoBehaviour
     public GameObject defaultAnimatedCharacter;
     public int turnsTilAttack;
     public bool isChained;
+    public Vector3 characterScale;
 
     // Serialized fields
     [SerializeField] private Image swordSprite;
@@ -39,6 +40,7 @@ public class UnitBehaviour : MonoBehaviour
     [SerializeField] private Sprite emptyHeart;
     [SerializeField] private Image fullHeart;
     [SerializeField] private GameObject attackTimerObject;
+    [SerializeField] public GameObject skull;
     [SerializeField] private TextMeshProUGUI attackTimerTimeText;
     [SerializeField] private Image attackTimerSprite;
     [SerializeField] private GameObject floatingTextStartingPoint;
@@ -68,6 +70,11 @@ public class UnitBehaviour : MonoBehaviour
     private bool isCountingDown;
     private int attackTimer;
     private List<GameObject> animatedCharacterParts = new List<GameObject>();
+    public Vector3 localScale;
+    private Vector3 maxScale;
+    private Vector3 minScale;
+    private Vector3 currentHeartSize;
+    private bool _heartSizeSet;
 
     // Public Lists
     public List<EffectState> effects = new List<EffectState>();
@@ -116,13 +123,24 @@ public class UnitBehaviour : MonoBehaviour
         {
             animatedCharacter = Instantiate(defaultAnimatedCharacter, transform);
         }
+
+        characterScale = animatedCharacter.transform.localScale;
         GetAllChildObjects();
 
         if (unitData.tribe == Unit.Tribe.Hero)
         {
-            ShowAndUpdateHealth();
-            ShowAttack();
+            // ShowAndUpdateHealth();
+            // ShowAttack();
         }
+
+        foreach (var effect in unitData.effects)
+        {
+            effects.Add(new EffectState(effect));
+        }
+        
+        localScale = attackTimerObject.transform.localScale;
+        maxScale = new Vector3(localScale.x * 1.3f, localScale.x * 1.3f, localScale.z);
+        minScale = new Vector3(localScale.x, localScale.y, localScale.z);
     }
     
     private void GetAllChildObjects()
@@ -258,9 +276,9 @@ public class UnitBehaviour : MonoBehaviour
         yield break; // If there's no combat target, simply exit the coroutine
     }
 
-    foreach (var effect in unitData.effects)
+    foreach (var effectState in effects)
     {
-        effect.OnAttack(this, attackingTarget);
+        effectState.effect.OnAttack(this, attackingTarget);
     }
 
     BoardManager.Instance.mostRecentlyAttackingUnit = this;
@@ -276,6 +294,7 @@ public class UnitBehaviour : MonoBehaviour
 
     AudioManager.Instance.PlayWithRandomPitch("whoosh");
 
+    transform.DOKill();
     // First, move slightly backward
     transform.DOMove(slightBackwardPos, 0.05f).OnComplete(() =>
     {
@@ -299,13 +318,14 @@ public class UnitBehaviour : MonoBehaviour
             transform.DOMove(originalPos, .3f).SetEase(Ease.OutQuad).OnComplete(() =>
             {
                 // Set combatFinished true after all animations are complete
-                combatFinished = true;
+                
                 StartCoroutine(TurnManager.Instance.TakeTurn());
                 if (unitData.tribe == Unit.Tribe.Hero)
                 {
                     TurnManager.Instance.CountDownAttackTimers();
                     EnergyManager.Instance.GainEnergy(EnergyManager.Instance.energyGainedPerAttack);
                 }
+                combatFinished = true;
             });
         });
     });
@@ -322,9 +342,14 @@ public class UnitBehaviour : MonoBehaviour
 
     private IEnumerator ProcessDamage(int amount, UnitBehaviour attackedBy)
     {
-        foreach (var effect in unitData.effects)
+        foreach (var effectState in effects)
         {
-            effect.OnHit(attackedBy, this, ref amount);
+            var isImplemented = effectState.effect.OnHit(attackedBy, this, ref amount);
+            if (isImplemented)
+            {
+                Debug.Log($"{effectState.effect.name} implements On Hit");
+                effectState.currUses++;
+            }
         }
         
         this.attackedBy = attackedBy;
@@ -410,11 +435,6 @@ public class UnitBehaviour : MonoBehaviour
             effect.OnDeath(killedBy, this);
         }
         
-        TurnManager.Instance.RemoveUnit(this);
-        // remove block
-        
-        // play death particles
-
         deathParticles.Play();
     }
 
@@ -505,6 +525,7 @@ public class UnitBehaviour : MonoBehaviour
         var originalScale = attackTimerObject.transform.localScale;
         attackTimerTimeText.text = turnsTilAttack.ToString();
 
+        attackTimerObject.transform.DOKill();
         attackTimerObject.transform.DOPunchScale(new Vector3(originalScale.x * 1.2f, originalScale.y * 1.2f + 1, 0), .3f, 1, 1).OnComplete(() =>
         {
             animationFinished = true;
@@ -527,6 +548,7 @@ public class UnitBehaviour : MonoBehaviour
         var originalScale = attackTimerObject.transform.localScale;
         
         turnsTilAttack = attackTimer;
+        attackTimerObject.transform.DOKill();
         attackTimerTimeText.text = turnsTilAttack.ToString();
         attackTimerObject.transform.DOPunchScale(new Vector3(originalScale.x * 1.2f, originalScale.y * 1.2f + 1, 0), .3f, 1, 1).OnComplete(() =>
         {
@@ -540,10 +562,6 @@ public class UnitBehaviour : MonoBehaviour
     
     public void StartPulsing()
     {
-        var localScale = attackTimerObject.transform.localScale;
-        var maxScale = new Vector3(localScale.x * 1.3f, localScale.x * 1.3f, localScale.z);
-        var minScale = new Vector3(localScale.x, localScale.y, localScale.z);
-
         var pulseDuration = .3f;
     
         attackTimerObject.transform.DOScale(maxScale, pulseDuration)
@@ -596,8 +614,11 @@ public class UnitBehaviour : MonoBehaviour
 
     public void ShowAndUpdateHealth()
     {
+        var startingHp = healthAmountText.text;
+        
         healthUI.SetActive(true);
-        healthAmountText.text = currentHp.ToString();
+        
+        healthAmountText.text = Mathf.Max(0, currentHp).ToString();
 
         if (isDead) return;
         
@@ -619,7 +640,14 @@ public class UnitBehaviour : MonoBehaviour
         
         // play animation
         healthUI.transform.DOKill();
-        var currentHeartSize = healthUI.transform.localScale;
+        if (!_heartSizeSet)
+        {
+            currentHeartSize = healthUI.transform.localScale;
+            _heartSizeSet = true;
+        }
+
+        healthUI.transform.DOKill();
+        healthUI.transform.localScale = currentHeartSize;
         var newHeartSize = new Vector3(currentHeartSize.x * 1.2f, currentHeartSize.y * 1.2f, 1);
         healthUI.transform.DOPunchScale(newHeartSize, .25f, 0, .3f).SetEase(Ease.OutQuad);
     }
@@ -649,5 +677,30 @@ public class UnitBehaviour : MonoBehaviour
     public void HideAttack()
     {
         attackUI.SetActive(false);
+    }
+
+    public void KillTweens()
+    {
+        animatedCharacter.transform.DOKill();
+        transform.DOKill();
+        attackTimerObject.transform.DOKill();
+        healthUI.transform.DOKill();
+    }
+
+    public void Remove()
+    {
+        KillTweens();
+        Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        KillTweens();
+        transform.DOKill();
+    }
+
+    public void GiveTreasure(Treasure treasure)
+    {
+        
     }
 }

@@ -66,18 +66,16 @@ public class TurnManager : MonoBehaviour
         yield break;
     }
 
-    public void RemoveUnit(UnitBehaviour unit)
-    {
-        if (!orderedCombatUnits.Contains(unit)) return;
-        
-        foreach (var turnIndicator in _turnIndicators)
-        {
-            var u = turnIndicator.GetComponent<TurnIndicator>().unitBehaviour;
-            if (turnIndicator == null || u != unit) continue;
-            
-            turnIndicator.SetActive(false);
-        }
-    }
+    // public void RemoveUnit(UnitBehaviour unit)
+    // {
+    //     foreach (var turnIndicator in _turnIndicators)
+    //     {
+    //         var u = turnIndicator.GetComponent<TurnIndicator>().unitBehaviour;
+    //         if (turnIndicator == null || u != unit) continue;
+    //         
+    //         turnIndicator.SetActive(false);
+    //     }
+    // }
 
     public IEnumerator TakeTurn()
     {
@@ -95,7 +93,7 @@ public class TurnManager : MonoBehaviour
             yield return null;
         }
 
-        //BoardManager.Instance.canMove = false;
+        BoardManager.Instance.CleanUpBoard();
         _hasSwapped = false;
     }
 

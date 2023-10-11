@@ -78,6 +78,7 @@ public class ActionHandler : MonoBehaviour
             {
                 Debug.Log("Combat available");
                 ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Combat, draggedCell);
+                // if (clickedUnit.attack > draggedUnit.currentHp) draggedUnit.skull.SetActive(true);
             }
             else
             {
@@ -97,7 +98,7 @@ public class ActionHandler : MonoBehaviour
             }
         }
         
-        if (draggedUnit) draggedUnit.Grow();
+        // if (draggedUnit) draggedUnit.Grow();
     }
 
     public void RemoveDraggedCell()
@@ -132,6 +133,7 @@ public class ActionHandler : MonoBehaviour
         CursorAnimation.Instance.UnhighlightChain();
         ArrowLine.Instance.HideIndicators();
         
+        if (!BoardManager.Instance.canMove) yield break;
         
         if (!clickedCell || !draggedCell)
         {
@@ -174,14 +176,17 @@ public class ActionHandler : MonoBehaviour
             {
                 ResetUnitSize();
                 // attack the unit
+                BoardManager.Instance.canMove = false;
                 yield return StartCoroutine(clickedCell.unitBehaviour.Attack(draggedUnit));
-                BoardManager.Instance.CleanUpBoard();
             }
         }
 
         // clicked unit was enemy
         else
         {
+            // UnitBehaviour draggedUnit = GetUnitBasedOnTribe(draggedCell);
+            // draggedUnit.skull.SetActive(false);
+            
             if (draggedCell.unitBehaviour == null && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
                 BoardManager.Instance.SwapBlocks(clickedCell.coordinates, draggedCell.coordinates);

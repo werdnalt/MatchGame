@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: boar
   m_EditorClassIdentifier: 
-  animatedCharacterPrefab: {fileID: 1394688569729529245, guid: f20a45fa26ea28e45b9cfb32ab00a564, type: 3}
+  animatedCharacterPrefab: {fileID: 3980575930988239082, guid: dfa3e50fae0752e489a5708c0aa45686, type: 3}
   attackTimer: 2
   shouldAnimateLoop: 0
   tribe: 4
@@ -25,3 +25,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2135150d9c705f743ae17a7f76f8fd4a, type: 2}
   passive: 0
   displayName: Boar
+  attackRange: 0

@@ -28,6 +28,8 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI energyText;
 
+    [SerializeField] private List<HeroTreasureChoice> heroTreasureChoices;
+
     private List<GameObject> _instantiatedEffectPrefabs = new List<GameObject>();
 
     private Vector3 _originalPos;
@@ -57,8 +59,8 @@ public class UIManager : MonoBehaviour
         
         _popEffect.EnableAndPop();
 
-        var panelPos = new Vector3(unitBehaviour.transform.position.x + 3.5f, unitBehaviour.transform.position.y, 1);
-        unitPanel.transform.position = panelPos;
+        // var panelPos = new Vector3(unitBehaviour.transform.position.x + 3.5f, unitBehaviour.transform.position.y, 1);
+        // unitPanel.transform.position = panelPos;
         
         var endingPos = new Vector3(0, 30f, 0);
 
@@ -132,6 +134,11 @@ public class UIManager : MonoBehaviour
         treasureImage.sprite = randomTreasure.treasureSprite;
         treasureNameText.text = randomTreasure.name;
         treasureEffectText.text = randomTreasure.treasureDescription;
+
+        for (var i = 0; i < heroTreasureChoices.Count; i++)
+        {
+            heroTreasureChoices[i].Setup(BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(i), _chosenTreasure);
+        }
     }
 
     public void CollectTreasure()

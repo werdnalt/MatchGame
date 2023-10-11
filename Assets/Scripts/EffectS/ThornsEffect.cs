@@ -7,8 +7,9 @@ public class ThornsEffect : Effect
 {
     public int thornsDamage;
     
-    public override void OnHit(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
+    public override bool OnHit(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
     {
         attackingUnit.TakeDamage(thornsDamage, attackedUnit);
+        return true;
     }
 }

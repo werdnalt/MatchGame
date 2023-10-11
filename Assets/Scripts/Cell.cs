@@ -136,15 +136,18 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     {
         if (!unitBehaviour || DOTween.IsTweening(unitBehaviour.gameObject)) return;
         
-        var go = unitBehaviour.gameObject;
+        var go = unitBehaviour.animatedCharacter;
 
         go.transform.DOKill();
 
         if (!scaleSet)
         {
-            originalScale = new Vector3(1, 1, 1);
+            originalScale = unitBehaviour.characterScale;
             scaleSet = true;
         }
+
+        stretchedScale = new Vector3(originalScale.x * 0.9f, originalScale.y * 1.1f, 1);
+        squashedScale = new Vector3(originalScale.x * 1.2f, originalScale.y * 0.8f, 1);
         
         Sequence jelloSequence = DOTween.Sequence();
         
