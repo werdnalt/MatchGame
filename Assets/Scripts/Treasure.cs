@@ -8,4 +8,5 @@ public class Treasure : ScriptableObject
     public Effect effect;
     public string treasureDescription;
     public Sprite treasureSprite;
+    public Sprite treasureUISprite;
 }

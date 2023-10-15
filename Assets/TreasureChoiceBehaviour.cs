@@ -20,10 +20,23 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
     [SerializeField] private ScaleAndShake scaleAndShake;
     [SerializeField] private GameObject treasureObject;
 
+    private bool canShowDescription;
+
     private void Start()
     {
         EventManager.Instance.onTreasureChosen += HideSelf;
+        EventManager.Instance.onTreasureChosen += DisableDescription;
         _startingScale = transform.localScale;
+    }
+
+    private void OnEnable()
+    {
+        canShowDescription = true;
+    }
+
+    private void DisableDescription(GameObject gameObject)
+    {
+        canShowDescription = false;
     }
 
     public void SetTreasure(Treasure t)
@@ -41,11 +54,16 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
         var newScale = new Vector3(_startingScale.x * scaleFactor, _startingScale.y * scaleFactor, 1);
         treasureObject.transform.DOScale(newScale, .25f).SetEase(Ease.OutQuad);
 
-        treasureDescriptionText.text = treasure.treasureDescription;
+        if (canShowDescription)
+        {
+            treasureDescriptionText.text = treasure.treasureDescription;
+            treasureName.gameObject.SetActive(true);
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        treasureName.gameObject.SetActive(false);
         treasureObject.transform.DOScale(_startingScale, .25f).SetEase(Ease.OutQuad);
         treasureDescriptionText.text = "";
     }
@@ -54,6 +72,8 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
     {
         scaleAndShake.Animate();
         EventManager.Instance.ChooseTreasure(this.gameObject);
+        treasureName.gameObject.SetActive(false);
+        treasureDescriptionText.text = "";
         transform.DOMove(chosenTreasurePosition, 1f).SetEase(Ease.OutQuad).OnComplete(()=>
         {
             UIManager.Instance.chosenTreasure = treasure;

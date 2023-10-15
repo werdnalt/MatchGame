@@ -36,10 +36,12 @@ public class ActionHandler : MonoBehaviour
         {
             if (BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
+                EnergyManager.Instance.FlashOrb();
                 ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Swap, draggedCell);
             }
             else
             {
+                EnergyManager.Instance.StopFlashing();
                 ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoSwap, draggedCell);
             }
 
@@ -63,11 +65,12 @@ public class ActionHandler : MonoBehaviour
             {
                 if (BoardManager.Instance.IsHeroNeighbor(clickedCell, draggedCell))
                 {
-                    Debug.Log("Swap available");
+                    EnergyManager.Instance.FlashOrb();
                     ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Swap, draggedCell);
                 }
                 else
                 {
+                    EnergyManager.Instance.StopFlashing();
                     ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoSwap, draggedCell);
                 }
 
@@ -77,11 +80,13 @@ public class ActionHandler : MonoBehaviour
             if (BoardManager.Instance.CanAttack(clickedUnit, draggedUnit))
             {
                 Debug.Log("Combat available");
+                EnergyManager.Instance.StopFlashing();
                 ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Combat, draggedCell);
                 // if (clickedUnit.attack > draggedUnit.currentHp) draggedUnit.skull.SetActive(true);
             }
             else
             {
+                EnergyManager.Instance.StopFlashing();
                 ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoCombat, draggedCell);
             }
         }
@@ -90,10 +95,12 @@ public class ActionHandler : MonoBehaviour
         {
             if (draggedUnit.unitData.tribe == Unit.Tribe.Hero || !BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
+                EnergyManager.Instance.StopFlashing();
                 ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoSwap, draggedCell);
             }
             else
             {
+                EnergyManager.Instance.StopFlashing();
                 ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Swap, draggedCell);
             }
         }
@@ -111,6 +118,8 @@ public class ActionHandler : MonoBehaviour
     
     private UnitBehaviour GetUnitBasedOnTribe(Cell cell)
     {
+        if (cell.unitBehaviour == null) return null;
+        
         if (cell.unitBehaviour.unitData.tribe == Unit.Tribe.Hero)
         {
             return BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(cell.column);
@@ -181,12 +190,19 @@ public class ActionHandler : MonoBehaviour
                 yield return StartCoroutine(clickedCell.unitBehaviour.Attack(draggedUnit));
             }
         }
-
+        
         // clicked unit was enemy
         else
         {
             // UnitBehaviour draggedUnit = GetUnitBasedOnTribe(draggedCell);
             // draggedUnit.skull.SetActive(false);
+            if (draggedCell.unitBehaviour == null && !BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
+            {
+                ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
+                ResetUnitSize();
+                ClearUnits();
+                yield break;
+            }
             
             if (draggedCell.unitBehaviour == null && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {

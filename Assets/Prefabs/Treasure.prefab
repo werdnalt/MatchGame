@@ -105,9 +105,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea99416df1d10534d93e23ca71231f56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetImage: {fileID: 7292658399542060880}
-  maxPulseScale: 1.1
+  targetImage: {fileID: 7292658399542060882}
+  maxPulseScale: 1.2
   rotationDuration: 10
+  pulseSpeed: 0.75
+  shouldRotate: 1
 --- !u!1 &7292658399830118371
 GameObject:
   m_ObjectHideFlags: 0
@@ -182,7 +184,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7292658399988958295
 RectTransform:
   m_ObjectHideFlags: 0
@@ -199,7 +201,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 312}
+  m_AnchoredPosition: {x: 0, y: 372.1}
   m_SizeDelta: {x: 786.86, y: 138.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7292658399988958293

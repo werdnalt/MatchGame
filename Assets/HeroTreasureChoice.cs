@@ -32,19 +32,18 @@ public class HeroTreasureChoice : MonoBehaviour, IPointerEnterHandler, IPointerE
         transform.DOKill();
         transform.localScale = _originalScale;
         var newScale = new Vector3(_originalScale.x * 1.2f, _originalScale.y * 1.2f, 1);
-        transform.DOScale(newScale, .25f).SetEase(Ease.OutElastic);
+        transform.DOScale(newScale, .5f).SetEase(Ease.OutQuad);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         transform.DOKill();
-        transform.DOScale(_originalScale, .25f).SetEase(Ease.OutQuad);
+        transform.DOScale(_originalScale, .5f).SetEase(Ease.OutQuad);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         hero.GiveTreasure(treasure);
-        UIManager.Instance.chestOverlay.GetComponent<PopEffect>().DisableAndPop();
-        UIManager.Instance.chestDestroyed = false;
+        UIManager.Instance.HideTreasurePopup();
     }
 }

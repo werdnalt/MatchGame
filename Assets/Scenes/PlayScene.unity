@@ -155,9 +155,9 @@ RectTransform:
   m_Father: {fileID: 1902228851}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 290.55, y: -113.774994}
   m_SizeDelta: {x: 581.1, y: 75.85}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &33321873
@@ -286,6 +286,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 93943159}
+  - component: {fileID: 93943160}
   m_Layer: 0
   m_Name: SwapIndicator (1)
   m_TagString: Untagged
@@ -308,6 +309,23 @@ Transform:
   m_Father: {fileID: 1315284532}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &93943160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 93943158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea99416df1d10534d93e23ca71231f56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetImage: {fileID: 93943158}
+  maxPulseScale: 1.1
+  rotationDuration: 10
+  pulseSpeed: 0.533
+  shouldRotate: 0
 --- !u!1 &105824084
 GameObject:
   m_ObjectHideFlags: 0
@@ -856,7 +874,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 403}
+  m_AnchoredPosition: {x: 0, y: 446}
   m_SizeDelta: {x: 1060.72, y: 138.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &263525928
@@ -1463,7 +1481,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_AnchorMax.x
@@ -2810,7 +2828,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_AnchorMax.x
@@ -3585,6 +3603,7 @@ GameObject:
   - component: {fileID: 758689910}
   - component: {fileID: 758689912}
   - component: {fileID: 758689911}
+  - component: {fileID: 758689913}
   m_Layer: 2
   m_Name: Tooltip Text
   m_TagString: Untagged
@@ -3606,10 +3625,10 @@ RectTransform:
   m_Father: {fileID: 1743784637}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 381.19, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 205.595, y: -79.805}
+  m_SizeDelta: {x: 381.19, y: 129.61}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &758689911
 MonoBehaviour:
@@ -3631,7 +3650,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: here's a little test tooltip, awesome!
+  m_text: here's a little test tooltip, awesome!qweqweqweqweqweqweqweqweqweqweqweqweqwe
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bb8fffa4bc4f49a4a8fe117226e6cf92, type: 2}
   m_sharedMaterial: {fileID: -2007488754916265112, guid: bb8fffa4bc4f49a4a8fe117226e6cf92, type: 2}
@@ -3708,6 +3727,35 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 758689909}
   m_CullTransparentMesh: 1
+--- !u!114 &758689913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758689909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8ace8ced0e81c847968cdca0aeda757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  typewriterStartsAutomatically: 0
+  animationLoop: 0
+  timeScale: 0
+  _text: 
+  useDynamicScaling: 1
+  referenceFontSize: 10
+  isResettingTimeOnNewText: 1
+  useDefaultDatabases: 1
+  databaseBehaviors: {fileID: 0}
+  databaseAppearances: {fileID: 0}
+  databaseActions: {fileID: 0}
+  defaultAppearancesTags:
+  - size
+  defaultDisappearancesTags:
+  - fade
+  defaultBehaviorsTags: []
+  defaultTagsMode: 0
 --- !u!1 &782534758
 GameObject:
   m_ObjectHideFlags: 0
@@ -4025,11 +4073,11 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.58114, y: 0.58114, z: 0.58114}
   m_Children:
-  - {fileID: 74652240}
   - {fileID: 1633240522}
   - {fileID: 2056860509}
   - {fileID: 1215152993}
   - {fileID: 54985788}
+  - {fileID: 74652240}
   m_Father: {fileID: 698618920}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4076,8 +4124,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 114f5f1ccd931254a9cca72fb4062083, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toolTip: '<color=#f9c22b>Action Orbs:</color> Used to swap <color=#1ebc73>Heroes</color>
-    or <color=#e83b3b>Monsters</color> '
+  toolTip: '<color=#f9c22b>ACTION ORBS:</color> the resource used to <wave>swap</wave>
+    <color=#1ebc73>HEROES</color> or <color=#e83b3b>MONSTERS</color> '
 --- !u!61 &812487642
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4883,7 +4931,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -227}
+  m_AnchoredPosition: {x: 0, y: -403}
   m_SizeDelta: {x: 962.53, y: 272.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &895290461
@@ -5277,9 +5325,9 @@ RectTransform:
   m_Father: {fileID: 1902228851}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 290.55, y: -37.925}
   m_SizeDelta: {x: 581.1, y: 75.85}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &958684173
@@ -6374,6 +6422,7 @@ MonoBehaviour:
   - {fileID: 815575186}
   - {fileID: 111390291}
   treasureReceivedText: {fileID: 263525928}
+  tooltipRectTransform: {fileID: 1738755095}
   energyText: {fileID: 1645861293}
   heroTreasureChoices:
   - {fileID: 292531409}
@@ -6740,7 +6789,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.15, y: 1.15}
+  m_AnchoredPosition: {x: -3.15, y: -121}
   m_SizeDelta: {x: 1855.58, y: 602.22}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1205124462
@@ -7044,7 +7093,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -789, y: -75.89}
+  m_AnchoredPosition: {x: -759, y: 22}
   m_SizeDelta: {x: 338.13, y: 854.39}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1252973945
@@ -7064,8 +7113,8 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 1
-  m_Spacing: 108.1
+  m_ChildAlignment: 4
+  m_Spacing: 140
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -7188,6 +7237,8 @@ MonoBehaviour:
   targetImage: {fileID: 0}
   maxPulseScale: 1.1
   rotationDuration: 10
+  pulseSpeed: 0.5
+  shouldRotate: 0
 --- !u!1 &1283487086
 GameObject:
   m_ObjectHideFlags: 0
@@ -8862,7 +8913,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_AnchorMax.x
@@ -9240,13 +9291,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1738755095}
   - component: {fileID: 1738755096}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Tooltip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1738755095
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9264,9 +9315,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -139.4, y: -416.73}
+  m_AnchoredPosition: {x: -139.4, y: -374.86}
   m_SizeDelta: {x: 378.81, y: 83.74}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1738755096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9318,9 +9369,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 53.205048}
+  m_SizeDelta: {x: 411.19, y: 159.61}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1743784638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9348,11 +9399,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 10
-    m_Bottom: 10
-  m_ChildAlignment: 0
+    m_Left: 15
+    m_Right: 15
+    m_Top: 15
+    m_Bottom: 15
+  m_ChildAlignment: 7
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
@@ -9554,7 +9605,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_AnchorMax.x
@@ -10365,7 +10416,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1902228851
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15485,10 +15536,10 @@ MonoBehaviour:
   energyGainedPerAttack: 1
   actionOrbs:
   - {fileID: 74652239}
-  - {fileID: 1633240521}
-  - {fileID: 2056860504}
-  - {fileID: 1215152992}
   - {fileID: 54985787}
+  - {fileID: 1215152992}
+  - {fileID: 2056860504}
+  - {fileID: 1633240521}
 --- !u!1 &1928331027
 GameObject:
   m_ObjectHideFlags: 0
@@ -16788,6 +16839,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Treasure
       objectReference: {fileID: 0}
+    - target: {fileID: 7292658399988958294, guid: 74dc3bad115cd6846998e680d190771f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74dc3bad115cd6846998e680d190771f, type: 3}
 --- !u!1001 &8475945967873672216
@@ -16811,7 +16866,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8475945967813713480, guid: da1f6f1eb34a6ac44bd60359151c0b62, type: 3}
       propertyPath: m_AnchorMax.x

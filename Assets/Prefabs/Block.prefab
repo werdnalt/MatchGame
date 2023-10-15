@@ -599,6 +599,7 @@ MonoBehaviour:
   isDragging: 0
   isDead: 0
   isMovable: 1
+  cantChain: 0
   currentHp: 0
   attack: 0
   combatOrderText: {fileID: 0}

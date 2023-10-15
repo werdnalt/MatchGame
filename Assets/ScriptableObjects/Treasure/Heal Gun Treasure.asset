@@ -15,3 +15,4 @@ MonoBehaviour:
   effect: {fileID: 11400000, guid: c3b9e75fa18b32d4694dff8dc71a629e, type: 2}
   treasureDescription: 'On Hit: Heal for attack amount'
   treasureSprite: {fileID: 21300000, guid: ee4d1a0327291de4793a1d5a2d3c9158, type: 3}
+  treasureUISprite: {fileID: 21300000, guid: 3a66eb5a24088f54e9075d0acb61c7f4, type: 3}

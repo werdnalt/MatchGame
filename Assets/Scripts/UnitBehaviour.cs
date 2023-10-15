@@ -140,8 +140,9 @@ public class UnitBehaviour : MonoBehaviour
         {
             // Create Hero UI
             var heroUI = Instantiate(heroUIPrefab, UIManager.Instance.heroUIParent.transform);
-            _heroUI = heroUI.GetComponent<HeroUI>();
+            _heroUI = heroUI.GetComponentInChildren<HeroUI>();
             _heroUI.Setup(this);
+            _heroUI.GetComponent<PopEffect>().EnableAndPop();
         }
 
         foreach (var effect in unitData.effects)
@@ -158,6 +159,9 @@ public class UnitBehaviour : MonoBehaviour
     private void GetAllChildObjects()
     {
         if (!animatedCharacter) return;
+
+        var spriteRenderer = animatedCharacter.GetComponent<SpriteRenderer>();
+        if (spriteRenderer) spriteRenderer.material = Resources.Load<Material>("CharacterShader");
         
         foreach (Transform child in animatedCharacter.transform)
         {
@@ -425,6 +429,13 @@ public class UnitBehaviour : MonoBehaviour
 
     public void ReduceSaturation()
     {
+        var spriteRenderer = animatedCharacter.GetComponent<SpriteRenderer>();
+        if (spriteRenderer)
+        {
+            var mat = spriteRenderer.GetComponent<Renderer>().material;
+            if (mat) mat.SetFloat("_HsvSaturation", .1f);
+        }
+        
         foreach (var part in animatedCharacterParts)
         {
             var mat = part.GetComponent<Renderer>().material;
@@ -434,6 +445,13 @@ public class UnitBehaviour : MonoBehaviour
 
     public void IncreaseSaturation()
     {
+        var spriteRenderer = animatedCharacter.GetComponent<SpriteRenderer>();
+        if (spriteRenderer)
+        {
+            var mat = spriteRenderer.GetComponent<Renderer>().material;
+            if (mat) mat.SetFloat("_HsvSaturation", 1f);
+        }
+        
         foreach (var part in animatedCharacterParts)
         {
             var mat = part.GetComponent<Renderer>().material;

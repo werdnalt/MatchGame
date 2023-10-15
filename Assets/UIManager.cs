@@ -29,7 +29,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject effectTextPrefab;
     [SerializeField] private List<TreasureChoiceBehaviour> treasureChoices;
     [SerializeField] private TextMeshProUGUI treasureReceivedText;
-
+    [SerializeField] private RectTransform tooltipRectTransform;
+    
     [SerializeField] private TextMeshProUGUI energyText;
 
     [SerializeField] private List<HeroTreasureChoice> heroTreasureChoices;
@@ -71,11 +72,11 @@ public class UIManager : MonoBehaviour
     
         if (toolTip.activeSelf)
         {
-            toolTip.transform.position = GetMouseWorldPosWithOffset();
+            GetMouseWorldPosWithOffset();
         }
     }
 
-    private Vector3 GetMouseWorldPosWithOffset()
+    private void GetMouseWorldPosWithOffset()
     {
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(mouseScreenPos.x, mouseScreenPos.y, -Camera.main.transform.position.z));
@@ -84,9 +85,24 @@ public class UIManager : MonoBehaviour
         float offsetInPixels = 100f;  // Change this value as needed
 
         float yOffset = offsetInPixels / Camera.main.pixelHeight * (Camera.main.orthographicSize * 2);
-        worldPos.y -= yOffset;
-    
-        return worldPos;
+
+        // Check if the cursor is in the top or bottom half of the screen
+        if (mouseScreenPos.y > Camera.main.pixelHeight / 2)
+        {
+            // Cursor is in the top half, so offset below
+            worldPos.y -= yOffset;
+            tooltipRectTransform.pivot = new Vector2(.5f, 1);
+        }
+        else
+        {
+            offsetInPixels = 150f;
+            yOffset = offsetInPixels / Camera.main.pixelHeight * (Camera.main.orthographicSize * 2);
+            // Cursor is in the bottom half, so offset above
+            worldPos.y += yOffset;
+            tooltipRectTransform.pivot = new Vector2(.5f, 0);
+        }
+        
+        toolTip.transform.position = worldPos;
     }
 
     private void Start()
@@ -218,26 +234,22 @@ public class UIManager : MonoBehaviour
     public void ShowHeroChoices()
     {
         treasureReceivedText.text = "GIVE TO A HERO!";
-        StartCoroutine(IShowHeroChoices());
-    }
-
-    private IEnumerator IShowHeroChoices()
-    {
-        var pauseDuration = .25f;
         for (var i = 0; i < heroTreasureChoices.Count; i++)
         {
             var heroChoice = heroTreasureChoices[i];
             heroChoice.GetComponent<PopEffect>().EnableAndPop();
             heroChoice.Setup(BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(i), chosenTreasure);
-            yield return new WaitForSeconds(pauseDuration);
         }
     }
-
+    
     public void HideTreasurePopup()
     {
         foreach (var heroTreasureChoice in heroTreasureChoices)
         {
             heroTreasureChoice.gameObject.SetActive(false);
         }
+        
+        chestOverlay.GetComponent<PopEffect>().DisableAndPop();
+        chestDestroyed = false;
     }
 }
