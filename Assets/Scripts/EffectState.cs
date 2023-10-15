@@ -13,4 +13,10 @@ public class EffectState
         this.effect = effect;
         numUses = effect.numUses;
     }
+
+    public bool isDepleted()
+    {
+        currUses++;
+        return currUses >= numUses;
+    }
 }

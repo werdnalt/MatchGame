@@ -55,4 +55,10 @@ public class EventManager : MonoBehaviour
     {
         onBoardReady?.Invoke();
     }
+    
+    public event Action<GameObject> onTreasureChosen;
+    public void ChooseTreasure(GameObject t)
+    {
+        onTreasureChosen?.Invoke(t);
+    }
 }

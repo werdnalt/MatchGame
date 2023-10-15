@@ -87,6 +87,7 @@ public class TurnManager : MonoBehaviour
 
     public IEnumerator CheckIfFinishedSwapping()
     {
+        BoardManager.Instance.canMove = true;
         UpdateSwapCounter();
         while (!_hasSwapped)
         {

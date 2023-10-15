@@ -30,4 +30,9 @@ public abstract class Effect : ScriptableObject
     { return false; }
     
     public virtual void OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit) { }
+
+    public virtual void OnObtained(UnitBehaviour unitObtained)
+    {
+        
+    }
 }

@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   effectDescription: Absorb neighbor's attack and health
   effectSprite: {fileID: 21300000, guid: bf2ac022c13b34d4f876d350fed534f4, type: 3}
+  numUses: 2

@@ -6,18 +6,30 @@ public class ScaleAndShake : MonoBehaviour
 {
     public Image myImage; // Reference to your UIImage
     private Vector3 originalScale; // To store the original scale of the UIImage
+    private Quaternion _originalRotation;
+
+    private Sequence sequence;
 
     private void OnEnable()
     {
         originalScale = myImage.transform.localScale; // Store the original scale
-        
-        // Call the ShakeAndScale method to start the animation
+        _originalRotation = transform.rotation;
+    }
+
+    public void Animate()
+    {
         ShakeAndScale();
+    }
+
+    public void StopAnimation()
+    {
+        sequence.Kill();
+        transform.rotation = _originalRotation;
     }
 
     void ShakeAndScale()
     {
-        Sequence sequence = DOTween.Sequence();
+        sequence = DOTween.Sequence();
 
         // Scale up to 1.25x of its original size
         sequence.Append(myImage.transform.DOScale(originalScale * 1.25f, 0.5f)).SetEase(Ease.OutBounce);

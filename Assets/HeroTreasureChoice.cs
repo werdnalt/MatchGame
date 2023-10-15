@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,13 @@ public class HeroTreasureChoice : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     public Image heroPortrait;
 
+    private Vector3 _originalScale;
+
+    private void Start()
+    {
+        _originalScale = transform.localScale;
+    }
+
     public void Setup(UnitBehaviour heroUnit, Treasure chosenTreasure)
     {
         hero = heroUnit;
@@ -21,16 +29,22 @@ public class HeroTreasureChoice : MonoBehaviour, IPointerEnterHandler, IPointerE
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        throw new System.NotImplementedException();
+        transform.DOKill();
+        transform.localScale = _originalScale;
+        var newScale = new Vector3(_originalScale.x * 1.2f, _originalScale.y * 1.2f, 1);
+        transform.DOScale(newScale, .25f).SetEase(Ease.OutElastic);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        throw new System.NotImplementedException();
+        transform.DOKill();
+        transform.DOScale(_originalScale, .25f).SetEase(Ease.OutQuad);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         hero.GiveTreasure(treasure);
+        UIManager.Instance.chestOverlay.GetComponent<PopEffect>().DisableAndPop();
+        UIManager.Instance.chestDestroyed = false;
     }
 }

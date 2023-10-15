@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Chest
   m_EditorClassIdentifier: 
   unit: {fileID: 11400000, guid: 59a9681a93850b74cad64e104c3a9526, type: 2}
-  weight: 20
+  weight: 500

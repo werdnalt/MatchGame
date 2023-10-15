@@ -23,10 +23,16 @@ public class FXManager : MonoBehaviour
 
     public void PlayParticles(ParticleType particleType, Vector3 position)
     {
+        GameObject particles;
         switch (particleType)
         {
             case (ParticleType.Hit):
-                var particles = Instantiate(hitParticles.gameObject, transform);
+                particles = Instantiate(hitParticles.gameObject, transform);
+                particles.transform.position = position;
+                break;
+            
+            case (ParticleType.Death):
+                particles = Instantiate(deathParticles.gameObject, transform);
                 particles.transform.position = position;
                 break;
         }

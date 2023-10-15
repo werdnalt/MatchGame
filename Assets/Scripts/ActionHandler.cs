@@ -158,6 +158,7 @@ public class ActionHandler : MonoBehaviour
             
             if (draggedCell.unitBehaviour.unitData.tribe == Unit.Tribe.Hero)
             {
+                ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
                 BoardManager.Instance.SwapHeroBlocks(clickedCell.column, draggedCell.column);
                 yield break;
             }
@@ -189,6 +190,7 @@ public class ActionHandler : MonoBehaviour
             
             if (draggedCell.unitBehaviour == null && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
+                ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
                 BoardManager.Instance.SwapBlocks(clickedCell.coordinates, draggedCell.coordinates);
                 ResetUnitSize();
                 ClearUnits();
@@ -197,6 +199,7 @@ public class ActionHandler : MonoBehaviour
             
             if (draggedCell.unitBehaviour.unitData.tribe != Unit.Tribe.Hero && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
+                ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
                 BoardManager.Instance.SwapBlocks(clickedCell.coordinates, draggedCell.coordinates);
                 ResetUnitSize();
             }

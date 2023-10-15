@@ -5,13 +5,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
+    public InputActionAsset inputAction;
     
-    [SerializeField] private GameObject chestOverlay;
+    [SerializeField] public GameObject chestOverlay;
     [SerializeField] private Image treasureImage;
     [SerializeField] private TextMeshProUGUI treasureNameText;
     [SerializeField] private TextMeshProUGUI treasureEffectText;
@@ -25,29 +27,74 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI tribeText;
     [SerializeField] private Image tribePlacard;
     [SerializeField] private GameObject effectTextPrefab;
+    [SerializeField] private List<TreasureChoiceBehaviour> treasureChoices;
+    [SerializeField] private TextMeshProUGUI treasureReceivedText;
 
     [SerializeField] private TextMeshProUGUI energyText;
 
     [SerializeField] private List<HeroTreasureChoice> heroTreasureChoices;
 
+    [SerializeField] private GameObject toolTip;
+    private TextMeshProUGUI _toolTipText;
+
     private List<GameObject> _instantiatedEffectPrefabs = new List<GameObject>();
+    
 
     private Vector3 _originalPos;
     private PopEffect _popEffect;
+    
+    private Vector2 _mousePos;
+    private InputAction _mousePositionAction;
 
+    public GameObject heroUIParent;
     public bool chestDestroyed;
     private List<Treasure> _currentTreasure;
-    private Treasure _chosenTreasure;
+    public Treasure chosenTreasure;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
+        
+        _mousePositionAction = inputAction.FindAction("MousePosition"); // Use the name of your action here
+        if (_mousePositionAction != null)
+        {
+            _mousePositionAction.Enable();
+        }
+    }
+
+    private void Update()
+    {
+        if (_mousePositionAction != null)
+        {
+            _mousePos = _mousePositionAction.ReadValue<Vector2>();
+        }
+    
+        if (toolTip.activeSelf)
+        {
+            toolTip.transform.position = GetMouseWorldPosWithOffset();
+        }
+    }
+
+    private Vector3 GetMouseWorldPosWithOffset()
+    {
+        Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(mouseScreenPos.x, mouseScreenPos.y, -Camera.main.transform.position.z));
+
+        // Adjust the offset value here
+        float offsetInPixels = 100f;  // Change this value as needed
+
+        float yOffset = offsetInPixels / Camera.main.pixelHeight * (Camera.main.orthographicSize * 2);
+        worldPos.y -= yOffset;
+    
+        return worldPos;
     }
 
     private void Start()
     {
         _originalPos = transform.localPosition;
         _popEffect = unitPanel.GetComponent<PopEffect>();
+
+        _toolTipText = toolTip.GetComponentInChildren<TextMeshProUGUI>();
     }
 
     public void ShowUnitPanel(UnitBehaviour unitBehaviour)
@@ -83,7 +130,7 @@ public class UIManager : MonoBehaviour
         nameText.text = unitBehaviour.unitData.displayName;
         tribeText.text = unitBehaviour.unitData.tribe.ToString();
         
-        foreach (var effect in unitBehaviour.unitData.effects)
+        foreach (var effectState in unitBehaviour.effects)
         {
             var effectTextInstance = Instantiate(effectTextPrefab, effectTextParent.transform);
             Debug.Log("spawned effect prefab");
@@ -91,7 +138,7 @@ public class UIManager : MonoBehaviour
             //
             // if (!effectBehaviour) continue;
             
-            effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text = effect.effectDescription;
+            effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text = effectState.effect.effectDescription;
             
             _instantiatedEffectPrefabs.Add(effectTextInstance);
         }
@@ -127,24 +174,70 @@ public class UIManager : MonoBehaviour
 
     private void SetUpChestEvent()
     {
-        var randomTreasure = _currentTreasure[Random.Range(0, _currentTreasure.Count)];
-        _chosenTreasure = randomTreasure;
+        treasureReceivedText.text = "CHOOSE A TREASURE!";
+        int maxAttempts = 25;  // Define a max number of attempts to get a different treasure.
+
+        for (var i = 0; i < treasureChoices.Count; i++)
+        {
+            treasureChoices[i].gameObject.SetActive(true);
+            HashSet<Treasure> obtainedTreasures = new HashSet<Treasure>();
+    
+            Treasure randomTreasure = null;
+            int attempt = 0;
+            do
+            {
+                randomTreasure = _currentTreasure[Random.Range(0, _currentTreasure.Count)];
+                attempt++;
+        
+                if (attempt > maxAttempts)
+                {
+                    // If we've tried too many times, just use the last treasure we picked.
+                    break;
+                }
+            }
+            while (obtainedTreasures.Contains(randomTreasure));
+    
+            obtainedTreasures.Add(randomTreasure);
+            treasureChoices[i].SetTreasure(randomTreasure);
+        }
         
         chestOverlay.GetComponent<PopEffect>().EnableAndPop();
-        treasureImage.sprite = randomTreasure.treasureSprite;
-        treasureNameText.text = randomTreasure.name;
-        treasureEffectText.text = randomTreasure.treasureDescription;
+    }
 
+    public void ShowToolTip(string textToDisplay)
+    {
+        toolTip.GetComponent<PopEffect>().EnableAndPop();
+        _toolTipText.text = textToDisplay;
+    }
+
+    public void HideToolTip()
+    {
+        toolTip.SetActive(false);
+    }
+
+    public void ShowHeroChoices()
+    {
+        treasureReceivedText.text = "GIVE TO A HERO!";
+        StartCoroutine(IShowHeroChoices());
+    }
+
+    private IEnumerator IShowHeroChoices()
+    {
+        var pauseDuration = .25f;
         for (var i = 0; i < heroTreasureChoices.Count; i++)
         {
-            heroTreasureChoices[i].Setup(BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(i), _chosenTreasure);
+            var heroChoice = heroTreasureChoices[i];
+            heroChoice.GetComponent<PopEffect>().EnableAndPop();
+            heroChoice.Setup(BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(i), chosenTreasure);
+            yield return new WaitForSeconds(pauseDuration);
         }
     }
 
-    public void CollectTreasure()
+    public void HideTreasurePopup()
     {
-        TreasureManager.Instance.AddTreasure(_chosenTreasure);
-        chestOverlay.SetActive(false);
-        chestDestroyed = false;
+        foreach (var heroTreasureChoice in heroTreasureChoices)
+        {
+            heroTreasureChoice.gameObject.SetActive(false);
+        }
     }
 }

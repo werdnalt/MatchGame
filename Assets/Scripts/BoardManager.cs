@@ -102,7 +102,6 @@ public class BoardManager : MonoBehaviour
 
         if (Instance == null) Instance = this;
         
-        CreateBoard(); // creates the actual grid composed of square gameobjects. unit placement will be based on these transforms
     }
 
     private void Start()
@@ -110,8 +109,7 @@ public class BoardManager : MonoBehaviour
         _player = GameObject.FindObjectOfType<Player>();
         
         EventManager.Instance.LevelLoaded();
-        canMove = true;
-
+        
         StartCoroutine(KickOffGameLoop());
         
         AudioManager.Instance.PlayAndLoop("forest");
@@ -119,6 +117,8 @@ public class BoardManager : MonoBehaviour
 
     public IEnumerator KickOffGameLoop()
     {
+        yield return CreateBoard(); // creates the actual grid composed of square gameobjects. unit placement will be based on these transforms
+        
         yield return StartCoroutine(CreateHeroes());
 
         yield return StartCoroutine(SpawnUnit(WaveManager.Instance.GetUnitsToSpawn()));
@@ -159,7 +159,6 @@ public class BoardManager : MonoBehaviour
 
     private void Drop(GameObject obj, Vector3 dropFrom, Vector3 dropTo)
     {
-        obj.transform.DOKill();
         // Initial scale
         var initialScale = obj.transform.localScale;
         //obj.transform.localScale = new Vector3(initialScale.x * .7f, initialScale.y, initialScale.z);
@@ -189,36 +188,58 @@ public class BoardManager : MonoBehaviour
     
     // the board should originate from the gameobject from which this script is attached, so it can be dragged around and
     // readjusted while in edit mode
-    private void CreateBoard()
+    private IEnumerator CreateBoard()
     {
+        var boardReady = false;
         var cellSize = cellPrefabs[1].GetComponent<SpriteRenderer>().bounds.size;
         _board = new Board(numColumns, numRows, cellSize);
-        
+
+        List<GameObject> blocksToDrop = new List<GameObject>();
+
         // create grid background
         for (int i = 0; i < _board.boardPositions.Length; i++)
         {
             for (int j = 0; j < _board.boardPositions[i].Length; j++)
             {
-                var backgroundCell = Instantiate(cellPrefabs[(i + j) % 2], cellsParent.
-                    transform);
-                backgroundCell.transform.position = _board.boardPositions[i][j].worldSpacePosition;
-
+                var backgroundCell = Instantiate(cellPrefabs[(i + j) % 2], cellsParent.transform);
                 backgroundCell.GetComponent<Cell>().coordinates = new Coordinates(i, j);
+
+                blocksToDrop.Add(backgroundCell);
             }
         }
-        
+
+        // Shuffle the blocksToDrop list
+        System.Random rng = new System.Random();
+        int n = blocksToDrop.Count;
+        while (n > 1)
+        {
+            n--;
+            var k = rng.Next(n + 1);
+            (blocksToDrop[k], blocksToDrop[n]) = (blocksToDrop[n], blocksToDrop[k]);
+        }
+
+        // Drop blocks in shuffled order
+        foreach (var block in blocksToDrop)
+        {
+            var coord = block.GetComponent<Cell>().coordinates;
+            DropBlock(block, _board.boardPositions[coord.x][coord.y].worldSpacePosition, coord);
+            yield return new WaitForSeconds(.02f);
+        }
+
         // create grid background for heroes
         for (int i = 0; i < _board.heroPositions.Length; i++)
         {
-                var backgroundCell = Instantiate(heroCellPrefabs[(i) % 2], cellsParent.
-                    transform);
-                backgroundCell.transform.position = _board.heroPositions[i].worldSpacePosition;
-                Destroy(backgroundCell.GetComponent<Cell>());
-                backgroundCell.AddComponent<HeroCell>();
+            var backgroundCell = Instantiate(heroCellPrefabs[i % 2], cellsParent.transform);
+            DropBlock(backgroundCell, _board.heroPositions[i].worldSpacePosition, new Coordinates(i, 0));
+            Destroy(backgroundCell.GetComponent<Cell>());
+            backgroundCell.AddComponent<HeroCell>();
 
-                backgroundCell.GetComponent<HeroCell>().column = i;
+            backgroundCell.GetComponent<HeroCell>().column = i;
+            yield return new WaitForSeconds(.02f);
         }
 
+        boardReady = true;
+        yield return new WaitUntil(() => boardReady);
         EventManager.Instance.BoardReady();
     }
 
@@ -435,8 +456,7 @@ public class BoardManager : MonoBehaviour
 
         if (visited.Contains(current.coordinates))
             return;
-
-        Debug.Log("Made it here");
+        
         visited.Add(current.coordinates);
         allUnits.Add(current);
 
@@ -445,7 +465,7 @@ public class BoardManager : MonoBehaviour
             var neighbor = _board.GetUnitBehaviour(neighborCoordinates);
 
             // If neighbor is of the same tribe and hasn't been visited, we recursively call DFS on it.
-            if (neighbor != null && neighbor.unitData.tribe == current.unitData.tribe && !visited.Contains(neighbor.coordinates))
+            if (neighbor != null && neighbor.unitData.tribe == current.unitData.tribe && !visited.Contains(neighbor.coordinates) && !neighbor.cantChain)
             {
                 Debug.Log("Same tribe");
                 DFS(neighbor, visited, allUnits);

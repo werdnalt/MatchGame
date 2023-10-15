@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ba0eb26beacc8e44bd477fa145c7c1d, type: 3}
   m_Name: Extra Heart
   m_EditorClassIdentifier: 
-  effect: {fileID: 11400000, guid: c3b9e75fa18b32d4694dff8dc71a629e, type: 2}
+  effect: {fileID: 11400000, guid: e3fa23c9f79d18c4cacf175917ee1c18, type: 2}
   treasureDescription: Adds 1 Extra Heart to a Hero
   treasureSprite: {fileID: 21300000, guid: cf94e2e3886e06544b40875a675a1385, type: 3}

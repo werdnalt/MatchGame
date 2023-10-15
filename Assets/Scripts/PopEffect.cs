@@ -27,4 +27,11 @@ public class PopEffect : MonoBehaviour
         popSequence.Append(targetObject.transform.DOScale(originalScale * 1.1f, popDuration).SetEase(Ease.OutQuad)); // Scale up quickly relative to its original scale.
         popSequence.Append(targetObject.transform.DOScale(originalScale, popDuration).SetEase(Ease.OutQuad));   // Then scale back to its original size.
     }
+
+    public void DisableAndPop()
+    {
+        // Create the pop animation.
+        Sequence popSequence = DOTween.Sequence(); // Scale up quickly relative to its original scale.
+        popSequence.Append(targetObject.transform.DOScale(originalScale * 1.5f, popDuration).SetEase(Ease.OutQuad)).OnComplete(()=>{targetObject.SetActive(false);});   // Then scale back to its original size.
+    }
 }

@@ -61,7 +61,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         var cachedPos = unitBehaviour.transform.position;
         unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, -3);
         
-        ApplyJelloEffect(unitBehaviour);
+        //ApplyJelloEffect(unitBehaviour);
     }
     
     public void OnPointerExit(PointerEventData eventData)
@@ -87,7 +87,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!unitBehaviour || unitBehaviour.isDragging || !BoardManager.Instance.canMove) return;
+        if (!unitBehaviour || unitBehaviour.isDragging || !BoardManager.Instance.canMove || unitBehaviour.isDead) return;
 
         AudioManager.Instance.Play("wood");
         unitBehaviour.Jump();
@@ -97,7 +97,10 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (unitBehaviour) unitBehaviour.isDragging = false;
+        if (!unitBehaviour) return;
+        
+        unitBehaviour.isDragging = false;
+        
         if (eventData.button == PointerEventData.InputButton.Right)
         {
             //CursorAnimation.Instance.CancelSelection();
@@ -126,6 +129,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         if (!BoardManager.Instance.canMove) return;
         
         unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
+        
         ApplyJelloEffect(unitBehaviour);
         ActionHandler.Instance.SetClickedCell(this);
         
@@ -134,7 +138,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     
     private void ApplyJelloEffect(UnitBehaviour unitBehaviour)
     {
-        if (!unitBehaviour || DOTween.IsTweening(unitBehaviour.gameObject)) return;
+        if (!unitBehaviour) return;
         
         var go = unitBehaviour.animatedCharacter;
 
@@ -150,11 +154,27 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         squashedScale = new Vector3(originalScale.x * 1.2f, originalScale.y * 0.8f, 1);
         
         Sequence jelloSequence = DOTween.Sequence();
-        
-        jelloSequence.Append(go.transform.DOScale(squashedScale, squashDuration)) //Squash down
-            .Append(go.transform.DOScale(stretchedScale, squashDuration)) //Stretch out
-            .Append(go.transform.DOScale(originalScale, jiggleDuration).SetEase(Ease.OutElastic)) //Return with a little jiggle using Elastic ease
-            .OnKill(() => go.transform.localScale = originalScale); // Ensure it always returns to the original state when sequence is killed.
+
+        jelloSequence.AppendCallback(() =>
+            {
+                if (go != null)
+                    go.transform.DOScale(squashedScale, squashDuration);
+            })
+            .AppendCallback(() =>
+            {
+                if (go != null)
+                    go.transform.DOScale(stretchedScale, squashDuration);
+            })
+            .AppendCallback(() =>
+            {
+                if (go != null)
+                    go.transform.DOScale(originalScale, jiggleDuration).SetEase(Ease.OutElastic);
+            })
+            .OnKill(() =>
+            {
+                if (go != null)
+                    go.transform.localScale = originalScale;
+            });
 
         jelloSequence.Play();
     }

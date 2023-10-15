@@ -16,6 +16,7 @@ public class UnitBehaviour : MonoBehaviour
     public bool isDead = false;
     public Vector3? targetPosition;
     public bool isMovable;
+    public bool cantChain = false;
     public int currentHp;
     public int attack;
     public TextMeshProUGUI combatOrderText;
@@ -48,6 +49,8 @@ public class UnitBehaviour : MonoBehaviour
     [SerializeField] private TextMeshProUGUI floatingText;
     [SerializeField] private TextMeshProUGUI healthAmountText;
     [SerializeField] public GameObject attackUI;
+    [SerializeField] private GameObject bonePile;
+    [SerializeField] private GameObject heroUIPrefab;
     public GameObject animatedCharacter;
 
     // Private fields
@@ -65,7 +68,7 @@ public class UnitBehaviour : MonoBehaviour
     private float _elapsedTime = 0f;
     private bool _isAnimating = false;
     private List<GameObject> _heartObjects = new List<GameObject>();
-    private int _maxHp;
+    public int _maxHp;
     private int _currentExperience;
     private bool isCountingDown;
     private int attackTimer;
@@ -75,6 +78,7 @@ public class UnitBehaviour : MonoBehaviour
     private Vector3 minScale;
     private Vector3 currentHeartSize;
     private bool _heartSizeSet;
+    private HeroUI _heroUI;
 
     // Public Lists
     public List<EffectState> effects = new List<EffectState>();
@@ -95,6 +99,11 @@ public class UnitBehaviour : MonoBehaviour
         _spriteDuration = .2f;
         _currentSpriteIndex = 0;
         isDragging = false;
+
+        if (unitData.tribe == Unit.Tribe.NA)
+        {
+            cantChain = true;
+        }
 
 //        combatOrderText.text = "";
         
@@ -129,8 +138,10 @@ public class UnitBehaviour : MonoBehaviour
 
         if (unitData.tribe == Unit.Tribe.Hero)
         {
-            // ShowAndUpdateHealth();
-            // ShowAttack();
+            // Create Hero UI
+            var heroUI = Instantiate(heroUIPrefab, UIManager.Instance.heroUIParent.transform);
+            _heroUI = heroUI.GetComponent<HeroUI>();
+            _heroUI.Setup(this);
         }
 
         foreach (var effect in unitData.effects)
@@ -141,6 +152,7 @@ public class UnitBehaviour : MonoBehaviour
         localScale = attackTimerObject.transform.localScale;
         maxScale = new Vector3(localScale.x * 1.3f, localScale.x * 1.3f, localScale.z);
         minScale = new Vector3(localScale.x, localScale.y, localScale.z);
+        
     }
     
     private void GetAllChildObjects()
@@ -264,74 +276,78 @@ public class UnitBehaviour : MonoBehaviour
     }
 
     public IEnumerator Attack(UnitBehaviour attackingTarget)
-{
-    if (isDead) yield break;
-
-    Debug.Log($"{unitData.name} is attempting to attack");
-    var combatFinished = false;
-
-    if (!combatTarget)
     {
-        Debug.Log($"{unitData.name} didn't have a combat target");
-        yield break; // If there's no combat target, simply exit the coroutine
-    }
+        if (isDead) yield break;
 
-    foreach (var effectState in effects)
-    {
-        effectState.effect.OnAttack(this, attackingTarget);
-    }
+        Debug.Log($"{unitData.name} is attempting to attack");
+        var combatFinished = false;
 
-    BoardManager.Instance.mostRecentlyAttackingUnit = this;
-
-    // combatOrderText.text = "";
-    // ShowAttackAmount();
-
-    yield return new WaitForSeconds(.75f);
-
-    var originalPos = transform.position;
-    var slightBackwardPos = originalPos - (attackingTarget.transform.position - originalPos).normalized * 0.5f; // Modify this value to control the distance moved backward
-    mat.SetFloat("_MotionBlurDist", 1);
-
-    AudioManager.Instance.PlayWithRandomPitch("whoosh");
-
-    transform.DOKill();
-    // First, move slightly backward
-    transform.DOMove(slightBackwardPos, 0.05f).OnComplete(() =>
-    {
-        // After the slight backward motion, charge forward towards the target
-        transform.DOMove(attackingTarget.transform.position, .1f).OnComplete(() =>
+        if (unitData.tribe != Unit.Tribe.Hero && attackingTarget.isDead)
         {
-            var targets = BoardManager.Instance.Chain(attackingTarget);
-            Debug.Log($"Number of combat targets: {targets.Count}");
-            mat.SetFloat("_MotionBlurDist", 0);
-            foreach (var target in targets)
-            {
-                if (!target) continue;
-                if (attack >= target.currentHp)
-                {
-                    // TODO: execute any OnKill effects
-                }
-                target.TakeDamage(attack, this);
-            }
+            Debug.Log("Attacking caravan");
+        }
 
-            // Move the hero back after damaging the enemy
-            transform.DOMove(originalPos, .3f).SetEase(Ease.OutQuad).OnComplete(() =>
+        if (!combatTarget)
+        {
+            Debug.Log($"{unitData.name} didn't have a combat target");
+            yield break; // If there's no combat target, simply exit the coroutine
+        }
+
+        foreach (var effectState in effects)
+        {
+            effectState.effect.OnAttack(this, attackingTarget);
+        }
+
+        BoardManager.Instance.mostRecentlyAttackingUnit = this;
+
+        // combatOrderText.text = "";
+        // ShowAttackAmount();
+
+        yield return new WaitForSeconds(.75f);
+
+        var originalPos = transform.position;
+        var slightBackwardPos = originalPos - (attackingTarget.transform.position - originalPos).normalized * 0.5f; // Modify this value to control the distance moved backward
+        mat.SetFloat("_MotionBlurDist", 1);
+
+        AudioManager.Instance.PlayWithRandomPitch("whoosh");
+
+        transform.DOKill();
+        // First, move slightly backward
+        transform.DOMove(slightBackwardPos, 0.05f).OnComplete(() =>
+        {
+            // After the slight backward motion, charge forward towards the target
+            transform.DOMove(attackingTarget.transform.position, .1f).OnComplete(() =>
             {
-                // Set combatFinished true after all animations are complete
-                
-                StartCoroutine(TurnManager.Instance.TakeTurn());
-                if (unitData.tribe == Unit.Tribe.Hero)
+                var targets = BoardManager.Instance.Chain(attackingTarget);
+                Debug.Log($"Number of combat targets: {targets.Count}");
+                mat.SetFloat("_MotionBlurDist", 0);
+                foreach (var target in targets)
                 {
-                    TurnManager.Instance.CountDownAttackTimers();
-                    EnergyManager.Instance.GainEnergy(EnergyManager.Instance.energyGainedPerAttack);
+                    if (!target) continue;
+                    if (attack >= target.currentHp)
+                    {
+                        // TODO: execute any OnKill effects
+                    }
+                    target.TakeDamage(attack, this);
                 }
-                combatFinished = true;
+
+                // Move the hero back after damaging the enemy
+                transform.DOMove(originalPos, .3f).SetEase(Ease.OutQuad).OnComplete(() =>
+                {
+                    // Set combatFinished true after all animations are complete
+                    
+                    StartCoroutine(TurnManager.Instance.TakeTurn());
+                    if (unitData.tribe == Unit.Tribe.Hero)
+                    {
+                        TurnManager.Instance.CountDownAttackTimers();
+                    }
+                    combatFinished = true;
+                });
             });
         });
-    });
 
-    // Wait until combatFinished becomes true to exit the coroutine
-    yield return new WaitUntil(() => combatFinished);
+        // Wait until combatFinished becomes true to exit the coroutine
+        yield return new WaitUntil(() => combatFinished);
 }
 
 
@@ -348,7 +364,7 @@ public class UnitBehaviour : MonoBehaviour
             if (isImplemented)
             {
                 Debug.Log($"{effectState.effect.name} implements On Hit");
-                effectState.currUses++;
+                var isDepleted = effectState.isDepleted();
             }
         }
         
@@ -428,14 +444,26 @@ public class UnitBehaviour : MonoBehaviour
     private void Die(UnitBehaviour killedBy)
     {
         isDead = true;
-        Debug.Log($"dead from {attackedBy}");
+        foreach (var part in animatedCharacterParts)
+        {
+            var mat = part.GetComponent<Renderer>().material;
+            if (mat) mat.SetFloat(HIT, 1);
+        }
+        FXManager.Instance.PlayParticles(FXManager.ParticleType.Death, transform.position);
         
         foreach(var effect in unitData.effects)
         {
             effect.OnDeath(killedBy, this);
         }
+
+        if (unitData.tribe != Unit.Tribe.Hero)
+        {
+            EnergyManager.Instance.GainEnergy(EnergyManager.Instance.energyGainedPerAttack);
+            return;
+        }
         
-        deathParticles.Play();
+        animatedCharacter.SetActive(false);
+        bonePile.SetActive(true);
     }
 
     public void Jump()
@@ -445,23 +473,7 @@ public class UnitBehaviour : MonoBehaviour
         transform.DOKill();
         transform.DOPunchPosition(endingPos, .3f, 1, 1).SetEase(Ease.OutQuad);
     }
-
-    public void Grow()
-    {
-        transform.DOKill();
-        _originalScale = transform.localScale;
-        
-        var newX = transform.localScale.x * 1.5f;
-        var newY = transform.localScale.y * 1.5f;
-        transform.DOScale(new Vector3(newX, newY, transform.localScale.z), .2f).SetEase(Ease.InOutBounce);
-    }
-
-    public void Shrink()
-    {
-        transform.DOKill();
-        transform.DOScale(_originalScale, .2f).SetEase(Ease.InOutBounce); 
-    }
-
+    
     public void SetCombatTarget(UnitBehaviour target)
     {
         combatTarget = target;
@@ -563,7 +575,7 @@ public class UnitBehaviour : MonoBehaviour
     public void StartPulsing()
     {
         var pulseDuration = .3f;
-    
+        
         attackTimerObject.transform.DOScale(maxScale, pulseDuration)
             .SetEase(Ease.InOutSine) // Smooth in and out
             .SetId(attackTimerObject.GetInstanceID()) // Set unique ID for this tween
@@ -614,42 +626,47 @@ public class UnitBehaviour : MonoBehaviour
 
     public void ShowAndUpdateHealth()
     {
-        var startingHp = healthAmountText.text;
+        if (unitData.tribe != Unit.Tribe.Hero)
+        {
+            healthUI.SetActive(true);
         
-        healthUI.SetActive(true);
-        
-        healthAmountText.text = Mathf.Max(0, currentHp).ToString();
+            healthAmountText.text = Mathf.Max(0, currentHp).ToString();
 
-        if (isDead) return;
+            if (isDead) return;
         
-        if (currentHp > _maxHp)
-        {
-            healthAmountText.color = new Color32(39, 246, 81, 255);
-            fullHeart.fillAmount = 100;
-        }
+            if (currentHp > _maxHp)
+            {
+                healthAmountText.color = new Color32(39, 246, 81, 255);
+                fullHeart.fillAmount = 100;
+            }
         
-        if (currentHp == _maxHp)
-        {
-            fullHeart.fillAmount = 100;
-        }
+            if (currentHp == _maxHp)
+            {
+                fullHeart.fillAmount = 100;
+            }
         
-        if (currentHp < _maxHp)
-        {
-            fullHeart.fillAmount = ((float)currentHp / _maxHp);
-        }
+            if (currentHp < _maxHp)
+            {
+                fullHeart.fillAmount = ((float)currentHp / _maxHp);
+            }
         
-        // play animation
-        healthUI.transform.DOKill();
-        if (!_heartSizeSet)
-        {
-            currentHeartSize = healthUI.transform.localScale;
-            _heartSizeSet = true;
-        }
+            // play animation
+            healthUI.transform.DOKill();
+            if (!_heartSizeSet)
+            {
+                currentHeartSize = healthUI.transform.localScale;
+                _heartSizeSet = true;
+            }
 
-        healthUI.transform.DOKill();
-        healthUI.transform.localScale = currentHeartSize;
-        var newHeartSize = new Vector3(currentHeartSize.x * 1.2f, currentHeartSize.y * 1.2f, 1);
-        healthUI.transform.DOPunchScale(newHeartSize, .25f, 0, .3f).SetEase(Ease.OutQuad);
+            healthUI.transform.DOKill();
+            healthUI.transform.localScale = currentHeartSize;
+            var newHeartSize = new Vector3(currentHeartSize.x * 1.2f, currentHeartSize.y * 1.2f, 1);
+            healthUI.transform.DOPunchScale(newHeartSize, .25f, 0, .3f).SetEase(Ease.OutQuad);
+        }
+        else
+        {
+            _heroUI.TakeDamage();
+        }
     }
 
     public void HideHealth()
@@ -701,6 +718,14 @@ public class UnitBehaviour : MonoBehaviour
 
     public void GiveTreasure(Treasure treasure)
     {
-        
+        treasure.effect.OnObtained(this);
+
+        if (treasure.effect.numUses > 0)
+        {
+            var effectState = new EffectState(treasure.effect);
+            effects.Add(effectState);
+            
+            _heroUI.AddTreasureUI(treasure);
+        }
     }
 }
