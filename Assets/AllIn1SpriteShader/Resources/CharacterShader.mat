@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: CharacterShader
   m_Shader: {fileID: 4800000, guid: a36b7719ff0465b42ab1407d67672c5f, type: 3}
-  m_ShaderKeywords: HITEFFECT_ON HSV_ON
+  m_ShaderKeywords: HITEFFECT_ON HSV_ON MOTIONBLUR_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -150,8 +150,8 @@ Material:
     - _MaxYUV: 1
     - _MinXUV: 0
     - _MinYUV: 0
-    - _MotionBlurAngle: 0.1
-    - _MotionBlurDist: 1.25
+    - _MotionBlurAngle: 0
+    - _MotionBlurDist: 0
     - _MyDstMode: 10
     - _MySrcMode: 5
     - _NegativeAmount: 1

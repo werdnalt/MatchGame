@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5239297288094236260}
   - component: {fileID: 5239297288094236261}
   m_Layer: 0
-  m_Name: Smoke Particles
+  m_Name: Smaller SMoke Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -976,7 +976,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 3
+        scalar: 10
         minScalar: 30
         maxCurve:
           serializedVersion: 2

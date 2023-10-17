@@ -31,7 +31,6 @@ public class TurnManager : MonoBehaviour
         }
 
         _turnIndicators = new List<GameObject>();
-        UpdateSwapCounter();
     }
 
     public IEnumerator ChooseTurnOrder(List<UnitBehaviour> unitsInCombat)
@@ -82,13 +81,11 @@ public class TurnManager : MonoBehaviour
         yield return new WaitForSeconds(.25f);
         _hasSwapped = true;
         currentNumSwaps++;
-        UpdateSwapCounter();
     }
 
     public IEnumerator CheckIfFinishedSwapping()
     {
         BoardManager.Instance.canMove = true;
-        UpdateSwapCounter();
         while (!_hasSwapped)
         {
             yield return null;
@@ -96,27 +93,6 @@ public class TurnManager : MonoBehaviour
 
         BoardManager.Instance.CleanUpBoard();
         _hasSwapped = false;
-    }
-
-    public void UpdateSwapCounter()
-    {
-        var numSwapsLeft = WaveManager.Instance.swapsLeftUntilWave;
-        waveCounter.text = $"Wave <color=#52bc9c>{WaveManager.Instance.currentNumWave} / {WaveManager.Instance.totalNumWaves}</color>";
-
-        if (numSwapsLeft == 1)
-        {
-            swapCounter.text = ($"final move");
-        }
-
-        if (numSwapsLeft <= 0)
-        {
-            swapCounter.text = ($"Final Wave");
-        }
-        else
-        {
-            swapCounter.text = ($"Next Wave in <color=#52bc9c>{numSwapsLeft}</color> swaps");
-
-        }
     }
 
     public void CountDownAttackTimers()

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 822c0ca4f25901348bbb3d6df8aba20f, type: 3}
-  m_Name: Bushwhacker
+  m_Name: Black hole
   m_EditorClassIdentifier: 
-  unit: {fileID: 11400000, guid: fb1ec5a942617bc46bd34b8f11c7d888, type: 2}
-  weight: 33
+  unit: {fileID: 11400000, guid: 98e3c8a435bd13741be89e5e33e52036, type: 2}
+  weight: 30

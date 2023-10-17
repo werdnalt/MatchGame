@@ -7,6 +7,7 @@ public class EffectState
     public Effect effect;
     public int numUses;
     public int currUses;
+    public bool isSilenced;
 
     public EffectState(Effect effect)
     {
@@ -18,5 +19,10 @@ public class EffectState
     {
         currUses++;
         return currUses >= numUses;
+    }
+
+    public void Silence()
+    {
+        isSilenced = true;
     }
 }

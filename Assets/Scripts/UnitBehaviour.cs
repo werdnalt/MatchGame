@@ -50,6 +50,7 @@ public class UnitBehaviour : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healthAmountText;
     [SerializeField] public GameObject attackUI;
     [SerializeField] private GameObject bonePile;
+    [SerializeField] private ParticleSystem smokeParticles;
     [SerializeField] private GameObject heroUIPrefab;
     public GameObject animatedCharacter;
 
@@ -82,6 +83,15 @@ public class UnitBehaviour : MonoBehaviour
 
     // Public Lists
     public List<EffectState> effects = new List<EffectState>();
+    
+    [SerializeField]
+    private float squashDuration = 0.1f;
+    [SerializeField]
+    private Vector3 squashedScale = new Vector3(1.2f, 0.8f, 1.2f); //Adjust these as per your object's original size and desired effect
+    [SerializeField]
+    private Vector3 stretchedScale = new Vector3(0.9f, 1.1f, 0.9f);
+    [SerializeField]
+    private float jiggleDuration = 0.9f;
     
     private void Awake()
     {
@@ -134,6 +144,7 @@ public class UnitBehaviour : MonoBehaviour
         }
 
         characterScale = animatedCharacter.transform.localScale;
+        _originalScale = characterScale;
         GetAllChildObjects();
 
         if (unitData.tribe == Unit.Tribe.Hero)
@@ -143,6 +154,11 @@ public class UnitBehaviour : MonoBehaviour
             _heroUI = heroUI.GetComponentInChildren<HeroUI>();
             _heroUI.Setup(this);
             _heroUI.GetComponent<PopEffect>().EnableAndPop();
+            
+            ShowAndUpdateHealth();
+            ShowAttack();
+
+            (healthUI.transform.position, attackUI.transform.position) = (attackUI.transform.position, healthUI.transform.position);
         }
 
         foreach (var effect in unitData.effects)
@@ -289,6 +305,8 @@ public class UnitBehaviour : MonoBehaviour
         if (unitData.tribe != Unit.Tribe.Hero && attackingTarget.isDead)
         {
             Debug.Log("Attacking caravan");
+            yield return StartCoroutine(AttackCaravan());
+            yield break;
         }
 
         if (!combatTarget)
@@ -344,6 +362,7 @@ public class UnitBehaviour : MonoBehaviour
                     if (unitData.tribe == Unit.Tribe.Hero)
                     {
                         TurnManager.Instance.CountDownAttackTimers();
+                        WaveManager.Instance.IncrementAttackCounter();
                     }
                     combatFinished = true;
                 });
@@ -395,6 +414,44 @@ public class UnitBehaviour : MonoBehaviour
         }
     }
 
+    private IEnumerator AttackCaravan()
+    {
+        var caravan = Caravan.Instance;
+        var combatFinished = false;
+
+        BoardManager.Instance.mostRecentlyAttackingUnit = this;
+
+        yield return new WaitForSeconds(.75f);
+
+        var originalPos = transform.position;
+        var slightBackwardPos = originalPos - (caravan.transform.position - originalPos).normalized * 0.5f; // Modify this value to control the distance moved backward
+        mat.SetFloat("_MotionBlurDist", 1);
+
+        AudioManager.Instance.PlayWithRandomPitch("whoosh");
+
+        transform.DOKill();
+        // First, move slightly backward
+        transform.DOMove(slightBackwardPos, 0.05f).OnComplete(() =>
+        {
+            // After the slight backward motion, charge forward towards the target
+            transform.DOMove(caravan.transform.position, .1f).OnComplete(() =>
+            {
+                caravan.TakeDamage(attack, this);
+                
+                // Move the hero back after damaging the enemy
+                transform.DOMove(originalPos, .3f).SetEase(Ease.OutQuad).OnComplete(() =>
+                {
+                    // Set combatFinished true after all animations are complete
+                    StartCoroutine(TurnManager.Instance.TakeTurn());
+                    combatFinished = true;
+                });
+            });
+        });
+
+        // Wait until combatFinished becomes true to exit the coroutine
+        yield return new WaitUntil(() => combatFinished);
+    }
+
     private IEnumerator HitEffect()
     {        
         ShowAndUpdateHealth();
@@ -425,6 +482,57 @@ public class UnitBehaviour : MonoBehaviour
     
         // Wait for the punch animation to complete
         yield return new WaitUntil(() => punchFinished);
+    }
+    
+    public void EnableSwapMotionBlur()
+    {
+        if (!animatedCharacter) return;
+        smokeParticles.Play();
+        var spriteRenderer = animatedCharacter.GetComponent<SpriteRenderer>();
+        if (spriteRenderer)
+        {
+            var mat = spriteRenderer.GetComponent<Renderer>().material;
+            if (mat)
+            {
+                mat.SetFloat("_MotionBlurAngle", .1f);
+                mat.SetFloat("_MotionBlurDist", .42f);
+            }
+        }
+        
+        foreach (var part in animatedCharacterParts)
+        {
+            var mat = part.GetComponent<Renderer>().material;
+            if (mat)
+            {
+                mat.SetFloat("_MotionBlurAngle", .1f);
+                mat.SetFloat("_MotionBlurDist", .42f);
+            }
+        }
+    }
+    
+    public void DisableSwapMotionBlur()
+    {
+        if (!animatedCharacter) return;
+        var spriteRenderer = animatedCharacter.GetComponent<SpriteRenderer>();
+        if (spriteRenderer)
+        {
+            var mat = spriteRenderer.GetComponent<Renderer>().material;
+            if (mat)
+            {
+                mat.SetFloat("_MotionBlurAngle", 0f);
+                mat.SetFloat("_MotionBlurDist", 0);
+            }
+        }
+        
+        foreach (var part in animatedCharacterParts)
+        {
+            var mat = part.GetComponent<Renderer>().material;
+            if (mat)
+            {
+                mat.SetFloat("_MotionBlurAngle", 0);
+                mat.SetFloat("_MotionBlurDist", 0);
+            }
+        }
     }
 
     public void ReduceSaturation()
@@ -644,45 +752,45 @@ public class UnitBehaviour : MonoBehaviour
 
     public void ShowAndUpdateHealth()
     {
-        if (unitData.tribe != Unit.Tribe.Hero)
+        healthUI.SetActive(true);
+
+        healthAmountText.text = Mathf.Max(0, currentHp).ToString();
+
+        if (isDead) return;
+
+        if (currentHp > _maxHp)
         {
-            healthUI.SetActive(true);
-        
-            healthAmountText.text = Mathf.Max(0, currentHp).ToString();
-
-            if (isDead) return;
-        
-            if (currentHp > _maxHp)
-            {
-                healthAmountText.color = new Color32(39, 246, 81, 255);
-                fullHeart.fillAmount = 100;
-            }
-        
-            if (currentHp == _maxHp)
-            {
-                fullHeart.fillAmount = 100;
-            }
-        
-            if (currentHp < _maxHp)
-            {
-                fullHeart.fillAmount = ((float)currentHp / _maxHp);
-            }
-        
-            // play animation
-            healthUI.transform.DOKill();
-            if (!_heartSizeSet)
-            {
-                currentHeartSize = healthUI.transform.localScale;
-                _heartSizeSet = true;
-            }
-
-            healthUI.transform.DOKill();
-            healthUI.transform.localScale = currentHeartSize;
-            var newHeartSize = new Vector3(currentHeartSize.x * 1.2f, currentHeartSize.y * 1.2f, 1);
-            healthUI.transform.DOPunchScale(newHeartSize, .25f, 0, .3f).SetEase(Ease.OutQuad);
+            healthAmountText.color = new Color32(39, 246, 81, 255);
+            fullHeart.fillAmount = 100;
         }
-        else
+
+        if (currentHp == _maxHp)
         {
+            fullHeart.fillAmount = 100;
+        }
+
+        if (currentHp < _maxHp)
+        {
+            fullHeart.fillAmount = ((float)currentHp / _maxHp);
+        }
+
+        // play animation
+        healthUI.transform.DOKill();
+        if (!_heartSizeSet)
+        {
+            currentHeartSize = healthUI.transform.localScale;
+            _heartSizeSet = true;
+        }
+
+        healthUI.transform.DOKill();
+        healthUI.transform.localScale = currentHeartSize;
+        var newHeartSize = new Vector3(currentHeartSize.x * 1.2f, currentHeartSize.y * 1.2f, 1);
+        healthUI.transform.DOPunchScale(newHeartSize, .25f, 0, .3f).SetEase(Ease.OutQuad);
+        
+        
+        if (unitData.tribe == Unit.Tribe.Hero)
+        {
+            if (!_heroUI) return;
             _heroUI.TakeDamage();
         }
     }
@@ -745,5 +853,40 @@ public class UnitBehaviour : MonoBehaviour
             
             _heroUI.AddTreasureUI(treasure);
         }
+    }
+    
+    public void ApplyJelloEffect()
+    {
+        var go = animatedCharacter;
+
+        go.transform.DOKill();
+
+        stretchedScale = new Vector3(_originalScale.x * 0.9f, _originalScale.y * 1.1f, 1);
+        squashedScale = new Vector3(_originalScale.x * 1.2f, _originalScale.y * 0.8f, 1);
+        
+        Sequence jelloSequence = DOTween.Sequence();
+
+        jelloSequence.AppendCallback(() =>
+            {
+                if (go != null)
+                    go.transform.DOScale(squashedScale, squashDuration);
+            })
+            .AppendCallback(() =>
+            {
+                if (go != null)
+                    go.transform.DOScale(stretchedScale, squashDuration);
+            })
+            .AppendCallback(() =>
+            {
+                if (go != null)
+                    go.transform.DOScale(_originalScale, jiggleDuration).SetEase(Ease.OutElastic);
+            })
+            .OnKill(() =>
+            {
+                if (go != null)
+                    go.transform.localScale = _originalScale;
+            });
+
+        jelloSequence.Play();
     }
 }

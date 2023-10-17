@@ -155,6 +155,11 @@ public class UIManager : MonoBehaviour
             // if (!effectBehaviour) continue;
             
             effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text = effectState.effect.effectDescription;
+            if (effectState.isSilenced)
+            {
+                effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text =
+                    ($"<s>{effectState.effect.effectDescription}</s>");
+            }
             
             _instantiatedEffectPrefabs.Add(effectTextInstance);
         }

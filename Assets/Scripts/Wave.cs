@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Wave", menuName = "ScriptableObjects/Wave", order = 1)]
 public class Wave : ScriptableObject
 {
-    public int swapsUntilSpawn;
+    public int attacksUntilSpawn;
     public List<WaveEntry> units;
     public float timeBeforeSpawn;
     

@@ -22,15 +22,6 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     private bool scaleSet = false;
     private bool _hasShownPanel = false;
     
-    [SerializeField]
-    private float squashDuration = 0.1f;
-    [SerializeField]
-    private Vector3 squashedScale = new Vector3(1.2f, 0.8f, 1.2f); //Adjust these as per your object's original size and desired effect
-    [SerializeField]
-    private Vector3 stretchedScale = new Vector3(0.9f, 1.1f, 0.9f);
-    [SerializeField]
-    private float jiggleDuration = 0.9f;
-
     private float _cachedZIndex;
     
     public void OnPointerEnter(PointerEventData eventData)
@@ -129,55 +120,16 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         if (!BoardManager.Instance.canMove) return;
         
         unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
+
+        if (!unitBehaviour) return;
         
-        ApplyJelloEffect(unitBehaviour);
+        unitBehaviour.ApplyJelloEffect();
+        
         ActionHandler.Instance.SetClickedCell(this);
         
         AudioManager.Instance.PlayWithRandomPitch("click");
     }
     
-    private void ApplyJelloEffect(UnitBehaviour unitBehaviour)
-    {
-        if (!unitBehaviour) return;
-        
-        var go = unitBehaviour.animatedCharacter;
-
-        go.transform.DOKill();
-
-        if (!scaleSet)
-        {
-            originalScale = unitBehaviour.characterScale;
-            scaleSet = true;
-        }
-
-        stretchedScale = new Vector3(originalScale.x * 0.9f, originalScale.y * 1.1f, 1);
-        squashedScale = new Vector3(originalScale.x * 1.2f, originalScale.y * 0.8f, 1);
-        
-        Sequence jelloSequence = DOTween.Sequence();
-
-        jelloSequence.AppendCallback(() =>
-            {
-                if (go != null)
-                    go.transform.DOScale(squashedScale, squashDuration);
-            })
-            .AppendCallback(() =>
-            {
-                if (go != null)
-                    go.transform.DOScale(stretchedScale, squashDuration);
-            })
-            .AppendCallback(() =>
-            {
-                if (go != null)
-                    go.transform.DOScale(originalScale, jiggleDuration).SetEase(Ease.OutElastic);
-            })
-            .OnKill(() =>
-            {
-                if (go != null)
-                    go.transform.localScale = originalScale;
-            });
-
-        jelloSequence.Play();
-    }
 
     public void OnPointerClick(PointerEventData eventData)
     {

@@ -12,7 +12,7 @@ public class WaveManager : MonoBehaviour
 
     public List<Wave> waves;
 
-    private int _numSwaps;
+    private int _numAttacks;
 
     public int totalNumWaves;
     public int currentNumWave;
@@ -21,10 +21,9 @@ public class WaveManager : MonoBehaviour
     {
         get
         {
-            _numSwaps++;
-            if (_numSwaps >= swapsUntilWave)
+            if (_numAttacks >= AttacksUntilWave)
             {
-                _numSwaps = 0;
+                _numAttacks = 0;
                 return true;
             }
             else
@@ -34,15 +33,15 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    public int swapsLeftUntilWave
+    public int attacksLeftUntilWave
     {
         get
         {
-            return swapsUntilWave - _numSwaps;
+            return AttacksUntilWave - _numAttacks;
         }
     }
     
-    public int swapsUntilWave
+    public int AttacksUntilWave
     {
         get
         {
@@ -51,7 +50,7 @@ public class WaveManager : MonoBehaviour
                 return -1;
             }
 
-            return _upcomingWave.swapsUntilSpawn;
+            return _upcomingWave.attacksUntilSpawn;
         }
     }
 
@@ -76,7 +75,7 @@ public class WaveManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null) Instance = this;
-        _numSwaps = 0;
+        _numAttacks = 0;
 
         currentNumWave = 0;
         totalNumWaves = waves.Count;
@@ -85,6 +84,11 @@ public class WaveManager : MonoBehaviour
     private void Start()
     {
         //waves = new List<Wave>(GameManager.Instance.levelData.waves);
+    }
+
+    public void IncrementAttackCounter()
+    {
+        _numAttacks++;
     }
 
     public List<Unit> GetUnitsToSpawn()

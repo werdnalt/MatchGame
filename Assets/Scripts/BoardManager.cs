@@ -255,7 +255,6 @@ public class BoardManager : MonoBehaviour
     {
         var unitsToSpawn = WaveManager.Instance.GetUnitsToSpawn();
         StartCoroutine(SpawnUnit(unitsToSpawn));
-        TurnManager.Instance.UpdateSwapCounter();
     }
 
     private IEnumerator SpawnUnit(List<Unit> unitsToSpawn)
@@ -335,20 +334,21 @@ public class BoardManager : MonoBehaviour
         StartCoroutine(TurnManager.Instance.TakeTurn());
         _board.SwapBlocks(leftBlockCoords, rightBlockCoords);
 
-        if (leftUnit)
+        if (leftUnit && leftUnit.effects.Count > 0)
         {
-            foreach (var effect in leftUnit.effects)
+            var leftEffectsCopy = new List<EffectState>(leftUnit.effects);  // Create a copy
+            foreach (var effect in leftEffectsCopy)
             {
                 effect.effect.OnSwap(leftUnit, rightUnit);
             }
-
         }
 
-        if (rightUnit)
+        if (rightUnit && rightUnit.effects.Count > 0)
         {
-            foreach (var effect in rightUnit.unitData.effects)
+            var rightEffectsCopy = new List<EffectState>(rightUnit.effects);  // Create a copy
+            foreach (var effect in rightEffectsCopy)
             {
-                effect.OnSwap(rightUnit, leftUnit);
+                effect.effect.OnSwap(rightUnit, leftUnit);
             }
         }
 
@@ -757,6 +757,9 @@ public class BoardManager : MonoBehaviour
     {
         while (true)
         {
+            // spawn wave 
+            yield return StartCoroutine(SpawnWave());
+            
             // assign combat targets
             yield return StartCoroutine(AssignCombatTargets());
             

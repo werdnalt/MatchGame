@@ -56,13 +56,14 @@ public class Board
 
     private Vector3 WorldPositionForBoardCoordinate(BoardManager.Coordinates boardCoordinates, Vector2 prefabSize)
     {
+        var yOffset = .5f;
         // Calculate the total width and height of the board based on prefab size
         float boardWidth = _numColumns * prefabSize.x; 
         float boardHeight = (_numRows - 1) * prefabSize.x;
 
         // Calculate the starting position for the board to be centered on the screen
         float startX = -boardWidth / 2 + prefabSize.x / 2; 
-        float startY = (-boardHeight / 2) + prefabSize.x / 2 + boardCoordinates.y * prefabSize.y;  
+        float startY = (-boardHeight / 2) + prefabSize.x / 2 + boardCoordinates.y * prefabSize.y + yOffset;  
 
         float xPos = startX + boardCoordinates.x * prefabSize.x;
         return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
@@ -78,7 +79,7 @@ public class Board
         float startX = -boardWidth / 2 + prefabSize.x / 2; 
 
         // Since heroes are below the board, place them half a unit (in terms of prefab size) below the bottom-most row of the board.
-        float startY = (-boardHeight / 2) - prefabSize.y * 1.2f;  
+        float startY = (-boardHeight / 2) - prefabSize.y * .9f;  
 
         float xPos = startX + index * prefabSize.x;
         return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
