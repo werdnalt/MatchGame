@@ -129,6 +129,14 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Restart"",
+                    ""type"": ""Button"",
+                    ""id"": ""3ed57e22-cb8f-44f9-93b8-c7281dcf957f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -547,6 +555,17 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""MouseUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cf65ec6c-9d26-47fd-a3a0-d05045ce8ab5"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Restart"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1239,6 +1258,7 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
         m_Player_MouseDown = m_Player.FindAction("MouseDown", throwIfNotFound: true);
         m_Player_MouseMove = m_Player.FindAction("MouseMove", throwIfNotFound: true);
         m_Player_MouseUp = m_Player.FindAction("MouseUp", throwIfNotFound: true);
+        m_Player_Restart = m_Player.FindAction("Restart", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1317,6 +1337,7 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_MouseDown;
     private readonly InputAction m_Player_MouseMove;
     private readonly InputAction m_Player_MouseUp;
+    private readonly InputAction m_Player_Restart;
     public struct PlayerActions
     {
         private @MyPlayerActions m_Wrapper;
@@ -1335,6 +1356,7 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
         public InputAction @MouseDown => m_Wrapper.m_Player_MouseDown;
         public InputAction @MouseMove => m_Wrapper.m_Player_MouseMove;
         public InputAction @MouseUp => m_Wrapper.m_Player_MouseUp;
+        public InputAction @Restart => m_Wrapper.m_Player_Restart;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1386,6 +1408,9 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
                 @MouseUp.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseUp;
                 @MouseUp.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseUp;
                 @MouseUp.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMouseUp;
+                @Restart.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRestart;
+                @Restart.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRestart;
+                @Restart.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnRestart;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -1432,6 +1457,9 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
                 @MouseUp.started += instance.OnMouseUp;
                 @MouseUp.performed += instance.OnMouseUp;
                 @MouseUp.canceled += instance.OnMouseUp;
+                @Restart.started += instance.OnRestart;
+                @Restart.performed += instance.OnRestart;
+                @Restart.canceled += instance.OnRestart;
             }
         }
     }
@@ -1626,6 +1654,7 @@ public class @MyPlayerActions : IInputActionCollection, IDisposable
         void OnMouseDown(InputAction.CallbackContext context);
         void OnMouseMove(InputAction.CallbackContext context);
         void OnMouseUp(InputAction.CallbackContext context);
+        void OnRestart(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

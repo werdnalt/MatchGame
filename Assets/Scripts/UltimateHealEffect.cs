@@ -7,13 +7,15 @@ public class UltimateHealEffect : Effect
 {
     public int healAmount;
     
-    public override void OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit)
+    public override void OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
     {
-        var unitToLeftCoords = BoardManager.Instance.GetNeighborCoordinates(attackingUnit.coordinates, BoardManager.Direction.Left);
-        var unitToLeft = BoardManager.Instance.GetUnitBehaviourAtCoordinate(unitToLeftCoords);
+        damageAmount = damageAmount;
         
-        var unitToRightCoords = BoardManager.Instance.GetNeighborCoordinates(attackingUnit.coordinates, BoardManager.Direction.Right);
-        var unitToRight = BoardManager.Instance.GetUnitBehaviourAtCoordinate(unitToRightCoords);
+        var unitToLeftCoords = BoardManager.Instance.GetSingleNeighborCoordinates(attackingUnit.coordinates, BoardManager.Direction.Left);
+        var unitToLeft = BoardManager.Instance.GetUnitBehaviour(unitToLeftCoords);
+        
+        var unitToRightCoords = BoardManager.Instance.GetSingleNeighborCoordinates(attackingUnit.coordinates, BoardManager.Direction.Right);
+        var unitToRight = BoardManager.Instance.GetUnitBehaviour(unitToRightCoords);
         
         if (unitToLeft) unitToLeft.Heal(healAmount);
         if (unitToRight) unitToRight.Heal(healAmount);

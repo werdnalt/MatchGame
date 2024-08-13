@@ -8,80 +8,53 @@ using TMPro;
 using Random = UnityEngine.Random;
 using System.Linq;
 using JetBrains.Annotations;
+using UnityEditor.PackageManager;
+using UnityEngine.SceneManagement;
+
+public struct Coordinates 
+{
+    public int x;
+
+    public int y;
+
+    public Coordinates(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    public bool Equals(Coordinates other)
+    {
+        if (other.x == x && other.y == y)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
 
 public class BoardManager : MonoBehaviour
 {
     public static BoardManager Instance;
-
-    public GameObject blockPrefab;
-    public GameObject smokePrefab;
-    public GameObject rubbleBlock;
-    public GameObject bombPrefab;
-    public GameObject deployObject;
-
-    public List<GameObject> cellPrefabs;
-    public List<GameObject> heroCellPrefabs;
-
     public int numRows;
     public int numColumns;
+    public float initialBlockDropSpeed = .02f;
+    
+    private float _blockSize;
+    private int _enemyFrontRow = 1;
 
-    public GameObject boardGameObject;
-
-    // A list of all possible blocks that can be spawned on the board
-    public List<GameObject> blockGameObjects = new List<GameObject>();
-
-    // An empty block for filling blank space in the board
-    public GameObject emptyBlock;
-
-    // A 2D array that contains the blocks that comprise the board
-    private Board _board;
-
-    public bool isRefilling;
-    public TextMeshProUGUI accumulatedPointsText;
-
-    public UnitBehaviour mostRecentlyAttackingUnit;
-
-    private float blockSize;
-
-    private Player _player;
-    private List<GameObject> _objectsToDestroyLater = new List<GameObject>();
-    private GameObject[,] cellObjects;
-    private int combo = 0;
-    private int accumulatedPoints = 0;
-    private List<int> accumulatedScores = new List<int>();
-    private Dictionary<int, List<Coordinates>> _selectorPositions = new Dictionary<int, List<Coordinates>>();
-    private List<UnitBehaviour> _unitsToReinsert = new List<UnitBehaviour>();
-    public bool canMove;
-
+    private Dictionary<Coordinates, Cell> _cells;
+    
+    [SerializeField] private UnitBehaviour unitBehaviourPrefab;
+    [SerializeField] private Cell cellPrefab;
+    [SerializeField] private List<Cell> heroCellPrefabs;
     [SerializeField] private GameObject blocksParent;
     [SerializeField] private GameObject cellsParent;
     [SerializeField] private GameObject singleCellSelector;
     
-    public struct Coordinates 
-    {
-        public int x;
-
-        public int y;
-
-        public Coordinates(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        public bool Equals(Coordinates other)
-        {
-            if (other.x == x && other.y == y)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    }
-
     public enum Direction
     {
         Up, 
@@ -90,77 +63,94 @@ public class BoardManager : MonoBehaviour
         Right
     }
 
-    public enum BlockLayout
-    {
-        Surrounding,
-        Crossing
-    }
-
     void Awake()
     {
-        isRefilling = false;
-
-        if (Instance == null) Instance = this;
-        
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
     }
 
-    private void Start()
+    public List<UnitBehaviour> Heroes
     {
-        _player = GameObject.FindObjectOfType<Player>();
-        
-        EventManager.Instance.LevelLoaded();
-        
-        StartCoroutine(KickOffGameLoop());
-        
-        AudioManager.Instance.PlayAndLoop("forest");
-    }
+        get
+        {
+            var heroes = new List<UnitBehaviour>();
+            for (var i = 0; i < numColumns; i++)
+            {
+                var hero = GetUnitBehaviour(new Coordinates(i, Timings.HeroRow));
+                if (hero) heroes.Add(hero);
+            }
 
-    public IEnumerator KickOffGameLoop()
+            return heroes;
+        }
+    }
+    
+    public List<UnitBehaviour> FrontRowEnemies
     {
-        yield return CreateBoard(); // creates the actual grid composed of square gameobjects. unit placement will be based on these transforms
+        get
+        {
+            var frontRowEnemies = new List<UnitBehaviour>();
+            for (var i = 0; i < numColumns; i++)
+            {
+                var enemy = GetUnitBehaviour(new Coordinates(i, Timings.EnemyRow));
+                if (enemy) frontRowEnemies.Add(enemy);
+            }
+
+            return frontRowEnemies;
+        }
+    }
+    
+    public IEnumerator InitializeBoard()
+    {
+        yield return StartCoroutine(CreateBoard()); // creates the actual grid composed of square gameobjects. unit placement will be based on these transforms
         
         yield return StartCoroutine(CreateHeroes());
 
-        yield return StartCoroutine(SpawnUnit(WaveManager.Instance.GetUnitsToSpawn()));
+        yield return StartCoroutine(SpawnEnemyUnits(WaveManager.Instance.GetUnitsToSpawn()));
         
         StartCoroutine(ModifiedGameLoop());
     }
 
-    private void AddBlock(Unit unit)
+    /// <summary>
+    /// Creates a UnitBehaviour from provided Unit Data.
+    /// Places the block in the appropriate location on the board
+    /// </summary>
+    public UnitBehaviour SpawnUnit(Unit unit, int lowestRow)
     {
         // create unit behavior for the unit
-        var unitBehaviour = CreateBlock(unit);
+        var unitBehaviour = CreateUnitBehaviour(unit);
 
         // find available board position on grid for unit
-        var blockCoordinates = FindBlockPlacement();
-
-        // TODO: fix this
+        var blockCoordinates = FindRandomColumn(lowestRow);
+        
         if (blockCoordinates == null || blockCoordinates.Equals(new Coordinates(-1, -1)))
         {
-            unitBehaviour.Remove();
-            return;
+            unitBehaviour.RemoveSelf();
+            return null;
         }
 
-        // assign block to board
-        _board.SetUnitBehaviour(blockCoordinates.Value, unitBehaviour);
+        SetUnitBehaviour(unitBehaviour, blockCoordinates.Value);
 
         // drop block gameobject into position
-        DropBlock(unitBehaviour.gameObject, _board.GetWorldSpacePositionForBoardCoordinates(blockCoordinates.Value), blockCoordinates.Value);
-    }
+        Drop(unitBehaviour.gameObject, GetPositionFromCoordinates(blockCoordinates.Value).Value);
 
-    private void DropBlock(GameObject blockGameobject, Vector3 position, Coordinates blockCoords)
+        return unitBehaviour;
+    } 
+
+    private void Drop(GameObject blockGameObject, Vector3 position)
     {
         var dropFrom = new Vector3(position.x, Camera.main.orthographicSize + 1, position.z);
-        blockGameobject.transform.position = dropFrom;
+        blockGameObject.transform.position = dropFrom;
 
-        var newPos = new Vector3(position.x, position.y, blockCoords.y);
-        Drop(blockGameobject, dropFrom, newPos);
-    }
-
-    private void Drop(GameObject obj, Vector3 dropFrom, Vector3 dropTo)
-    {
+        var dropTo = new Vector3(position.x, position.y, 0);
+        
         // Initial scale
-        var initialScale = obj.transform.localScale;
+        var initialScale = blockGameObject.transform.localScale;
         //obj.transform.localScale = new Vector3(initialScale.x * .7f, initialScale.y, initialScale.z);
 
         // Set a constant falling speed
@@ -174,15 +164,25 @@ public class BoardManager : MonoBehaviour
         Sequence mySequence = DOTween.Sequence();
 
         // Add move tween to the sequence
-        mySequence.Append(obj.transform.DOMove(dropTo, dropDuration).SetEase(Ease.InQuad));
+        mySequence.Append(blockGameObject.transform.DOMove(dropTo, dropDuration).SetEase(Ease.InQuad));
 
         // Add squash effect once the movement is completed
-        mySequence.Append(obj.transform.DOScale(new Vector3(1.5f, 0.6f, initialScale.z), 0.1f));
+        mySequence.Append(blockGameObject.transform.DOScale(new Vector3(1.5f, 0.6f, initialScale.z), 0.1f));
 
         // After squashing, spring back to original size
-        mySequence.Append(obj.transform.DOScale(initialScale, 0.1f));
+        mySequence.Append(blockGameObject.transform.DOScale(initialScale, 0.1f));
     }
 
+    private Vector3? GetPositionFromCoordinates(Coordinates coordinates)
+    {
+        if (_cells.TryGetValue(coordinates, out var cell))
+        {
+            return cell.boardPosition;
+        }
+
+        return null;
+    }
+    
     // create the game board where pieces will be populated. whenever the value of numColumns or numRows is changed, the
     // game board should repopulate while in edit mode
     
@@ -191,56 +191,64 @@ public class BoardManager : MonoBehaviour
     private IEnumerator CreateBoard()
     {
         var boardReady = false;
-        var cellSize = cellPrefabs[1].GetComponent<SpriteRenderer>().bounds.size;
-        _board = new Board(numColumns, numRows, cellSize);
+        var cellInstances = new List<Cell>();
 
-        List<GameObject> blocksToDrop = new List<GameObject>();
-
-        // create grid background
-        for (int i = 0; i < _board.boardPositions.Length; i++)
+        // create Cells
+        for (var i = 0; i < numColumns; i++)
         {
-            for (int j = 0; j < _board.boardPositions[i].Length; j++)
+            for (var j = 0; j < numRows; j++)
             {
-                var backgroundCell = Instantiate(cellPrefabs[(i + j) % 2], cellsParent.transform);
-                backgroundCell.GetComponent<Cell>().coordinates = new Coordinates(i, j);
-
-                blocksToDrop.Add(backgroundCell);
+                var cellInstance = Instantiate(cellPrefab, cellsParent.transform);
+                cellInstance.Coordinates = new Coordinates(i, j);
+                cellInstance.boardPosition = GetCellPosition(cellInstance);
+                
+                cellInstances.Add(cellInstance);
+                _cells.Add(cellInstance.Coordinates, cellInstance);
             }
         }
 
         // Shuffle the blocksToDrop list
-        System.Random rng = new System.Random();
-        int n = blocksToDrop.Count;
+        var rng = new System.Random();
+        var n = cellInstances.Count;
         while (n > 1)
         {
             n--;
             var k = rng.Next(n + 1);
-            (blocksToDrop[k], blocksToDrop[n]) = (blocksToDrop[n], blocksToDrop[k]);
+            (cellInstances[k], cellInstances[n]) = (cellInstances[n], cellInstances[k]);
         }
 
         // Drop blocks in shuffled order
-        foreach (var block in blocksToDrop)
+        foreach (var cell in cellInstances)
         {
-            var coord = block.GetComponent<Cell>().coordinates;
-            DropBlock(block, _board.boardPositions[coord.x][coord.y].worldSpacePosition, coord);
-            yield return new WaitForSeconds(.02f);
+            Drop(cell.gameObject, cell.boardPosition);
+            yield return new WaitForSeconds(initialBlockDropSpeed);
         }
-
-        // create grid background for heroes
-        for (int i = 0; i < _board.heroPositions.Length; i++)
-        {
-            var backgroundCell = Instantiate(heroCellPrefabs[i % 2], cellsParent.transform);
-            DropBlock(backgroundCell, _board.heroPositions[i].worldSpacePosition, new Coordinates(i, 0));
-            Destroy(backgroundCell.GetComponent<Cell>());
-            backgroundCell.AddComponent<HeroCell>();
-
-            backgroundCell.GetComponent<HeroCell>().column = i;
-            yield return new WaitForSeconds(.02f);
-        }
-
+        
         boardReady = true;
         yield return new WaitUntil(() => boardReady);
         EventManager.Instance.BoardReady();
+    }
+    
+    /// <summary>
+    /// Returns the World Position where a cell should be placed based on the number of total cells and the cell size.
+    /// </summary>
+    /// <param name="cell"></param>
+    /// <returns></returns>
+    private Vector3 GetCellPosition(Cell cell)
+    {
+        var yOffset = .5f;
+        var prefabSize = cellPrefab.GetComponent<SpriteRenderer>().bounds.size;
+        
+        // Calculate the total width and height of the board based on prefab size
+        float boardWidth = numColumns * prefabSize.x; 
+        float boardHeight = (numRows - 1) * prefabSize.x;
+
+        // Calculate the starting position for the board to be centered on the screen
+        float startX = -boardWidth / 2 + prefabSize.x / 2; 
+        float startY = (-boardHeight / 2) + prefabSize.x / 2 + cell.Coordinates.y * prefabSize.y + yOffset;  
+
+        float xPos = startX + cell.Coordinates.x * prefabSize.x;
+        return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
     }
 
     public IEnumerator SpawnWave()
@@ -248,149 +256,128 @@ public class BoardManager : MonoBehaviour
         if (!WaveManager.Instance.shouldSpawnWave) yield break;
         
         var unitsToSpawn = WaveManager.Instance.GetUnitsToSpawn();
-        yield return StartCoroutine(SpawnUnit(unitsToSpawn));
+        yield return StartCoroutine(SpawnEnemyUnits(unitsToSpawn));
     }
 
     public void ForceSpawnWave()
     {
+        var energyCost = 3;
+        
+        if (!EnergyManager.Instance.DoHaveEnoughEnergy(energyCost)) return;
+        
+        EnergyManager.Instance.SpendEnergy(energyCost);
         var unitsToSpawn = WaveManager.Instance.GetUnitsToSpawn();
-        StartCoroutine(SpawnUnit(unitsToSpawn));
+        if (unitsToSpawn == null) return;
+        StartCoroutine(SpawnEnemyUnits(unitsToSpawn));
     }
 
-    private IEnumerator SpawnUnit(List<Unit> unitsToSpawn)
+    private IEnumerator SpawnEnemyUnits(List<Unit> unitsToSpawn)
     {
         for (var unitsSpawned = 0; unitsSpawned < unitsToSpawn.Count; unitsSpawned++)
         {
-            AddBlock(unitsToSpawn[unitsSpawned]);
+            SpawnUnit(unitsToSpawn[unitsSpawned], Timings.EnemyRow);
             yield return new WaitForSeconds(.1f);
         }
     }
     
-    private Coordinates? FindBlockPlacement()
+    /// <summary>
+    /// Finds the coordinates of the first available position in a random column
+    /// </summary>
+    /// <returns>
+    /// The coordinate of the position. If board is full, returns null
+    /// </returns>
+    private Coordinates? FindRandomColumn(int lowestRow)
     {
-        // if all columns are full, overfill a column
-        
-        // otherwise, try a random column
-        return _board.FindRandomColumn();
+        List<int> availableColumnIndices = new List<int>();
 
-        // if it has space, the block can go in the column
-
-        // if not, try another column
-
-        // assign unit to Board data
-
-    }
-    
-    private IEnumerator CreateHeroes()
-    {
-        foreach (var hero in _player.allHeroes)
+        // find any columns that have at least one available cell
+        for (int column = 0; column < numColumns; column++)
         {
-            var unitBehaviour = CreateBlock(hero);
-            Vector3? position = _board.SetHero(unitBehaviour);
-            if (position != null)
+            for (int row = lowestRow; row < +numRows; row++)
             {
-                DropBlock(unitBehaviour.gameObject, position.Value, new Coordinates(0, 0));
-            }
-            
-            yield return null;
-        }
-    }
-
-    public List<Coordinates> GetRandomCoordinates(int numCoords)
-    {
-        List<Coordinates> coordinatesList = new List<Coordinates>();
-        int maxAttempts = 10;
-        int attempts = 0;
-
-        while (coordinatesList.Count < numCoords && attempts < maxAttempts)
-        {
-            attempts++;
-            int randomX = Random.Range(0, numColumns);
-            int randomY = Random.Range(0, numRows);
-            Coordinates coords = new Coordinates(randomX, randomY);
-            if (!coordinatesList.Contains(coords))
-            {
-                coordinatesList.Add(coords);
+                if (GetUnitBehaviour(new Coordinates(column, row)) == null)
+                {
+                    availableColumnIndices.Add(column);
+                    break;  // Exit the inner loop once we find an available cell in the column.
+                }
             }
         }
-        
-        return coordinatesList;
+
+        // If there are no available columns, handle this case.
+        if (availableColumnIndices.Count == 0)
+        {
+            // Depending on your requirements, return a default value or handle differently.
+            return new Coordinates(-1, -1);
+        }
+
+        // pick a random column from the available columns
+        int chosenColumnIndex = availableColumnIndices[Random.Range(0, availableColumnIndices.Count)];
+
+        // Find the first available cell in the chosen column.
+        Coordinates? cellCoordinates = FindFirstAvailablePositionInColumn(chosenColumnIndex);
+
+        return cellCoordinates;
     }
     
-    public void SwapBlocks(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
+    private Coordinates? FindFirstAvailablePositionInColumn(int columnIndex)
     {
-        if (!canMove) return;
+        for (var row = 0; row < numRows; row++)
+        {
+            if (GetUnitBehaviour(new Coordinates(columnIndex, row)) == null)
+            {
+                return new Coordinates(columnIndex, row);
+            }
+        }
 
-        if (!EnergyManager.Instance.DoHaveEnoughEnergy(EnergyManager.Instance.energyPerSwap)) return;
-        
-        EnergyManager.Instance.SpendEnergy(EnergyManager.Instance.energyPerSwap);
-        
-        var leftUnit = _board.GetUnitBehaviour(leftBlockCoords);
-        var rightUnit = _board.GetUnitBehaviour(rightBlockCoords);
+        return null;
+    }
 
+    public void SwapUnits(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
+    {
+        if (!GamePlayDirector.Instance.playerActionPermitted) return;
+
+        var leftUnit = GetUnitBehaviour(leftBlockCoords);
+        var rightUnit = GetUnitBehaviour(rightBlockCoords);
         if (leftUnit == null && rightUnit == null) return;
         
+        SwapUnitsOnBoard(leftBlockCoords, rightBlockCoords);
+        
+        EventPipe.TakeAction();
         AudioManager.Instance.PlayWithRandomPitch("whoosh");
-        StartCoroutine(TurnManager.Instance.TakeTurn());
-        _board.SwapBlocks(leftBlockCoords, rightBlockCoords);
 
         if (leftUnit && leftUnit.effects.Count > 0)
         {
             var leftEffectsCopy = new List<EffectState>(leftUnit.effects);  // Create a copy
-            foreach (var effect in leftEffectsCopy)
+            foreach (var effectState in leftEffectsCopy)
             {
-                effect.effect.OnSwap(leftUnit, rightUnit);
+                effectState.effect.OnSwap(leftBlockCoords, rightBlockCoords);
             }
         }
 
         if (rightUnit && rightUnit.effects.Count > 0)
         {
             var rightEffectsCopy = new List<EffectState>(rightUnit.effects);  // Create a copy
-            foreach (var effect in rightEffectsCopy)
+            foreach (var effectState in rightEffectsCopy)
             {
-                effect.effect.OnSwap(rightUnit, leftUnit);
+                effectState.effect.OnSwap(rightBlockCoords, leftBlockCoords);
             }
         }
 
         StartCoroutine(WaitToApplyGravity(_board.blockSwapTime));
     }
-    
-    public void SwapHeroBlocks(int heroColumn1, int heroColumn2)
+
+
+
+    private void SwapUnitsOnBoard(Coordinates cell1, Coordinates cell2)
     {
-        if (!canMove) return;
+        var unitBehaviour1 = GetUnitBehaviour(cell1);
+        var unitBehaviour2 = GetUnitBehaviour(cell2);
 
-        if (!EnergyManager.Instance.DoHaveEnoughEnergy(EnergyManager.Instance.energyPerSwap)) return;
-        
-        EnergyManager.Instance.SpendEnergy(EnergyManager.Instance.energyPerSwap);
-
-        var leftUnit = _board.GetHeroFromColumn(heroColumn1);
-        var rightUnit = _board.GetHeroFromColumn(heroColumn2);
-
-        if (leftUnit == null && rightUnit == null) return;
-        
-        AudioManager.Instance.PlayWithRandomPitch("whoosh");
-        StartCoroutine(TurnManager.Instance.TakeTurn());
-        _board.SwapHeroBlocks(heroColumn1, heroColumn2);
-
-        if (leftUnit)
-        {
-            foreach (var effect in leftUnit.effects)
-            {
-                effect.effect.OnSwap(leftUnit, rightUnit);
-            }
-
-        }
-
-        if (rightUnit)
-        {
-            foreach (var effect in rightUnit.unitData.effects)
-            {
-                effect.OnSwap(rightUnit, leftUnit);
-            }
-        }
+        SetUnitBehaviour(unitBehaviour2, cell1);
+        SetUnitBehaviour(unitBehaviour1, cell2);
     }
-
-    public IEnumerator WaitToApplyGravity(float blockSwapTime)
+    
+    private IEnumerator WaitToApplyGravity(float blockSwapTime)
     {
         yield return new WaitForSeconds(blockSwapTime);
         CleanUpBoard();
@@ -400,48 +387,47 @@ public class BoardManager : MonoBehaviour
     {
         RemoveDeadUnits();
         ApplyGravity();
-        StartCoroutine(AssignCombatTargets());
     }
     
     private void ApplyGravity()
     {
-        for (int column = 0; column < numColumns; column++)
+        for (var column = 0; column < numColumns; column++)
         {
-            List<UnitBehaviour> collapsedBlocks = new List<UnitBehaviour>();
-            for (int row = 0; row < numRows; row++)
+            var collapsedBlocks = new List<UnitBehaviour>();
+            for (var row = 0; row < numRows; row++)
             {
-                var b = _board.GetUnitBehaviour(new Coordinates(column, row));
-                if (b == null || !b.unitData) continue;
+                var unitBehaviour = GetUnitBehaviour(new Coordinates(column, row));
+                if (unitBehaviour == null || !unitBehaviour.unitData) continue;
             
-                collapsedBlocks.Add(b);
+                collapsedBlocks.Add(unitBehaviour);
             }
 
-            for (int newRow = 0; newRow < numRows; newRow++)
+            for (var newRow = 0; newRow < numRows; newRow++)
             {
-                var coords = _board.GetWorldSpacePositionForBoardCoordinates(new Coordinates(column, newRow));
-                Vector3 newPosition = new Vector3(coords.x, coords.y, coords.y);
+                var collapsedCoordinates = new Coordinates(column, newRow);
+                var cellPosition = GetCell(collapsedCoordinates).boardPosition;
                     
                 if (newRow < collapsedBlocks.Count)
                 {
                     // Instruct all non-empty blocks to be compressed to the bottom of the board
-                    var b = collapsedBlocks[newRow];
-                    b.targetPosition = newPosition;
-                    _board.SetUnitBehaviour(new Coordinates(column, newRow), b);
-                    if (newPosition.y < b.transform.position.y - 1) Drop(b.gameObject,b.transform.position, newPosition);
-                    if (newRow == 0) b.EnableCountdownTimer();
+                    var unitBehaviour = collapsedBlocks[newRow];
+                    unitBehaviour.targetPosition = cellPosition;
+                    SetUnitBehaviour(unitBehaviour, collapsedCoordinates);
+                    
+                    if (collapsedCoordinates.y < unitBehaviour.transform.position.y - 1) Drop(unitBehaviour.gameObject, unitBehaviour.transform.position);
+                    if (newRow == Timings.EnemyRow) unitBehaviour.EnableCountdownTimer();
                 }
                 else
                 {
-                    // Clear any remaining positions above the collapsed blocks
-                    _board.SetUnitBehaviour(new Coordinates(column, newRow), null);
+                    SetUnitBehaviour(null, collapsedCoordinates);
                 }
             }
         }
     }
 
-    public List<UnitBehaviour> Chain(UnitBehaviour origin)
+    public List<UnitBehaviour> GetChainedUnits(UnitBehaviour origin)
     {
-        var visited = new HashSet<BoardManager.Coordinates>();
+        var visited = new HashSet<Coordinates>();
         var allUnits = new List<UnitBehaviour>();
 
         DFS(origin, visited, allUnits);
@@ -449,7 +435,7 @@ public class BoardManager : MonoBehaviour
         return allUnits;
     }
 
-    private void DFS(UnitBehaviour current, HashSet<BoardManager.Coordinates> visited, List<UnitBehaviour> allUnits)
+    private void DFS(UnitBehaviour current, HashSet<Coordinates> visited, List<UnitBehaviour> allUnits)
     {
         if (current == null)
             return;
@@ -460,41 +446,19 @@ public class BoardManager : MonoBehaviour
         visited.Add(current.coordinates);
         allUnits.Add(current);
 
-        foreach (var neighborCoordinates in GetNeighboringCoordinates(current.coordinates))
+        foreach (var neighborCoordinates in GetCardinalNeighborCoordinates(current.coordinates))
         {
-            var neighbor = _board.GetUnitBehaviour(neighborCoordinates);
+            var neighbor = GetUnitBehaviour(neighborCoordinates);
 
             // If neighbor is of the same tribe and hasn't been visited, we recursively call DFS on it.
-            if (neighbor != null && neighbor.unitData.tribe == current.unitData.tribe && !visited.Contains(neighbor.coordinates) && !neighbor.cantChain)
-            {
-                Debug.Log("Same tribe");
-                DFS(neighbor, visited, allUnits);
-            }
+            if (neighbor == null || neighbor.unitData.tribe != current.unitData.tribe ||
+                visited.Contains(neighbor.coordinates) || neighbor.cantChain) continue;
+
+            DFS(neighbor, visited, allUnits);
         }
     }
     
-    // Pass in the coordinates of the two blocks the selector is highlighting.
-    // This will then return the transform in the middle of the two where the selector gameobject should be rendered
-    public Vector3 GetSelectorPosition(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
-    {
-        var lBlock = _board.GetWorldSpacePositionForBoardCoordinates(leftBlockCoords);
-        var rBlock = _board.GetWorldSpacePositionForBoardCoordinates(rightBlockCoords);
-
-        Vector2 middlePos;
-        float x = rBlock.x - ((rBlock.x - lBlock.x) / 2);
-        float y = rBlock.y - ((rBlock.y - lBlock.y) / 2);
-        middlePos = new Vector3(x, y, -50);
-        return middlePos;
-    }
-
-    public void SetSelectorPosition(Coordinates pos1, Coordinates pos2)
-    {
-        List<Coordinates> coords = new List<Coordinates>();
-        coords.Add(pos1);
-        coords.Add(pos2);
-    }
-    
-    public Coordinates GetNeighborCoordinates(Coordinates origin, Direction direction)
+    public Coordinates GetSingleNeighborCoordinates(Coordinates origin, Direction direction)
     {
         switch (direction)
         {
@@ -505,6 +469,7 @@ public class BoardManager : MonoBehaviour
                 }
 
                 break;
+            
             case (Direction.Right):
                 if (origin.x + 1 < numColumns)
                 {
@@ -517,7 +482,62 @@ public class BoardManager : MonoBehaviour
         return new Coordinates(0, 0);
     }
     
-    public List<Coordinates> GetNeighboringCoordinates(Coordinates coordinates)
+    public void SetCellSelector(Vector3 position)
+    {
+        singleCellSelector.transform.position = position;
+    }
+    
+    private IEnumerator ModifiedGameLoop()
+    {
+        while (true)
+        {
+            // spawn wave 
+            yield return StartCoroutine(SpawnWave());
+            
+            // assign combat targets
+            yield return StartCoroutine(AssignCombatTargets());
+            
+            yield return StartCoroutine(SetEnemyAttackOrder());
+            
+            yield return StartCoroutine(TurnManager.Instance.WaitForPlayerTurn());
+            
+            if (UIManager.Instance.chestDestroyed)
+            {
+                yield return StartCoroutine(UIManager.Instance.ChestEvent());
+            }
+
+            yield return StartCoroutine(SequentialCombat());
+        }
+    }
+    
+    public void OnRestart()
+    {
+        SceneManager.LoadScene("PlayScene");
+    }
+
+    #region Neighbor Helpers
+
+    public bool IsNeighbor(Cell cell1, Cell cell2)
+    {
+        var coordinates1 = cell1.Coordinates;
+        var coordinates2 = cell2.Coordinates;
+
+        if (coordinates1.y != coordinates2.y) return false;
+        
+        if (Mathf.Abs(coordinates1.x - coordinates2.x) == 1)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    
+    /// <summary>
+    /// Returns the Coordinates of cells to the north, south, east, and west of the cell at the provided coordinates
+    /// </summary>
+    /// <param name="coordinates">The coordinates of the cell whose neighbors will be returned</param>
+    /// <returns></returns>
+    public List<Coordinates> GetCardinalNeighborCoordinates(Coordinates coordinates)
     {
         List<Coordinates> neighbors = new List<Coordinates>();
         int x = coordinates.x;
@@ -607,218 +627,100 @@ public class BoardManager : MonoBehaviour
         return neighbors;
     }
     
-    private UnitBehaviour CreateBlock(Unit unit)
+
+    #endregion
+
+    #region Board Interaction
+    
+    /// <summary>
+    /// Sets the UnitBehaviour to be placed on the board at a given position
+    /// Assigns the UnitBehaviour to a given Cell
+    /// </summary>
+    /// <param name="unitBehaviour"></param>
+    /// <param name="cellCoordinates"></param>
+    private void SetUnitBehaviour(UnitBehaviour unitBehaviour, Coordinates cellCoordinates)
     {
-        var blockInstance = Instantiate(blockPrefab, blocksParent.transform);
+        var cell = _cells[cellCoordinates];
+        if (cell == null)
+        {
+            Debug.LogError($"Cell at {cellCoordinates.x}, {cellCoordinates.y} not found");
+        }
+
+        cell.UnitBehaviour = unitBehaviour;
+    }
+
+    [CanBeNull]
+    public UnitBehaviour GetUnitBehaviour(Coordinates coordinates)
+    {
+        return _cells[coordinates].UnitBehaviour;
+    }
+
+    [CanBeNull]
+    private Coordinates? GetCoordinatesForUnitBehaviour(UnitBehaviour unitBehaviour)
+    {
+        foreach (var kvp in _cells)
+        {
+            if (kvp.Value.UnitBehaviour == unitBehaviour)
+            {
+                return kvp.Key;
+            }
+        }
+        return null;
+    }
+    
+    public void RemoveUnitBehaviour(UnitBehaviour unitBehaviour)
+    {
+        var unitCoordinates = GetCoordinatesForUnitBehaviour(unitBehaviour);
+        if (unitCoordinates == null) return;
+
+        _cells.Remove((Coordinates) unitCoordinates);
+        unitBehaviour.RemoveSelf();
+    }
+    
+    /// <summary>
+    /// Instantiates a Block prefab from provided Unit data
+    /// </summary>
+    private UnitBehaviour CreateUnitBehaviour(Unit unit)
+    {
+        var unitBehaviourInstance = Instantiate(unitBehaviourPrefab, blocksParent.transform);
 
         // hydrate generic block prefab 
-        return blockInstance.GetComponent<UnitBehaviour>().Initialize(unit);
-    }
-
-    public UnitBehaviour GetBlock(Coordinates coordinates)
-    {
-        return _board.GetUnitBehaviour(coordinates);
+        return unitBehaviourInstance.Initialize(unit);
     }
     
-    private IEnumerator SequentialCombat()
-    {
-        Debug.Log("Sequential Combat");
-        canMove = false;
-        
-        foreach (var unit in TurnManager.Instance.orderedCombatUnits)
-        {
-            if (!unit) continue;
-            
-            Debug.Log($"{unit.name} is next up for sequential combat");
-            if (unit.isDead) yield break;
-            
-            Debug.Log($"{unit.name} is not dead");
-            
-            if (unit.combatTarget == null) TurnManager.Instance.ResetUnit(unit);
-            Debug.Log($"{unit.name} has a combat target");
-
-            if (unit.turnsTilAttack == 0)
-            {
-                Debug.Log($"{unit.name} has 0 turns til attack");
-                yield return new WaitForSeconds(1f);
-                yield return StartCoroutine(unit.Attack(unit.combatTarget));
-                TurnManager.Instance.ResetUnit(unit);
-                _unitsToReinsert.Add(unit);
-                
-                CleanUpBoard();
-
-                yield return new WaitForSeconds(.5f);
-            }
-        }
-        
-        foreach (var unit in _unitsToReinsert)
-        {
-            TurnManager.Instance.ReinsertUnit(unit);
-        }
-        _unitsToReinsert.Clear();
-    }
-
     private void RemoveDeadUnits()
     {
-        UnitBehaviour[] allUnits = _board.GetAllUnits();
-        foreach(UnitBehaviour unit in allUnits)
+        var deadUnitsKeys = _cells
+            .Where(kvp => kvp.Value.UnitBehaviour.currentHp <= 0)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        foreach (var key in deadUnitsKeys)
         {
-            if(unit.currentHp <= 0)
-            {
-                RemoveUnitFromBoard(unit);
-            }
-        }
-    }
-
-    public UnitBehaviour[] GetAllUnits()
-    {
-        return _board.GetAllUnits();
-    }
-
-    public void RemoveUnitFromBoard(UnitBehaviour unitBehaviour)
-    {
-        _board.RemoveUnitFromBoard(unitBehaviour);
-        unitBehaviour.Remove();
-    }
-
-    private IEnumerator AssignCombatTargets()
-    {
-        for (var i = 0; i < numColumns; i++)
-        {
-            var hero = _board.Heroes[i];
-            var enemy = _board.FrontRowEnemies[i];
-
-            if (enemy)
-            {
-                hero.SetCombatTarget(enemy);
-                enemy.SetCombatTarget(hero);
-            }
-            else
-            {
-                hero.SetCombatTarget(null);
-            }
-        }
-        
-        yield break;
-    }
-
-    private IEnumerator SetUpCombatTurns()
-    {
-        var combatParticipants = _board.FrontRowEnemies.ToList();
-        canMove = true;
-        return TurnManager.Instance.ChooseTurnOrder(combatParticipants);
-    }
-
-    public void SetCellSelector(Vector3 position)
-    {
-        singleCellSelector.transform.position = position;
-    }
-
-    public void SetCellSelector(Coordinates coordinates)
-    {
-        singleCellSelector.transform.position = _board.GetWorldSpacePositionForBoardCoordinates(coordinates);
-    }
-
-    [CanBeNull]
-    public UnitBehaviour GetUnitBehaviourAtCoordinate(Coordinates coordinates)
-    {
-        return _board.GetUnitBehaviour(coordinates);
-    }
-    
-    [CanBeNull]
-    public UnitBehaviour GetHeroUnitBehaviourAtCoordinate(int column)
-    {
-        return _board.GetHeroFromColumn(column);
-    }
-    
-    private IEnumerator GameLoop()
-    {
-        while (true)
-        {
-            // spawn wave 
-            yield return StartCoroutine(SpawnWave());
-
-            // choose combat targets for heroes and enemies
-            yield return StartCoroutine(AssignCombatTargets());
-        
-            // assign combatants their turn order and create turn UIs
-            yield return StartCoroutine(SetUpCombatTurns());
-            
-            // player swaps blocks
-            yield return StartCoroutine(TurnManager.Instance.CheckIfFinishedSwapping());
-            
-            // combat happens
-            yield return StartCoroutine(SequentialCombat());
+            var cell = _cells[key];
+            _cells.Remove(key);
+            cell.UnitBehaviour.RemoveSelf();
         }
     }
     
-    
-    private IEnumerator ModifiedGameLoop()
+    public List<UnitBehaviour> GetAllUnitBehaviours()
     {
-        while (true)
+        var allCells = _cells.Values.ToList();
+        var allUnitBehaviours = new List<UnitBehaviour>();
+        foreach (var cell in allCells)
         {
-            // spawn wave 
-            yield return StartCoroutine(SpawnWave());
-            
-            // assign combat targets
-            yield return StartCoroutine(AssignCombatTargets());
-            
-            yield return StartCoroutine(SetUpCombatTurns());
-            
-            // wait for player to swap blocks
-            yield return StartCoroutine(TurnManager.Instance.CheckIfFinishedSwapping());
-            
-            if (UIManager.Instance.chestDestroyed)
-            {
-                yield return StartCoroutine(UIManager.Instance.ChestEvent());
-            }
-
-            yield return StartCoroutine(SequentialCombat());
-        }
-    }
-
-    public Coordinates? GetCoordinatesForUnit(UnitBehaviour unitBehaviour)
-    {
-        return _board.FindUnitBehaviour(unitBehaviour);
-    }
-
-    public bool IsNeighbor(Cell cell1, Cell cell2)
-    {
-        var coordinates1 = cell1.coordinates;
-        var coordinates2 = cell2.coordinates;
-
-        if (coordinates1.y != coordinates2.y) return false;
-        
-        if (Mathf.Abs(coordinates1.x - coordinates2.x) == 1)
-        {
-            return true;
+            allUnitBehaviours.Add(cell.UnitBehaviour);
         }
 
-        return false;
+        return allUnitBehaviours;
     }
 
-    public bool IsHeroNeighbor(Cell cell1, Cell cell2)
+    private Cell GetCell(Coordinates coordinates)
     {
-        if (Mathf.Abs(cell1.column - cell2.column) == 1)
-        {
-            return true;
-        }
-
-        return false;
+        return _cells[coordinates];
     }
 
-    public bool CanAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit)
-    {
-        if (!attackingUnit || !attackedUnit) return false;
-        
-        var combatTarget = attackingUnit.combatTarget;
-
-        if (Mathf.Abs(attackedUnit.coordinates.x - combatTarget.coordinates.x) <= attackingUnit.unitData.attackRange && 
-            Mathf.Abs(attackedUnit.coordinates.y - combatTarget.coordinates.y) <= attackingUnit.unitData.attackRange)
-        {
-            return true;
-        }
-
-        return false;
-    }
+    #endregion
 }
+
+

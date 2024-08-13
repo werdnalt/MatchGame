@@ -5,30 +5,24 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IDragHandler, IPointerUpHandler, IPointerDownHandler, IPointerClickHandler
+public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IDragHandler, IPointerUpHandler
 {
-    public BoardManager.Coordinates coordinates;
-    public int column;
-    public UnitBehaviour unitBehaviour;
+    public Coordinates Coordinates;
+    public Vector3 boardPosition;
+    public UnitBehaviour UnitBehaviour
+    {
+        get => _unitBehaviour;
+        set => _unitBehaviour = value;
+    }
 
-    private bool _isHolding;
-    private bool _hasAnimatedHolding;
-
-    private float _timeEnteredCell = Mathf.Infinity;
-    private float _timeUntilChainShown = .5f;
-    private float _infoPanelTimeHoverThreshold = .5f;
-    
-    private Vector3 originalScale;
-    private bool scaleSet = false;
-    private bool _hasShownPanel = false;
-    
+    private UnitBehaviour _unitBehaviour;
     private float _cachedZIndex;
     
     public void OnPointerEnter(PointerEventData eventData)
     {
         AudioManager.Instance.PlayWithRandomPitch("wood2");
-        _timeEnteredCell = Time.time;
-        unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
+        _unitBehaviour = BoardManager.Instance.GetUnitBehaviour(Coordinates);
+        
         if (eventData.dragging)
         {
             ActionHandler.Instance.SetDraggedCell(this);
@@ -37,60 +31,58 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         {
             ArrowLine.Instance.SetHoverIndicator(transform.position);
         }
-        if (!unitBehaviour)
+        
+        
+        if (!_unitBehaviour)
         {
             
             return;
         }
-        //UIManager.Instance.ShowUnitPanel(unitBehaviour);
+        
+        UIManager.Instance.ShowUnitPanel(_unitBehaviour);
+        
+        if (!_unitBehaviour.healthUI.activeSelf) _unitBehaviour.ShowAndUpdateHealth();
+        if (!_unitBehaviour.attackUI.activeSelf) _unitBehaviour.ShowAttack();
 
-        if (!unitBehaviour.healthUI.activeSelf) unitBehaviour.ShowAndUpdateHealth();
+        _cachedZIndex = _unitBehaviour.transform.position.z;
+        var cachedPos = _unitBehaviour.transform.position;
+        _unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, -3);
         
-        unitBehaviour.ShowAttack();
-        
-        _cachedZIndex = unitBehaviour.transform.position.z;
-        var cachedPos = unitBehaviour.transform.position;
-        unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, -3);
-        
-        //ApplyJelloEffect(unitBehaviour);
+        _unitBehaviour.ApplyJelloEffect();
     }
     
     public void OnPointerExit(PointerEventData eventData)
     {
-        Debug.Log("Exit");
         ActionHandler.Instance.HideIndicators();
-        _timeEnteredCell = Mathf.Infinity;
-        
         UIManager.Instance.HideUnitPanel();
-        // if (CursorAnimation.Instance.isDragging) return;
-        //
         CursorAnimation.Instance.UnhighlightChain();
-        _hasShownPanel = false;
 
-        if (unitBehaviour)
-        {
-            var cachedPos = unitBehaviour.transform.position;
-            unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, _cachedZIndex);
-            if (unitBehaviour.coordinates.y != 0) unitBehaviour.HideHealth();
-            if (unitBehaviour.coordinates.y != 0) unitBehaviour.HideAttack();
-        }
+        if (!_unitBehaviour) return;
+        
+        var cachedPos = _unitBehaviour.transform.position;
+        _unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, _cachedZIndex);
+        
+        // Don't hide health and attack if unit is sitting in enemy front row
+        if (_unitBehaviour.coordinates.y == Timings.EnemyRow) return;
+        _unitBehaviour.HideHealth();
+        _unitBehaviour.HideAttack();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!unitBehaviour || unitBehaviour.isDragging || !BoardManager.Instance.canMove || unitBehaviour.isDead) return;
+        if (!_unitBehaviour || _unitBehaviour.isDragging || !GamePlayDirector.Instance.playerActionPermitted || _unitBehaviour.isDead) return;
 
         AudioManager.Instance.Play("wood");
-        unitBehaviour.Jump();
-        unitBehaviour.isDragging = true;
-        ArrowLine.Instance.StartDrawingLine(unitBehaviour.transform.position);
+        _unitBehaviour.Jump();
+        _unitBehaviour.Drag(true);
+        ArrowLine.Instance.StartDrawingLine(_unitBehaviour.transform.position);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (!unitBehaviour) return;
+        if (!_unitBehaviour) return;
         
-        unitBehaviour.isDragging = false;
+        _unitBehaviour.isDragging = false;
         
         if (eventData.button == PointerEventData.InputButton.Right)
         {
@@ -100,40 +92,16 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         StartCoroutine(ActionHandler.Instance.ResolveAction());
     }
 
-    private void Update()
-    {
-        if (Time.time - _timeEnteredCell >= _timeUntilChainShown && !_hasShownPanel)
-        {
-            unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
-            if (!unitBehaviour)
-            {
-                return;
-            }
-        
-            CursorAnimation.Instance.HighlightChain(unitBehaviour);
-            _hasShownPanel = true;
-        }
-    }
-
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (!BoardManager.Instance.canMove) return;
+        if (!GamePlayDirector.Instance.playerActionPermitted) return;
         
-        unitBehaviour = BoardManager.Instance.GetUnitBehaviourAtCoordinate(coordinates);
+        _unitBehaviour = BoardManager.Instance.GetUnitBehaviour(Coordinates);
 
-        if (!unitBehaviour) return;
+        if (!_unitBehaviour) return;
         
-        unitBehaviour.ApplyJelloEffect();
-        
+        _unitBehaviour.ApplyJelloEffect();
         ActionHandler.Instance.SetClickedCell(this);
-        
         AudioManager.Instance.PlayWithRandomPitch("click");
-    }
-    
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (!unitBehaviour) return;
-        UIManager.Instance.ShowUnitPanel(unitBehaviour);
     }
 }
