@@ -77,7 +77,6 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
         transform.DOMove(chosenTreasurePosition, 1f).SetEase(Ease.OutQuad).OnComplete(()=>
         {
             UIManager.Instance.chosenTreasure = treasure;
-            UIManager.Instance.ShowHeroChoices();
         });
     }
 

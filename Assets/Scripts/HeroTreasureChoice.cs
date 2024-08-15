@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class HeroTreasureChoice : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    public UnitBehaviour hero;
+    public HeroUnitBehaviour hero;
     public Treasure treasure;
 
     public Image heroPortrait;
@@ -20,7 +20,7 @@ public class HeroTreasureChoice : MonoBehaviour, IPointerEnterHandler, IPointerE
         _originalScale = transform.localScale;
     }
 
-    public void Setup(UnitBehaviour heroUnit, Treasure chosenTreasure)
+    public void Setup(HeroUnitBehaviour heroUnit, Treasure chosenTreasure)
     {
         hero = heroUnit;
         treasure = chosenTreasure;

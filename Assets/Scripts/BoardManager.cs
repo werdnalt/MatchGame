@@ -105,17 +105,6 @@ public class BoardManager : MonoBehaviour
         }
     }
     
-    public IEnumerator InitializeBoard()
-    {
-        yield return StartCoroutine(CreateBoard()); // creates the actual grid composed of square gameobjects. unit placement will be based on these transforms
-        
-        yield return StartCoroutine(CreateHeroes());
-
-        yield return StartCoroutine(SpawnEnemyUnits(WaveManager.Instance.GetUnitsToSpawn()));
-        
-        StartCoroutine(ModifiedGameLoop());
-    }
-
     /// <summary>
     /// Creates a UnitBehaviour from provided Unit Data.
     /// Places the block in the appropriate location on the board
@@ -188,7 +177,7 @@ public class BoardManager : MonoBehaviour
     
     // the board should originate from the gameobject from which this script is attached, so it can be dragged around and
     // readjusted while in edit mode
-    private IEnumerator CreateBoard()
+    public IEnumerator CreateBoard()
     {
         var boardReady = false;
         var cellInstances = new List<Cell>();
@@ -271,7 +260,7 @@ public class BoardManager : MonoBehaviour
         StartCoroutine(SpawnEnemyUnits(unitsToSpawn));
     }
 
-    private IEnumerator SpawnEnemyUnits(List<Unit> unitsToSpawn)
+    public IEnumerator SpawnEnemyUnits(List<Unit> unitsToSpawn)
     {
         for (var unitsSpawned = 0; unitsSpawned < unitsToSpawn.Count; unitsSpawned++)
         {
@@ -334,7 +323,7 @@ public class BoardManager : MonoBehaviour
 
     public void SwapUnits(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
-        if (!GamePlayDirector.Instance.playerActionPermitted) return;
+        if (!GamePlayDirector.Instance.PlayerActionAllowed) return;
 
         var leftUnit = GetUnitBehaviour(leftBlockCoords);
         var rightUnit = GetUnitBehaviour(rightBlockCoords);
@@ -363,7 +352,7 @@ public class BoardManager : MonoBehaviour
             }
         }
 
-        StartCoroutine(WaitToApplyGravity(_board.blockSwapTime));
+        StartCoroutine(WaitToApplyGravity(Timings.TimeBeforeAttack));
     }
 
 
@@ -444,19 +433,22 @@ public class BoardManager : MonoBehaviour
         if (current == null)
             return;
 
-        if (visited.Contains(current.coordinates))
+        var coordinates = GetCoordinatesForUnitBehaviour(current);
+        if (coordinates == null) return;
+        
+        if (visited.Contains(coordinates.Value))
             return;
         
-        visited.Add(current.coordinates);
+        visited.Add(coordinates.Value);
         allUnits.Add(current);
 
-        foreach (var neighborCoordinates in GetCardinalNeighborCoordinates(current.coordinates))
+        foreach (var neighborCoordinates in GetCardinalNeighborCoordinates(coordinates.Value))
         {
             var neighbor = GetUnitBehaviour(neighborCoordinates);
 
             // If neighbor is of the same tribe and hasn't been visited, we recursively call DFS on it.
             if (neighbor == null || neighbor.unitData.tribe != current.unitData.tribe ||
-                visited.Contains(neighbor.coordinates) || neighbor.cantChain) continue;
+                visited.Contains(neighborCoordinates) || neighbor.cantChain) continue;
 
             DFS(neighbor, visited, allUnits);
         }
@@ -486,32 +478,10 @@ public class BoardManager : MonoBehaviour
         return new Coordinates(0, 0);
     }
     
-    public void SetCellSelector(Vector3 position)
+    public void SetCellSelector(Coordinates coordinates)
     {
-        singleCellSelector.transform.position = position;
-    }
-    
-    private IEnumerator ModifiedGameLoop()
-    {
-        while (true)
-        {
-            // spawn wave 
-            yield return StartCoroutine(SpawnWave());
-            
-            // assign combat targets
-            yield return StartCoroutine(AssignCombatTargets());
-            
-            yield return StartCoroutine(SetEnemyAttackOrder());
-            
-            yield return StartCoroutine(TurnManager.Instance.WaitForPlayerTurn());
-            
-            if (UIManager.Instance.chestDestroyed)
-            {
-                yield return StartCoroutine(UIManager.Instance.ChestEvent());
-            }
-
-            yield return StartCoroutine(SequentialCombat());
-        }
+        var cell = GetCell(coordinates);
+        singleCellSelector.transform.position = cell.transform.position;
     }
     
     public void OnRestart()

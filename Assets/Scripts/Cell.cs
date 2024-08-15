@@ -70,7 +70,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!_unitBehaviour || _unitBehaviour.isDragging || !GamePlayDirector.Instance.playerActionPermitted || _unitBehaviour.isDead) return;
+        if (!_unitBehaviour || _unitBehaviour.isDragging || !GamePlayDirector.Instance.PlayerActionAllowed || _unitBehaviour.isDead) return;
 
         AudioManager.Instance.Play("wood");
         _unitBehaviour.Jump();
@@ -94,7 +94,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (!GamePlayDirector.Instance.playerActionPermitted) return;
+        if (!GamePlayDirector.Instance.PlayerActionAllowed) return;
         
         _unitBehaviour = BoardManager.Instance.GetUnitBehaviour(Coordinates);
 

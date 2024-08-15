@@ -18,7 +18,6 @@ public class TurnManager : MonoBehaviour
 
     private void Awake()
     {
-        _turnTaken = false;
         if (Instance == null) Instance = this;
         else
         {

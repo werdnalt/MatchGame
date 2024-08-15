@@ -235,17 +235,6 @@ public class UIManager : MonoBehaviour
     {
         toolTip.SetActive(false);
     }
-
-    public void ShowHeroChoices()
-    {
-        treasureReceivedText.text = "GIVE TO A HERO!";
-        for (var i = 0; i < heroTreasureChoices.Count; i++)
-        {
-            var heroChoice = heroTreasureChoices[i];
-            heroChoice.GetComponent<PopEffect>().EnableAndPop();
-            heroChoice.Setup(BoardManager.Instance.GetHeroUnitBehaviourAtCoordinate(i), chosenTreasure);
-        }
-    }
     
     public void HideTreasurePopup()
     {

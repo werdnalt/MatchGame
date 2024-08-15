@@ -55,7 +55,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
         _mousePositionAction = inputAction.FindAction("MousePosition");
 
         playerActions = new MyPlayerActions();
-        playerActions.Player.Cancel.performed += ctx => CancelSelection();
+        // playerActions.Player.Cancel.performed += ctx => CancelSelection();
     }
 
     private void Update()
@@ -68,23 +68,23 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 
             if (_mousePos.x < _startingDragPos.x - 1 && _startingIndex > 0)
             {
-                _swappingCell = new BoardManager.Coordinates(_startingCell.column - 1, _startingCell.row);
+                _swappingCell = new Coordinates(_startingCell.column - 1, _startingCell.row);
                 _isSwappingLeft = true;
                 _spriteRenderer.sprite = swapSelector;
             }
             else if (_mousePos.x > _startingDragPos.x + 1 && _startingCell.column + 1 < BoardManager.Instance.numColumns)
             {
-                _swappingCell = new BoardManager.Coordinates(_startingCell.column + 1, _startingCell.row);
+                _swappingCell = new Coordinates(_startingCell.column + 1, _startingCell.row);
                 _isSwappingLeft = false;
                 _spriteRenderer.sprite = swapSelector;
             }
             else
             {
                 _spriteRenderer.sprite = smallSwappingSelector;
-                _swappingCell = new BoardManager.Coordinates(-1, -1);
+                _swappingCell = new Coordinates(-1, -1);
             }
         
-            SetSwapSelectorPosition();
+            //SetSwapSelectorPosition();
         }
 
         else
@@ -93,52 +93,27 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 
             if (_mousePos.x < _startingDragPos.x - 1 && _startingCell.column > 0)
             {
-                _swappingCell = new BoardManager.Coordinates(_startingCell.column - 1, _startingCell.row);
+                _swappingCell = new Coordinates(_startingCell.column - 1, _startingCell.row);
                 _isSwappingLeft = true;
                 _spriteRenderer.sprite = swapSelector;
             }
             else if (_mousePos.x > _startingDragPos.x + 1 && _startingCell.column + 1 < BoardManager.Instance.numColumns)
             {
-                _swappingCell = new BoardManager.Coordinates(_startingCell.column + 1, _startingCell.row);
+                _swappingCell = new Coordinates(_startingCell.column + 1, _startingCell.row);
                 _isSwappingLeft = false;
                 _spriteRenderer.sprite = swapSelector;
             }
             else
             {
                 _spriteRenderer.sprite = smallSwappingSelector;
-                _swappingCell = new BoardManager.Coordinates(-1, -1);
+                _swappingCell = new Coordinates(-1, -1);
             }
         
-            SetSwapSelectorPosition();
+            //SetSwapSelectorPosition();
         }
         
     }
-
-    public void CancelSelection()
-    {
-        isDragging = false;
-        SetSwapSelectorPosition();
-        Debug.Log("Canceling");
-        _spriteRenderer.sprite = smallSwappingSelector;
-        _swappingCell = new BoardManager.Coordinates(-1, -1);
-        StartPulsing();
-    }
     
-    private void SetSwapSelectorPosition()
-    {
-        if (_swappingCell.Equals(new BoardManager.Coordinates(-1, -1))) return;
-
-        if (_isSwappingLeft)
-        {
-            transform.position = BoardManager.Instance.GetSelectorPosition(_swappingCell, _startingCell);
-        }
-
-        else
-        {
-            transform.position = BoardManager.Instance.GetSelectorPosition(_startingCell, _swappingCell);
-        }
-    }
-
     void Start()
     {
         localScale = transform.localScale;
@@ -170,7 +145,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
         GetComponent<SpriteRenderer>().color = color;
     }
 
-    public void StartDraggingFrom(Vector3 position, BoardManager.Coordinates startingCell)
+    public void StartDraggingFrom(Vector3 position, Coordinates startingCell)
     {
         if (isDragging) return;
         
@@ -182,41 +157,6 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
         _startingCell = startingCell;
     }
     
-    public void StartDraggingHeroFrom(Vector3 position, int startingIndex)
-    {
-        if (isDragging) return;
-
-        _spriteRenderer.sprite = smallSwappingSelector;
-        _startingDragPos = position;
-        isDraggingHero = true;
-        _startingIndex = startingIndex;
-    }
-    
-    public void StopDraggingHero()
-    {
-        ChangeColor(Color.white);
-        isDragging = false;
-        _isSwappingLeft = false;
-
-        if (!_swappingIndex.Equals(new BoardManager.Coordinates(0, 0)))
-        {
-            BoardManager.Instance.SetCellSelector(_swappingCell);
-        }
-        else
-        {
-            BoardManager.Instance.SetCellSelector(_startingCell);
-        }
-        
-        if (!_swappingCell.Equals(new BoardManager.Coordinates(0, 0)))
-        {
-            BoardManager.Instance.SwapBlocks(_swappingCell, _startingCell);
-        }
-        
-        _swappingCell = new BoardManager.Coordinates(0, 0);
-        _spriteRenderer.sprite = regularSelector;
-        
-    }
-
     public void StopDragging()
     {
         StartPulsing();
@@ -225,7 +165,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
         _isSwappingLeft = false;
         
         BoardManager.Instance.SetCellSelector(_startingCell);
-        BoardManager.Instance.SwapBlocks(_swappingCell, _startingCell);
+        BoardManager.Instance.SwapUnits(_swappingCell, _startingCell);
         
         _spriteRenderer.sprite = regularSelector;
     }
@@ -233,7 +173,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
     public void OnPointerUp(PointerEventData eventData)
     {
         Debug.Log("pointer up");
-        if (eventData.button == PointerEventData.InputButton.Right) CancelSelection();
+        // if (eventData.button == PointerEventData.InputButton.Right) CancelSelection();
     }
 
     public void HoldingAnimation()
@@ -247,10 +187,10 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
         UnhighlightChain();
         if (!hoveredUnit) return;
 
-        var chainedUnits = BoardManager.Instance.Chain(hoveredUnit);
+        var chainedUnits = BoardManager.Instance.GetChainedUnits(hoveredUnit);
 
         // Get a list of all the units on the board
-        var allUnits = BoardManager.Instance.GetAllUnits();
+        var allUnits = BoardManager.Instance.GetAllUnitBehaviours();
 
         // Iterate through all the units on the board
         foreach (var unit in allUnits)
@@ -271,7 +211,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
 
     public void UnhighlightChain()
     {
-        var allUnits = BoardManager.Instance.GetAllUnits();
+        var allUnits = BoardManager.Instance.GetAllUnitBehaviours();
 
         foreach (var unit in allUnits)
         {

@@ -29,7 +29,7 @@ public class UnitManager : MonoBehaviour
         _player = Player.Instance;
     }
     
-    private IEnumerator CreateHeroes()
+    public IEnumerator CreateHeroes()
     {
         foreach (var hero in _player.allHeroes)
         {
@@ -38,7 +38,7 @@ public class UnitManager : MonoBehaviour
         }
     }
 
-    private IEnumerator TryEnemyAttacks()
+    public IEnumerator TryEnemyAttacks()
     {
         var frontRowEnemies = boardManager.FrontRowEnemies;
         foreach (var enemy in frontRowEnemies)
@@ -77,25 +77,5 @@ public class UnitManager : MonoBehaviour
     public IEnumerator ExecuteAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit)
     {
         yield return StartCoroutine(attackingUnit.Attack(attackedUnit));
-    }
-    
-    public IEnumerator SetEnemyAttackOrder(List<EnemyUnitBehaviour> enemiesInCombat)
-    {
-        // Remove dead units
-        enemiesInCombat.RemoveAll(unit => unit == null || unit.isDead || unit.unitData.passive);
-
-        // Order the list of units by their 'turnsTilAttack' property
-        var orderedEnemies = enemiesInCombat.OrderBy(unit => unit.turnsTilAttack).ToList();
-
-        foreach (var enemyUnitBehaviour in orderedEnemies)
-        {
-            enemyUnitBehaviour.EnableCountdownTimer();
-            if (!enemyUnitBehaviour.healthUI.activeSelf) enemyUnitBehaviour.ShowAndUpdateHealth();
-            if (!enemyUnitBehaviour.attackUI.activeSelf) enemyUnitBehaviour.ShowAttack();
-        }
-
-        orderedEnemies = orderedEnemies;
-    
-        yield break;
     }
 }

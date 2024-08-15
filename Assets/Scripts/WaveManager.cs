@@ -64,8 +64,7 @@ public class WaveManager : MonoBehaviour
             return waves.First();
         }
     }
-
-
+    
     private int _wavesCompleted = 0;
     private List<Unit> _unitsToSpawn;
 
@@ -80,17 +79,7 @@ public class WaveManager : MonoBehaviour
         currentNumWave = 0;
         totalNumWaves = waves.Count;
     }
-
-    private void Start()
-    {
-        //waves = new List<Wave>(GameManager.Instance.levelData.waves);
-    }
-
-    public void IncrementAttackCounter()
-    {
-        _numAttacks++;
-    }
-
+    
     public List<Unit> GetUnitsToSpawn()
     {
         if (waves.Count == 0) waves = new List<Wave>(GameManager.Instance.levelData.waves);

@@ -67,4 +67,9 @@ public class HeroUnitBehaviour : UnitBehaviour
         // Wait until combatFinished becomes true to exit the coroutine
         yield return new WaitUntil(() => combatFinished);
     }
+
+    public void GiveTreasure(Treasure treasure)
+    {
+        // give treasure
+    }
 }

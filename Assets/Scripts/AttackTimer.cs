@@ -91,12 +91,12 @@ public class AttackTimer : MonoBehaviour
     
     public void StartPulsing()
     {
-        _timerAnimationEffects.StartPulsing();
+        // _timerAnimationEffects.StartPulsing();
     }
 
     private void StopPulsing()
     {
-        _timerAnimationEffects.StopPulsing();
+        // _timerAnimationEffects.StopPulsing();
     }
 
     public bool IsReadyToAttack()
