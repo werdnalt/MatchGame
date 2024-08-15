@@ -8,6 +8,33 @@ using UnityEngine.UI;
 
 public class EnemyUnitBehaviour : UnitBehaviour
 {
+    private AttackTimer _attackTimer;
+
+    private void Awake()
+    {
+        _attackTimer = GetComponent<AttackTimer>();
+        _attackTimer.Setup(unitData);
+        
+        EventPipe.OnActionTaken += HandleActionTaken;
+    }
+
+    public bool ShouldAttack()
+    {
+        return _attackTimer.IsReadyToAttack();
+    }
+
+    private void HandleActionTaken()
+    {
+        if (isDead) return;
+        
+        StartCoroutine(_attackTimer.CountDownTimer());
+    }
+
+    public void EnableCountdownTimer()
+    {
+        _attackTimer.EnableCountdownTimer();
+    }
+
     public override IEnumerator Attack(UnitBehaviour attackingTarget)
     {
         if (isDead) yield break;
@@ -58,6 +85,7 @@ public class EnemyUnitBehaviour : UnitBehaviour
 
                 transform.DOMove(originalPos, .3f).SetEase(Ease.OutQuad).OnComplete(() =>
                 {
+                    StartCoroutine(_attackTimer.ResetAttackTimer());
                     combatFinished = true;
                 });
             });

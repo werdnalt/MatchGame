@@ -63,7 +63,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         _unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, _cachedZIndex);
         
         // Don't hide health and attack if unit is sitting in enemy front row
-        if (_unitBehaviour.coordinates.y == Timings.EnemyRow) return;
+        if (Coordinates.row == Timings.EnemyRow) return;
         _unitBehaviour.HideHealth();
         _unitBehaviour.HideAttack();
     }

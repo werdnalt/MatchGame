@@ -13,19 +13,19 @@ using UnityEngine.SceneManagement;
 
 public struct Coordinates 
 {
-    public int x;
+    public int column;
 
-    public int y;
+    public int row;
 
-    public Coordinates(int x, int y)
+    public Coordinates(int column, int row)
     {
-        this.x = x;
-        this.y = y;
+        this.column = column;
+        this.row = row;
     }
 
     public bool Equals(Coordinates other)
     {
-        if (other.x == x && other.y == y)
+        if (other.column == column && other.row == row)
         {
             return true;
         }
@@ -75,7 +75,7 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    public List<UnitBehaviour> Heroes
+    public List<UnitBehaviour> HeroesByPosition
     {
         get
         {
@@ -90,15 +90,15 @@ public class BoardManager : MonoBehaviour
         }
     }
     
-    public List<UnitBehaviour> FrontRowEnemies
+    public List<EnemyUnitBehaviour> FrontRowEnemies
     {
         get
         {
-            var frontRowEnemies = new List<UnitBehaviour>();
+            var frontRowEnemies = new List<EnemyUnitBehaviour>();
             for (var i = 0; i < numColumns; i++)
             {
                 var enemy = GetUnitBehaviour(new Coordinates(i, Timings.EnemyRow));
-                if (enemy) frontRowEnemies.Add(enemy);
+                if (enemy) frontRowEnemies.Add(enemy as EnemyUnitBehaviour);
             }
 
             return frontRowEnemies;
@@ -245,9 +245,9 @@ public class BoardManager : MonoBehaviour
 
         // Calculate the starting position for the board to be centered on the screen
         float startX = -boardWidth / 2 + prefabSize.x / 2; 
-        float startY = (-boardHeight / 2) + prefabSize.x / 2 + cell.Coordinates.y * prefabSize.y + yOffset;  
+        float startY = (-boardHeight / 2) + prefabSize.x / 2 + cell.Coordinates.row * prefabSize.y + yOffset;  
 
-        float xPos = startX + cell.Coordinates.x * prefabSize.x;
+        float xPos = startX + cell.Coordinates.column * prefabSize.x;
         return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
     }
 
@@ -414,8 +414,12 @@ public class BoardManager : MonoBehaviour
                     unitBehaviour.targetPosition = cellPosition;
                     SetUnitBehaviour(unitBehaviour, collapsedCoordinates);
                     
-                    if (collapsedCoordinates.y < unitBehaviour.transform.position.y - 1) Drop(unitBehaviour.gameObject, unitBehaviour.transform.position);
-                    if (newRow == Timings.EnemyRow) unitBehaviour.EnableCountdownTimer();
+                    if (collapsedCoordinates.row < unitBehaviour.transform.position.y - 1) Drop(unitBehaviour.gameObject, unitBehaviour.transform.position);
+                    if (newRow == Timings.EnemyRow && unitBehaviour is EnemyUnitBehaviour)
+                    {
+                        var enemyUnitBehaviour = unitBehaviour as EnemyUnitBehaviour;
+                        enemyUnitBehaviour.EnableCountdownTimer();
+                    }
                 }
                 else
                 {
@@ -463,17 +467,17 @@ public class BoardManager : MonoBehaviour
         switch (direction)
         {
             case (Direction.Left):
-                if (origin.x - 1 >= 0)
+                if (origin.column - 1 >= 0)
                 {
-                    return new Coordinates(origin.x - 1, origin.y);
+                    return new Coordinates(origin.column - 1, origin.row);
                 }
 
                 break;
             
             case (Direction.Right):
-                if (origin.x + 1 < numColumns)
+                if (origin.column + 1 < numColumns)
                 {
-                    return new Coordinates(origin.x + 1, origin.y);
+                    return new Coordinates(origin.column + 1, origin.row);
                 }
 
                 break;
@@ -522,9 +526,9 @@ public class BoardManager : MonoBehaviour
         var coordinates1 = cell1.Coordinates;
         var coordinates2 = cell2.Coordinates;
 
-        if (coordinates1.y != coordinates2.y) return false;
+        if (coordinates1.row != coordinates2.row) return false;
         
-        if (Mathf.Abs(coordinates1.x - coordinates2.x) == 1)
+        if (Mathf.Abs(coordinates1.column - coordinates2.column) == 1)
         {
             return true;
         }
@@ -540,10 +544,10 @@ public class BoardManager : MonoBehaviour
     public List<Coordinates> GetCardinalNeighborCoordinates(Coordinates coordinates)
     {
         List<Coordinates> neighbors = new List<Coordinates>();
-        int x = coordinates.x;
-        int y = coordinates.y;
+        int x = coordinates.column;
+        int y = coordinates.row;
         
-        Debug.Log($"Checking neighbors for coordinates: {coordinates.x}, {coordinates.y} ");
+        Debug.Log($"Checking neighbors for coordinates: {coordinates.column}, {coordinates.row} ");
 
         if (x - 1 >= 0)
         {
@@ -571,10 +575,10 @@ public class BoardManager : MonoBehaviour
     public List<Coordinates> GetAllNeighboringCoordinates(Coordinates coordinates)
     {
         List<Coordinates> neighbors = new List<Coordinates>();
-        int x = coordinates.x;
-        int y = coordinates.y;
+        int x = coordinates.column;
+        int y = coordinates.row;
 
-        Debug.Log($"Checking neighbors for coordinates: {coordinates.x}, {coordinates.y} ");
+        Debug.Log($"Checking neighbors for coordinates: {coordinates.column}, {coordinates.row} ");
 
         // Top neighbor
         if (y + 1 < numRows)
@@ -643,7 +647,7 @@ public class BoardManager : MonoBehaviour
         var cell = _cells[cellCoordinates];
         if (cell == null)
         {
-            Debug.LogError($"Cell at {cellCoordinates.x}, {cellCoordinates.y} not found");
+            Debug.LogError($"Cell at {cellCoordinates.column}, {cellCoordinates.row} not found");
         }
 
         cell.UnitBehaviour = unitBehaviour;
@@ -656,7 +660,7 @@ public class BoardManager : MonoBehaviour
     }
 
     [CanBeNull]
-    private Coordinates? GetCoordinatesForUnitBehaviour(UnitBehaviour unitBehaviour)
+    public Coordinates? GetCoordinatesForUnitBehaviour(UnitBehaviour unitBehaviour)
     {
         foreach (var kvp in _cells)
         {

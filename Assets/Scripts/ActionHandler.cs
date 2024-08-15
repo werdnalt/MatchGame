@@ -36,7 +36,6 @@ public class ActionHandler : MonoBehaviour
         {
             if (BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
-                EnergyManager.Instance.FlashOrb();
                 ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Swap, draggedCell);
             }
             else
@@ -107,57 +106,54 @@ public class ActionHandler : MonoBehaviour
 
     public IEnumerator ResolveAction()
     {
-        if (clickedCell) clickedCell.unitBehaviour.isDragging = false;
+        if (clickedCell) clickedCell.UnitBehaviour.isDragging = false;
         
         CursorAnimation.Instance.UnhighlightChain();
         ArrowLine.Instance.HideIndicators();
         
-        if (!BoardManager.Instance.canMove) yield break;
+        if (!GamePlayDirector.Instance.PlayerActionAllowed) yield break;
         
         if (!clickedCell || !draggedCell)
         {
-            ClearUnits();
+            ClearSelectedCells();
             yield break;
         }
         
-        if (clickedCell.unitBehaviour == null)
+        if (clickedCell.UnitBehaviour == null)
         {
-            ClearUnits();
+            ClearSelectedCells();
             yield break;
         }
         
         if (!clickedCell) yield break;
         
-        clickedCell.unitBehaviour.isDragging = false;
+        clickedCell.UnitBehaviour.isDragging = false;
         
         // clicked a hero
-        if (clickedCell.unitBehaviour.unitData.tribe == Unit.Tribe.Hero)
+        if (clickedCell.UnitBehaviour is HeroUnitBehaviour)
         {
-            if (draggedCell.unitBehaviour == null) yield break;
+            if (draggedCell.UnitBehaviour == null) yield break;
             
-            if (draggedCell.unitBehaviour.unitData.tribe == Unit.Tribe.Hero)
+            if (draggedCell.UnitBehaviour is HeroUnitBehaviour)
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
-                BoardManager.Instance.SwapHeroBlocks(clickedCell.column, draggedCell.column);
+                BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates);
                 yield break;
             }
             
-            UnitBehaviour clickedUnit = GetUnit(clickedCell);
+            var clickedUnit = BoardManager.Instance.GetUnitBehaviour(clickedCell.Coordinates);
 
             // Exit if we couldn't find a clickedUnit
             if (clickedUnit == null) yield break;
         
-            UnitBehaviour draggedUnit = GetUnit(draggedCell);
+            var draggedUnit = BoardManager.Instance.GetUnitBehaviour(draggedCell.Coordinates);
 
             // Exit if we couldn't find a draggedUnit
             if (draggedUnit == null) yield break;
 
-            else if (BoardManager.Instance.CanAttack(clickedUnit, draggedUnit))
+            if (UnitManager.CanAttack(clickedUnit, draggedUnit))
             {
-                ResetUnitSize();
-                // attack the unit
-                BoardManager.Instance.canMove = false;
-                yield return StartCoroutine(clickedCell.unitBehaviour.Attack(draggedUnit));
+                yield return UnitManager.Instance.ExecuteAttack(clickedUnit, draggedUnit);
             }
         }
         
@@ -166,49 +162,33 @@ public class ActionHandler : MonoBehaviour
         {
             // UnitBehaviour draggedUnit = GetUnitBasedOnTribe(draggedCell);
             // draggedUnit.skull.SetActive(false);
-            if (draggedCell.unitBehaviour == null && !BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
+            if (draggedCell.UnitBehaviour == null && !BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
-                ResetUnitSize();
-                ClearUnits();
+                ClearSelectedCells();
                 yield break;
             }
             
-            if (draggedCell.unitBehaviour == null && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
+            if (draggedCell.UnitBehaviour == null && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
-                BoardManager.Instance.SwapUnits(clickedCell.coordinates, draggedCell.coordinates);
-                ResetUnitSize();
-                ClearUnits();
+                BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates);
+                ClearSelectedCells();
                 yield break;
             }
             
-            if (draggedCell.unitBehaviour.unitData.tribe != Unit.Tribe.Hero && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
+            if (draggedCell.UnitBehaviour.unitData.tribe != Unit.Tribe.Hero && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
-                BoardManager.Instance.SwapUnits(clickedCell.coordinates, draggedCell.coordinates);
-                ResetUnitSize();
+                BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates);
             }
         }
 
         
-        ClearUnits();
+        ClearSelectedCells();
     }
-
-    private void ResetUnitSize()
-    {
-        // if (clickedCell)
-        // {
-        //     if (clickedCell.unitBehaviour) clickedCell.unitBehaviour.Shrink();
-        // }
-        //
-        // if (draggedCell)
-        // {
-        //     if (draggedCell.unitBehaviour) draggedCell.unitBehaviour.Shrink();
-        // }
-    }
-
-    private void ClearUnits()
+    
+    private void ClearSelectedCells()
     {
         clickedCell = null;
         draggedCell = null;

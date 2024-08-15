@@ -10,7 +10,6 @@ public abstract class UnitBehaviour : MonoBehaviour
 {
     // Public properties
     public Unit unitData;
-    public Coordinates coordinates;
     public bool isDead = false;
     public Vector3? targetPosition;
     public bool cantChain = false;
@@ -113,7 +112,7 @@ public abstract class UnitBehaviour : MonoBehaviour
 
         _animationEffects = animatedCharacter.AddComponent<AnimationEffects>();
 
-        GetAllChildObjects();
+        SetCharacterShader();
 
         foreach (var effect in unitData.effects)
         {
@@ -121,7 +120,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         }
     }
     
-    private void GetAllChildObjects()
+    private void SetCharacterShader()
     {
         if (!animatedCharacter) return;
 
@@ -325,16 +324,6 @@ public abstract class UnitBehaviour : MonoBehaviour
         transform.DOKill();
         transform.DOPunchPosition(endingPos, .3f, 1, 1).SetEase(Ease.OutQuad);
     }
-    
-    public void SetCombatTarget(UnitBehaviour target)
-    {
-        combatTarget = target;
-    }
-    
-    public void GainExperience(int amount)
-    {
-        _currentExperience += amount;
-    }
 
     public void Heal(int amount)
     {
@@ -356,113 +345,13 @@ public abstract class UnitBehaviour : MonoBehaviour
         
         increaseHealthParticles.Play();
     }
-
-    public void EnableCountdownTimer()
-    {
-        if (attackTimer < 0) return;
-
-        if (!attackTimerObject.activeSelf)
-        {
-            attackTimerObject.transform.DOKill();
-            var currentTimerSize = attackTimerObject.transform.localScale;
-            var newTimerSize = new Vector3(currentTimerSize.x * 1.3f, currentTimerSize.y * 1.3f, 1);
-            attackTimerObject.transform.DOPunchScale(newTimerSize, .5f, 1, .3f).SetEase(Ease.OutQuad);
-        }
-        
-        attackTimerObject.SetActive(true);
-        _timerAnimationEffects = attackTimerObject.GetComponent<AnimationEffects>();
-        attackTimerTimeText.text = turnsTilAttack.ToString();
-        
-        if (attackTimer <= 1) StartPulsing();
-    }
-
-    public IEnumerator CountDownTimer()
-    {
-        if (isDead) yield break;
-        
-        if (turnsTilAttack < 0) yield break;
-        
-        Debug.Log("Counting down timers");
-        var animationFinished = false;
-
-        turnsTilAttack--;
-        
-        var originalScale = attackTimerObject.transform.localScale;
-        attackTimerTimeText.text = turnsTilAttack.ToString();
-
-        attackTimerObject.transform.DOKill();
-        attackTimerObject.transform.DOPunchScale(new Vector3(originalScale.x * 1.2f, originalScale.y * 1.2f + 1, 0), .3f, 1, 1).OnComplete(() =>
-        {
-            animationFinished = true;
-        });
-        
-        if (turnsTilAttack <= 1) StartPulsing();
-
-        animationFinished = true;
-        yield return new WaitUntil(() => animationFinished);
-    }
     
-    public IEnumerator ResetAttackTimer()
-    {
-        if (turnsTilAttack < 0) yield break;
-        
-        StopPulsing();
-        
-        attackTimerTimeText.color = Color.white;
-        var animationFinished = false;
-        var originalScale = attackTimerObject.transform.localScale;
-        
-        turnsTilAttack = attackTimer;
-        attackTimerObject.transform.DOKill();
-        attackTimerTimeText.text = turnsTilAttack.ToString();
-        attackTimerObject.transform.DOPunchScale(new Vector3(originalScale.x * 1.2f, originalScale.y * 1.2f + 1, 0), .3f, 1, 1).OnComplete(() =>
-        {
-            animationFinished = true;
-        });
-        
-        if (turnsTilAttack <= 1) StartPulsing();
-        
-        yield return new WaitUntil(() => animationFinished);
-    }
-    
-    public void StartPulsing()
-    {
-        _timerAnimationEffects.StartPulsing();
-    }
-
-    private void StopPulsing()
-    {
-        _timerAnimationEffects.StopPulsing();
-    }
-
     public void AddEffect(Effect effect)
     {
         effects.Add(new EffectState(effect));
         
         Jump();
         deathParticles.Play();
-    }
-
-    public void PlayIncreaseHealthParticles()
-    {
-        attackUpParticles.Play();
-    }
-
-    public void DisplayFloatingText(string textToDisplay, float duration)
-    {
-        floatingText.transform.position = floatingTextStartingPoint.transform.position;
-        floatingText.gameObject.SetActive(true);
-        floatingText.text = textToDisplay;
-
-        floatingText.transform.DOMove(floatingTextEndingPoint.transform.position, .75f, false).SetEase(Ease.OutExpo);
-        StartCoroutine(TurnOffFloatingText(duration));
-    }
-
-    private IEnumerator TurnOffFloatingText(float duration)
-    {
-        yield return new WaitForSeconds(duration);
-        
-        floatingText.gameObject.SetActive(false);
     }
 
     public virtual void ShowAndUpdateHealth()
@@ -505,8 +394,6 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public void HideHealth()
     {
-        if (coordinates.y == 0) return;
-        
         healthUI.SetActive(false);
     }
 
@@ -534,20 +421,20 @@ public abstract class UnitBehaviour : MonoBehaviour
     {
         if (!animatedCharacter) return;
         
-        if (_animationEffects)
-        {
-            _animationEffects.KillTweens();
-        }
-        
-        if (_timerAnimationEffects)
-        {
-            _timerAnimationEffects.KillTweens();
-        }
-        
-        animatedCharacter.transform.DOKill();
-        transform.DOKill();
-        attackTimerObject.transform.DOKill();
-        healthUI.transform.DOKill();
+        // if (_animationEffects)
+        // {
+        //     _animationEffects.KillTweens();
+        // }
+        //
+        // if (_timerAnimationEffects)
+        // {
+        //     _timerAnimationEffects.KillTweens();
+        // }
+        //
+        // animatedCharacter.transform.DOKill();
+        // transform.DOKill();
+        // attackTimerObject.transform.DOKill();
+        // healthUI.transform.DOKill();
     }
 
     public void RemoveSelf()
@@ -564,7 +451,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     public void ApplyJelloEffect()
     {
-        _animationEffects.Jello();
+        //_animationEffects.Jello();
     }
 
     public void Drag(bool isDragging)

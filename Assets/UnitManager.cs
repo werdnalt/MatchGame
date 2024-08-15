@@ -37,46 +37,41 @@ public class UnitManager : MonoBehaviour
             yield return null;
         }
     }
-
-    private IEnumerator TryEnemyAttacks()
+    
+    public IEnumerator AssignCombatTargets()
     {
-        var frontRowEnemies = boardManager.FrontRowEnemies;
-        foreach (var enemy in frontRowEnemies)
+        for (var i = 0; i < boardManager.numColumns; i++)
         {
-            if (!enemy.ShouldAttack()) continue;
-            
-            var enemyCoordinates = boardManager.GetCoordinatesForUnitBehaviour(enemy);
-            if (enemyCoordinates != null)
+            var hero = boardManager.Heroes[i];
+            var enemy = boardManager.FrontRowEnemies[i];
+
+            if (enemy)
             {
-                var column = enemyCoordinates.Value.column;
-                var hero = boardManager.GetUnitBehaviour(new Coordinates(column, Timings.HeroRow));
-                if (hero) yield return StartCoroutine(enemy.Attack(hero));
+                hero.SetCombatTarget(enemy);
+                enemy.SetCombatTarget(hero);
+            }
+            else
+            {
+                hero.SetCombatTarget(null);
             }
         }
+        
+        yield break;
     }
     
     public static bool CanAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit)
     {
         if (!attackingUnit || !attackedUnit) return false;
-
-        var attackingUnitCoordinates = BoardManager.Instance.GetCoordinatesForUnitBehaviour(attackingUnit);
-        var attackedUnitCoordinates = BoardManager.Instance.GetCoordinatesForUnitBehaviour(attackedUnit);
-
-        if (attackingUnitCoordinates == null || attackedUnitCoordinates == null) return false;
         
-        
-        if ((attackingUnitCoordinates.Value.column == attackedUnitCoordinates.Value.column) && 
-            Mathf.Abs(attackingUnitCoordinates.Value.row - attackedUnitCoordinates.Value.row) <= attackingUnit.unitData.attackRange)
+        var combatTarget = attackingUnit.combatTarget;
+
+        if (Mathf.Abs(attackedUnit.coordinates.x - combatTarget.coordinates.x) <= attackingUnit.unitData.attackRange && 
+            Mathf.Abs(attackedUnit.coordinates.y - combatTarget.coordinates.y) <= attackingUnit.unitData.attackRange)
         {
             return true;
         }
 
         return false;
-    }
-    
-    public IEnumerator ExecuteAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit)
-    {
-        yield return StartCoroutine(attackingUnit.Attack(attackedUnit));
     }
     
     public IEnumerator SetEnemyAttackOrder(List<EnemyUnitBehaviour> enemiesInCombat)
