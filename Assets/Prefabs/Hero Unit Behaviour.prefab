@@ -497,11 +497,11 @@ GameObject:
   m_Component:
   - component: {fileID: 2200278036780051956}
   - component: {fileID: 4001739480162334750}
-  - component: {fileID: 4594525613121135474}
   - component: {fileID: -7826357714210302745}
   - component: {fileID: 8738678404145434071}
+  - component: {fileID: 158193448638237952}
   m_Layer: 2
-  m_Name: Block
+  m_Name: Hero Unit Behaviour
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -584,59 +584,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4594525613121135474
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1956031276096587056}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d6f18f1f99c847438efc93a55f491dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unitData: {fileID: 0}
-  isDragging: 0
-  isDead: 0
-  isMovable: 1
-  cantChain: 0
-  currentHp: 0
-  attack: 0
-  combatOrderText: {fileID: 0}
-  combatTarget: {fileID: 0}
-  attackedBy: {fileID: 0}
-  defaultAnimatedCharacter: {fileID: 3710274101829224566, guid: afa8b35efa2fad044ba2ca207544e8e8, type: 3}
-  turnsTilAttack: 0
-  isChained: 0
-  characterScale: {x: 0, y: 0, z: 0}
-  swordSprite: {fileID: 816534051687674249}
-  attackAmountText: {fileID: 7720681205657331596}
-  increaseHealthParticles: {fileID: 1388865763545139969}
-  healParticles: {fileID: 8440279286575314698}
-  deathParticles: {fileID: 0}
-  attackUpParticles: {fileID: 8419695867820095668}
-  hitParticles: {fileID: 4527682790098464069}
-  healthUI: {fileID: 9151761372077145981}
-  heartHolder: {fileID: 5966710840712602365}
-  fullHeartObject: {fileID: 3415601207988439552, guid: fadf3985c3e639e4d928a22ad12af515, type: 3}
-  emptyHeart: {fileID: 21300000, guid: 7d5c4636e4cdf6a45bdd534810fb7b03, type: 3}
-  fullHeart: {fileID: 4561457402268789390}
-  attackTimerObject: {fileID: 2402667016041990829}
-  skull: {fileID: 8996438460568061107}
-  attackTimerTimeText: {fileID: 2587510597236896856}
-  attackTimerSprite: {fileID: 5537994203431212826}
-  floatingTextStartingPoint: {fileID: 4008090823026649447}
-  floatingTextEndingPoint: {fileID: 2057234760108249943}
-  floatingText: {fileID: 4186556226490463639}
-  healthAmountText: {fileID: 2664622467324552964}
-  attackUI: {fileID: 1226484253534614707}
-  bonePile: {fileID: 2056162977600491825}
-  smokeParticles: {fileID: 6020750757755631208}
-  heroUIPrefab: {fileID: 2870014590429349842, guid: 29e261fd060842d468dc7701cf0758b9, type: 3}
-  animatedCharacter: {fileID: 0}
-  _maxHp: 0
-  localScale: {x: 0, y: 0, z: 0}
 --- !u!114 &-7826357714210302745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -679,6 +626,55 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.2363636, y: 1.2363636}
   m_EdgeRadius: 0
+--- !u!114 &158193448638237952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1956031276096587056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5ccfe41f0a783941b9c74b6c4b06508, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDead: 0
+  cantChain: 0
+  currentHp: 0
+  attack: 0
+  combatOrderText: {fileID: 0}
+  combatTarget: {fileID: 0}
+  attackedBy: {fileID: 0}
+  defaultAnimatedCharacter: {fileID: 5192616394676795979}
+  isChained: 0
+  characterScale: {x: 0, y: 0, z: 0}
+  swordSprite: {fileID: 2656202360982484354}
+  attackAmountText: {fileID: 7720681205657331596}
+  increaseHealthParticles: {fileID: 1388865763545139969}
+  healParticles: {fileID: 8440279286575314698}
+  deathParticles: {fileID: 4527682790098464069}
+  attackUpParticles: {fileID: 8419695867820095668}
+  hitParticles: {fileID: 4527682790098464069}
+  healthUI: {fileID: 9151761372077145981}
+  heartHolder: {fileID: 5966710840712602365}
+  fullHeartObject: {fileID: 161570233206418465}
+  emptyHeart: {fileID: 21300000, guid: 11dc809686dd8bb49bbdffcdd87ce7ad, type: 3}
+  fullHeart: {fileID: 4561457402268789390}
+  attackTimerObject: {fileID: 2402667016041990829}
+  skull: {fileID: 8996438460568061107}
+  attackTimerTimeText: {fileID: 2587510597236896856}
+  attackTimerSprite: {fileID: 5537994203431212826}
+  floatingTextStartingPoint: {fileID: 4008090823026649447}
+  floatingTextEndingPoint: {fileID: 2057234760108249943}
+  floatingText: {fileID: 4186556226490463639}
+  healthAmountText: {fileID: 2664622467324552964}
+  attackUI: {fileID: 1226484253534614707}
+  bonePile: {fileID: 2056162977600491825}
+  smokeParticles: {fileID: 6020750757755631208}
+  animatedCharacter: {fileID: 0}
+  _unitData: {fileID: 0}
+  _maxHp: 0
+  isDragging: 0
 --- !u!1 &2056162977600491825
 GameObject:
   m_ObjectHideFlags: 0
@@ -803,7 +799,6 @@ GameObject:
   - component: {fileID: 1804407297337991890}
   - component: {fileID: 5361552488867130159}
   - component: {fileID: 4186556226490463639}
-  - component: {fileID: 8795519108164832303}
   m_Layer: 2
   m_Name: Floating Text
   m_TagString: Untagged
@@ -927,37 +922,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &8795519108164832303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2203656866206456151}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8ace8ced0e81c847968cdca0aeda757, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  typewriterStartsAutomatically: 0
-  animationLoop: 0
-  timeScale: 0
-  _text: 
-  useDynamicScaling: 1
-  referenceFontSize: 10
-  isResettingTimeOnNewText: 1
-  useDefaultDatabases: 1
-  databaseBehaviors: {fileID: 11400000, guid: 6edb7eaa8a24a884f91f7c527a48d61a, type: 2}
-  databaseAppearances: {fileID: 11400000, guid: ff2735469abb4c84e9d00f4ef0ad93b3, type: 2}
-  databaseActions: {fileID: 11400000, guid: 953f70ce586f1814f97ff4d76c1e0d33, type: 2}
-  defaultAppearancesTags:
-  - fade
-  defaultDisappearancesTags:
-  - fade
-  defaultBehaviorsTags:
-  - wave
-  - rainb
-  defaultTagsMode: 0
 --- !u!1 &2402667016041990829
 GameObject:
   m_ObjectHideFlags: 0
@@ -1946,14 +1910,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
---- !u!4 &4527682790098464090 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4223877005074994144, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
-  m_PrefabInstance: {fileID: 309541400584158906}
-  m_PrefabAsset: {fileID: 0}
 --- !u!198 &4527682790098464069 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 4223877005074994175, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
+  m_PrefabInstance: {fileID: 309541400584158906}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &4527682790098464090 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4223877005074994144, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
   m_PrefabInstance: {fileID: 309541400584158906}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1962366528136808460
@@ -2112,6 +2076,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6d3abc1d17d936b4e85dbbedf333dd51, type: 3}
+--- !u!1 &5192616394676795979 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7717882609466484893, guid: 6d3abc1d17d936b4e85dbbedf333dd51, type: 3}
+  m_PrefabInstance: {fileID: 2527799561540227798}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4905199465381738951 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7423700897302965009, guid: 6d3abc1d17d936b4e85dbbedf333dd51, type: 3}
@@ -2186,14 +2155,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bccb458cf4f1ff743b5e1c320f7f0cf0, type: 3}
---- !u!198 &1388865763545139969 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 6940797502304920352, guid: bccb458cf4f1ff743b5e1c320f7f0cf0, type: 3}
-  m_PrefabInstance: {fileID: 8292416092480137249}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1388865763545139998 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6940797502304920383, guid: bccb458cf4f1ff743b5e1c320f7f0cf0, type: 3}
+  m_PrefabInstance: {fileID: 8292416092480137249}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &1388865763545139969 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 6940797502304920352, guid: bccb458cf4f1ff743b5e1c320f7f0cf0, type: 3}
   m_PrefabInstance: {fileID: 8292416092480137249}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8734494724043446280
