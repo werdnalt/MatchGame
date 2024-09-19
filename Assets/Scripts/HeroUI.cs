@@ -25,8 +25,8 @@ public class HeroUI : MonoBehaviour
     
     public void Setup(UnitBehaviour unitBehaviour)
     {
-        heroPortrait.sprite = unitBehaviour.unitData.unitSprite;
-        heroName.text = unitBehaviour.unitData.name;
+        heroPortrait.sprite = unitBehaviour._unitData.unitSprite;
+        heroName.text = unitBehaviour._unitData.name;
         _unitBehaviour = unitBehaviour;
 
         healthAmountText.text = unitBehaviour.currentHp.ToString();

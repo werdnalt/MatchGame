@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public abstract class UnitBehaviour : MonoBehaviour
 {
     // Public properties
-    public Unit unitData;
     public bool isDead = false;
     public Vector3? targetPosition;
     public bool cantChain = false;
@@ -49,6 +49,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     public GameObject animatedCharacter;
 
     // Private fields
+    public Unit _unitData;
     private SpriteRenderer _blockIcon;
     private float _spriteDuration;
     private int _currentSpriteIndex;
@@ -87,39 +88,6 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     private float _cachedZIndex;
 
-    private void Start()
-    {
-        if (unitData.tribe == Unit.Tribe.NA)
-        {
-            cantChain = true;
-        }
-
-        _rend = GetComponent<Renderer>();
-        if (_rend)
-        {
-            Mat = _rend.material;
-        }
-        
-        // set animated Character
-        if (unitData.animatedCharacterPrefab)
-        {
-            animatedCharacter = Instantiate(unitData.animatedCharacterPrefab, transform);
-        }
-        else
-        {
-            animatedCharacter = Instantiate(defaultAnimatedCharacter, transform);
-        }
-
-        _animationEffects = animatedCharacter.AddComponent<AnimationEffects>();
-
-        SetCharacterShader();
-
-        foreach (var effect in unitData.effects)
-        {
-            effects.Add(new EffectState(effect));
-        }
-    }
-    
     private void SetCharacterShader()
     {
         if (!animatedCharacter) return;
@@ -134,13 +102,43 @@ public abstract class UnitBehaviour : MonoBehaviour
         }
     }
 
-    public UnitBehaviour Initialize(Unit unit)
+    public virtual UnitBehaviour Initialize(Unit unit)
     {
-        unitData = unit;
+        _unitData = unit;
         
-        attack = unitData.attack;
-        _maxHp = unitData.hp;
+        attack = _unitData.attack;
+        _maxHp = _unitData.hp;
         currentHp = _maxHp;
+        
+        if (_unitData.tribe == Unit.Tribe.NA)
+        {
+            cantChain = true;
+        }
+
+        _rend = GetComponent<Renderer>();
+        if (_rend)
+        {
+            Mat = _rend.material;
+        }
+        
+        // set animated Character
+        if (_unitData.animatedCharacterPrefab)
+        {
+            animatedCharacter = Instantiate(_unitData.animatedCharacterPrefab, transform);
+        }
+        else
+        {
+            animatedCharacter = Instantiate(defaultAnimatedCharacter, transform);
+        }
+
+        _animationEffects = animatedCharacter.AddComponent<AnimationEffects>();
+
+        SetCharacterShader();
+
+        foreach (var effect in _unitData.effects)
+        {
+            effects.Add(new EffectState(effect));
+        }
         return this;
     }
 
@@ -302,14 +300,13 @@ public abstract class UnitBehaviour : MonoBehaviour
         }
         FXManager.Instance.PlayParticles(FXManager.ParticleType.Death, transform.position);
         
-        foreach(var effect in unitData.effects)
+        foreach(var effect in _unitData.effects)
         {
             effect.OnDeath(killedBy, this);
         }
 
-        if (unitData.tribe != Unit.Tribe.Hero)
+        if (_unitData.tribe != Unit.Tribe.Hero)
         {
-            EnergyManager.Instance.GainEnergy(EnergyManager.Instance.energyGainedPerAttack);
             return;
         }
         

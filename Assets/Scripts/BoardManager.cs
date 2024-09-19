@@ -46,9 +46,11 @@ public class BoardManager : MonoBehaviour
     private float _blockSize;
     private int _enemyFrontRow = 1;
 
-    private Dictionary<Coordinates, Cell> _cells;
+    private Dictionary<Coordinates, Cell> _cells = new Dictionary<Coordinates, Cell>();
     
-    [SerializeField] private UnitBehaviour unitBehaviourPrefab;
+    [SerializeField] private UnitBehaviour heroUnitBehaviourPrefab;
+    [SerializeField] private UnitBehaviour enemyUnitBehaviourPrefab;
+
     [SerializeField] private Cell cellPrefab;
     [SerializeField] private List<Cell> heroCellPrefabs;
     [SerializeField] private GameObject blocksParent;
@@ -109,7 +111,7 @@ public class BoardManager : MonoBehaviour
     /// Creates a UnitBehaviour from provided Unit Data.
     /// Places the block in the appropriate location on the board
     /// </summary>
-    public UnitBehaviour SpawnUnit(Unit unit, int lowestRow)
+    public void SpawnUnit(Unit unit, int lowestRow)
     {
         // create unit behavior for the unit
         var unitBehaviour = CreateUnitBehaviour(unit);
@@ -120,15 +122,12 @@ public class BoardManager : MonoBehaviour
         if (blockCoordinates == null || blockCoordinates.Equals(new Coordinates(-1, -1)))
         {
             unitBehaviour.RemoveSelf();
-            return null;
         }
 
         SetUnitBehaviour(unitBehaviour, blockCoordinates.Value);
 
         // drop block gameobject into position
         Drop(unitBehaviour.gameObject, GetPositionFromCoordinates(blockCoordinates.Value).Value);
-
-        return unitBehaviour;
     } 
 
     private void Drop(GameObject blockGameObject, Vector3 position)
@@ -250,11 +249,6 @@ public class BoardManager : MonoBehaviour
 
     public void ForceSpawnWave()
     {
-        var energyCost = 3;
-        
-        if (!EnergyManager.Instance.DoHaveEnoughEnergy(energyCost)) return;
-        
-        EnergyManager.Instance.SpendEnergy(energyCost);
         var unitsToSpawn = WaveManager.Instance.GetUnitsToSpawn();
         if (unitsToSpawn == null) return;
         StartCoroutine(SpawnEnemyUnits(unitsToSpawn));
@@ -386,7 +380,7 @@ public class BoardManager : MonoBehaviour
             for (var row = 0; row < numRows; row++)
             {
                 var unitBehaviour = GetUnitBehaviour(new Coordinates(column, row));
-                if (unitBehaviour == null || !unitBehaviour.unitData) continue;
+                if (unitBehaviour == null || !unitBehaviour._unitData) continue;
             
                 collapsedBlocks.Add(unitBehaviour);
             }
@@ -447,7 +441,7 @@ public class BoardManager : MonoBehaviour
             var neighbor = GetUnitBehaviour(neighborCoordinates);
 
             // If neighbor is of the same tribe and hasn't been visited, we recursively call DFS on it.
-            if (neighbor == null || neighbor.unitData.tribe != current.unitData.tribe ||
+            if (neighbor == null || neighbor._unitData.tribe != current._unitData.tribe ||
                 visited.Contains(neighborCoordinates) || neighbor.cantChain) continue;
 
             DFS(neighbor, visited, allUnits);
@@ -656,9 +650,16 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     private UnitBehaviour CreateUnitBehaviour(Unit unit)
     {
-        var unitBehaviourInstance = Instantiate(unitBehaviourPrefab, blocksParent.transform);
-
-        // hydrate generic block prefab 
+        UnitBehaviour unitBehaviourInstance;
+        if (unit.tribe == Unit.Tribe.Hero)
+        {
+            unitBehaviourInstance = Instantiate(heroUnitBehaviourPrefab, blocksParent.transform);
+        }
+        else
+        {
+            unitBehaviourInstance = Instantiate(enemyUnitBehaviourPrefab, blocksParent.transform);
+        }
+        
         return unitBehaviourInstance.Initialize(unit);
     }
     

@@ -15,30 +15,14 @@ public class Unit : ScriptableObject
         NA
     }
 
-    public enum Classification
-    {
-        Rock,
-        Paper,
-        Scissors
-    }
-
-    private void AnimateSprite()
-    {
-        
-    }
-
     public GameObject animatedCharacterPrefab;
     public int attackTimer;
     public bool shouldAnimateLoop;
     public Tribe tribe;
-    public Classification classification;
     public int hp;
     public int attack;
-    public int experienceAmount;
-    public Sprite unitSprite;
     public List<Effect> effects;
-    public bool passive;
-    public string displayName;
     public int attackRange;
-
+    public Sprite unitSprite;
+    public string displayName;
 }

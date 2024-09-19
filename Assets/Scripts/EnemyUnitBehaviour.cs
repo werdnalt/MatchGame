@@ -10,12 +10,15 @@ public class EnemyUnitBehaviour : UnitBehaviour
 {
     private AttackTimer _attackTimer;
 
-    private void Awake()
+    public override UnitBehaviour Initialize(Unit unit)
     {
+        base.Initialize(unit);
+        
         _attackTimer = GetComponent<AttackTimer>();
-        _attackTimer.Setup(unitData);
+        _attackTimer.Setup(_unitData);
         
         EventPipe.OnActionTaken += HandleActionTaken;
+        return this;
     }
 
     public bool ShouldAttack()

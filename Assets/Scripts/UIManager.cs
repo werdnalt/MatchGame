@@ -32,9 +32,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private RectTransform tooltipRectTransform;
     
     [SerializeField] private TextMeshProUGUI energyText;
-
-    [SerializeField] private List<HeroTreasureChoice> heroTreasureChoices;
-
+    
     [SerializeField] private GameObject toolTip;
     private TextMeshProUGUI _toolTipText;
 
@@ -127,7 +125,7 @@ public class UIManager : MonoBehaviour
         
         var endingPos = new Vector3(0, 30f, 0);
 
-        switch (unitBehaviour.unitData.tribe)
+        switch (unitBehaviour._unitData.tribe)
         {
             case Unit.Tribe.Beasts:
                 tribePlacard.color = new Color32(249, 194, 43, 255);
@@ -143,8 +141,8 @@ public class UIManager : MonoBehaviour
         attackText.text = unitBehaviour.attack.ToString();
 
         healthText.text = ($"{unitBehaviour.currentHp}");
-        nameText.text = unitBehaviour.unitData.displayName;
-        tribeText.text = unitBehaviour.unitData.tribe.ToString();
+        nameText.text = unitBehaviour._unitData.displayName;
+        tribeText.text = unitBehaviour._unitData.tribe.ToString();
         
         foreach (var effectState in unitBehaviour.effects)
         {
@@ -238,11 +236,6 @@ public class UIManager : MonoBehaviour
     
     public void HideTreasurePopup()
     {
-        foreach (var heroTreasureChoice in heroTreasureChoices)
-        {
-            heroTreasureChoice.gameObject.SetActive(false);
-        }
-        
         chestOverlay.GetComponent<PopEffect>().DisableAndPop();
         chestDestroyed = false;
     }

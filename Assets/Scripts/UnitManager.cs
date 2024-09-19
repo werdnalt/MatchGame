@@ -66,7 +66,7 @@ public class UnitManager : MonoBehaviour
         
         
         if ((attackingUnitCoordinates.Value.column == attackedUnitCoordinates.Value.column) && 
-            Mathf.Abs(attackingUnitCoordinates.Value.row - attackedUnitCoordinates.Value.row) <= attackingUnit.unitData.attackRange)
+            Mathf.Abs(attackingUnitCoordinates.Value.row - attackedUnitCoordinates.Value.row) <= attackingUnit._unitData.attackRange)
         {
             return true;
         }
