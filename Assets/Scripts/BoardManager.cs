@@ -122,12 +122,26 @@ public class BoardManager : MonoBehaviour
         if (blockCoordinates == null || blockCoordinates.Equals(new Coordinates(-1, -1)))
         {
             unitBehaviour.RemoveSelf();
+            return;
         }
 
-        SetUnitBehaviour(unitBehaviour, blockCoordinates.Value);
+        AssignUnitBehaviourToCell(unitBehaviour, blockCoordinates.Value);
 
         // drop block gameobject into position
         Drop(unitBehaviour.gameObject, GetPositionFromCoordinates(blockCoordinates.Value).Value);
+    } 
+    
+    public void SpawnUnit(Unit unit, int column, int row)
+    {
+        // create unit behavior for the unit
+        var unitBehaviour = CreateUnitBehaviour(unit);
+
+        var coordinates = new Coordinates(column, row);
+        
+        AssignUnitBehaviourToCell(unitBehaviour, coordinates);
+
+        // drop block gameobject into position
+        Drop(unitBehaviour.gameObject, GetPositionFromCoordinates(coordinates).Value);
     } 
 
     private void Drop(GameObject blockGameObject, Vector3 position)
@@ -188,6 +202,7 @@ public class BoardManager : MonoBehaviour
             {
                 var cellInstance = Instantiate(cellPrefab, cellsParent.transform);
                 cellInstance.Coordinates = new Coordinates(i, j);
+                cellInstance.name = $"{i}, {j}";
                 cellInstance.boardPosition = GetCellPosition(cellInstance);
                 
                 cellInstances.Add(cellInstance);
@@ -315,19 +330,20 @@ public class BoardManager : MonoBehaviour
         return null;
     }
 
-    public void SwapUnits(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
+    public IEnumerator SwapUnits(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
-        if (!GamePlayDirector.Instance.PlayerActionAllowed) return;
+        if (!GamePlayDirector.Instance.PlayerActionAllowed) yield break;
 
         var leftUnit = GetUnitBehaviour(leftBlockCoords);
         var rightUnit = GetUnitBehaviour(rightBlockCoords);
-        if (leftUnit == null && rightUnit == null) return;
+        if (leftUnit == null && rightUnit == null) yield break;
         
-        SwapUnitsOnBoard(leftBlockCoords, rightBlockCoords);
+        SwapUnitData(leftBlockCoords, rightBlockCoords);
         
         EventPipe.TakeAction();
         AudioManager.Instance.PlayWithRandomPitch("whoosh");
 
+        // Execute On Swap effects
         if (leftUnit && leftUnit.effects.Count > 0)
         {
             var leftEffectsCopy = new List<EffectState>(leftUnit.effects);  // Create a copy
@@ -346,30 +362,51 @@ public class BoardManager : MonoBehaviour
             }
         }
 
-        StartCoroutine(WaitToApplyGravity(Timings.TimeBeforeAttack));
+        yield return new WaitForSeconds(Timings.SwapTime);
+        
+        if (leftUnit) TryToAssignToLowerRow(leftUnit);
+        if (rightUnit) TryToAssignToLowerRow(rightUnit);
+        //StartCoroutine(WaitToApplyGravity(Timings.TimeBeforeAttack));
+    }
+
+    private void TryToAssignToLowerRow(UnitBehaviour unitBehaviour)
+    {
+        if (unitBehaviour == null) return;
+        
+        var currentCell = unitBehaviour.cell;
+        for (var i = 0; i < currentCell.Coordinates.row; i++)
+        {
+            var lowerCoordinates = new Coordinates(currentCell.Coordinates.column, i);
+            var unit = GetUnitBehaviour(lowerCoordinates);
+            if (unit == null)
+            {
+                AssignUnitBehaviourToCell(unitBehaviour, lowerCoordinates);
+                return;
+            }
+        }
     }
 
 
-
-    private void SwapUnitsOnBoard(Coordinates cell1, Coordinates cell2)
+    private void SwapUnitData(Coordinates cell1, Coordinates cell2)
     {
         var unitBehaviour1 = GetUnitBehaviour(cell1);
         var unitBehaviour2 = GetUnitBehaviour(cell2);
 
-        SetUnitBehaviour(unitBehaviour2, cell1);
-        SetUnitBehaviour(unitBehaviour1, cell2);
+        AssignUnitBehaviourToCell(unitBehaviour2, cell1);
+        AssignUnitBehaviourToCell(unitBehaviour1, cell2);
     }
     
     private IEnumerator WaitToApplyGravity(float blockSwapTime)
     {
         yield return new WaitForSeconds(blockSwapTime);
+        
         CleanUpBoard();
     }
 
     public void CleanUpBoard()
     {
         RemoveDeadUnits();
-        ApplyGravity();
+        //ApplyGravity();
     }
     
     private void ApplyGravity()
@@ -395,7 +432,6 @@ public class BoardManager : MonoBehaviour
                     // Instruct all non-empty blocks to be compressed to the bottom of the board
                     var unitBehaviour = collapsedBlocks[newRow];
                     unitBehaviour.targetPosition = cellPosition;
-                    SetUnitBehaviour(unitBehaviour, collapsedCoordinates);
                     
                     if (collapsedCoordinates.row < unitBehaviour.transform.position.y - 1) Drop(unitBehaviour.gameObject, unitBehaviour.transform.position);
                     if (newRow == Timings.EnemyRow && unitBehaviour is EnemyUnitBehaviour)
@@ -406,7 +442,7 @@ public class BoardManager : MonoBehaviour
                 }
                 else
                 {
-                    SetUnitBehaviour(null, collapsedCoordinates);
+                    AssignUnitBehaviourToCell(null, collapsedCoordinates);
                 }
             }
         }
@@ -606,17 +642,17 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     /// <param name="unitBehaviour"></param>
     /// <param name="cellCoordinates"></param>
-    private void SetUnitBehaviour(UnitBehaviour unitBehaviour, Coordinates cellCoordinates)
+    private void AssignUnitBehaviourToCell(UnitBehaviour unitBehaviour, Coordinates cellCoordinates)
     {
         var cell = _cells[cellCoordinates];
         if (cell == null)
         {
             Debug.LogError($"Cell at {cellCoordinates.column}, {cellCoordinates.row} not found");
         }
-
+        
         cell.UnitBehaviour = unitBehaviour;
     }
-
+    
     [CanBeNull]
     public UnitBehaviour GetUnitBehaviour(Coordinates coordinates)
     {
@@ -665,17 +701,17 @@ public class BoardManager : MonoBehaviour
     
     private void RemoveDeadUnits()
     {
-        var deadUnitsKeys = _cells
-            .Where(kvp => kvp.Value.UnitBehaviour.currentHp <= 0)
-            .Select(kvp => kvp.Key)
-            .ToList();
-
-        foreach (var key in deadUnitsKeys)
-        {
-            var cell = _cells[key];
-            _cells.Remove(key);
-            cell.UnitBehaviour.RemoveSelf();
-        }
+        // var deadUnitsKeys = _cells
+        //     .Where(kvp => kvp.Value.UnitBehaviour.currentHp <= 0)
+        //     .Select(kvp => kvp.Key)
+        //     .ToList();
+        //
+        // foreach (var key in deadUnitsKeys)
+        // {
+        //     var cell = _cells[key];
+        //     _cells.Remove(key);
+        //     cell.UnitBehaviour.RemoveSelf();
+        // }
     }
     
     public List<UnitBehaviour> GetAllUnitBehaviours()
@@ -684,7 +720,7 @@ public class BoardManager : MonoBehaviour
         var allUnitBehaviours = new List<UnitBehaviour>();
         foreach (var cell in allCells)
         {
-            allUnitBehaviours.Add(cell.UnitBehaviour);
+            if (cell.UnitBehaviour != null) allUnitBehaviours.Add(cell.UnitBehaviour);
         }
 
         return allUnitBehaviours;

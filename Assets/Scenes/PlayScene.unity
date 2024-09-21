@@ -2656,33 +2656,22 @@ MonoBehaviour:
   defaultAnimatedCharacter: {fileID: 0}
   isChained: 0
   characterScale: {x: 0, y: 0, z: 0}
-  swordSprite: {fileID: 0}
-  attackAmountText: {fileID: 0}
   increaseHealthParticles: {fileID: 0}
   healParticles: {fileID: 0}
   deathParticles: {fileID: 0}
   attackUpParticles: {fileID: 0}
   hitParticles: {fileID: 0}
+  smokeParticles: {fileID: 0}
   healthUI: {fileID: 0}
-  heartHolder: {fileID: 0}
-  fullHeartObject: {fileID: 0}
-  emptyHeart: {fileID: 0}
-  fullHeart: {fileID: 0}
-  attackTimerObject: {fileID: 0}
-  skull: {fileID: 0}
-  attackTimerTimeText: {fileID: 0}
-  attackTimerSprite: {fileID: 0}
   floatingTextStartingPoint: {fileID: 0}
   floatingTextEndingPoint: {fileID: 0}
   floatingText: {fileID: 0}
-  healthAmountText: {fileID: 0}
-  attackUI: {fileID: 0}
   bonePile: {fileID: 0}
-  smokeParticles: {fileID: 0}
   animatedCharacter: {fileID: 0}
   _unitData: {fileID: 0}
   _maxHp: 0
   isDragging: 0
+  _attackTimer: {fileID: 0}
 --- !u!1 &634550776
 GameObject:
   m_ObjectHideFlags: 0
@@ -14943,17 +14932,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7694c8748e5db7942b114035395fd05d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentEnergy: 0
-  startingEnergy: 3
-  maxEnergy: 5
-  energyPerSwap: 1
-  energyGainedPerAttack: 1
-  actionOrbs:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &1928331027
 GameObject:
   m_ObjectHideFlags: 0
@@ -15308,8 +15286,8 @@ MonoBehaviour:
   numRows: 6
   numColumns: 4
   initialBlockDropSpeed: 0.02
-  heroUnitBehaviourPrefab: {fileID: 0}
-  enemyUnitBehaviourPrefab: {fileID: 0}
+  heroUnitBehaviourPrefab: {fileID: 158193448638237952, guid: de9ecbb6ccddccd4cb6268c4483d02a9, type: 3}
+  enemyUnitBehaviourPrefab: {fileID: 4453177449654641031, guid: d122ef823e8f5f644aacc5aef0a8d405, type: 3}
   cellPrefab: {fileID: 4921888741588156763, guid: 183066e6549d759408145f98b5c36cbc, type: 3}
   heroCellPrefabs:
   - {fileID: 0}

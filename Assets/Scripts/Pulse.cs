@@ -13,27 +13,27 @@ public class Pulse : MonoBehaviour
     [Range(0.5f, 2f)]
     [SerializeField] private float pulseSpeed = .5f; // Maximum scale during pulse. 1.1 means 10% increase.
 
+    private Vector3 originalScale;
+    
     public bool shouldRotate;
 
     private void Start()
     {
-        PulseImage(targetImage, pulseSpeed); // Example: pulses the image over 1.5 seconds.
+        originalScale = transform.localScale;
+        PulseImage(pulseSpeed); // Example: pulses the image over 1.5 seconds.
         if (shouldRotate) RotateImage(targetImage, rotationDuration); // This will rotate the image indefinitely.
     }
 
     private void OnEnable()
     {
-        PulseImage(targetImage, pulseSpeed);
+        PulseImage(pulseSpeed);
     }
 
-    public void PulseImage(GameObject image, float speed)
+    public void PulseImage(float speed)
     {
-        if (image == null) return;
+        var targetScale = originalScale * maxPulseScale;
 
-        Vector3 originalScale = image.transform.localScale;
-        Vector3 targetScale = originalScale * maxPulseScale;
-
-        image.transform.DOScale(targetScale, speed)
+        transform.DOScale(targetScale, speed)
             .SetEase(Ease.InOutSine)
             .SetLoops(-1, LoopType.Yoyo); // Yoyo looping means it will go to the target value and then back to the original value, creating a smooth in and out effect.
     }

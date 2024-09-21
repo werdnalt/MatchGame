@@ -89,14 +89,14 @@ public class ArrowLine : MonoBehaviour
         _lineRenderer.positionCount = 10; // Set to 10 for a smoother curve
         SetInitialPositions(startPos, GetMouseWorldPos()); 
 
-        Cursor.visible = false; // Hide default cursor
+        //Cursor.visible = false; // Hide default cursor
         _isDrawing = true;
     }
 
     // New method to handle mouse button up
     public void OnMouseUp(InputAction.CallbackContext context)
     {
-        ActionHandler.Instance.ResolveAction();
+        StartCoroutine(ActionHandler.Instance.ResolveAction());
         
         if (context.canceled)
         {

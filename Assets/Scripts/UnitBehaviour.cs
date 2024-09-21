@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using AllIn1SpringsToolkit;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -10,6 +11,40 @@ using UnityEngine.UI;
 public abstract class UnitBehaviour : MonoBehaviour
 {
     // Public properties
+    private Cell _cell;  // Backing field for the cell property
+
+    public Cell cell
+    {
+        get => _cell;  // Return the backing field
+        set
+        {
+            if (_cell == null)
+            {
+                _cell = value;
+            }
+            else
+            {
+                var newCell = value;
+
+                // The new cell is in the same column, so we drop the cell
+                if (newCell.Coordinates.column == _cell.Coordinates.column)
+                {
+                    var dropDistance = Vector3.Distance(_cell.transform.position, newCell.transform.position);
+                    var dropDuration = dropDistance / 15;
+                    var newScale = new Vector3(originalScale.x * 1.2f, originalScale.y * 1.2f, originalScale.z * 1.2f);
+                    transform.DOMove(newCell.transform.position, dropDuration).SetEase(Ease.OutQuad)
+                        .OnComplete(() => _transformSpringComponent.SetCurrentValueScale(newScale));
+                }
+                // The new cell is in the same row, we are swapping it with a neighbor
+                else
+                {
+                    transform.DOMove(newCell.transform.position, Timings.SwapTime).SetEase(Ease.OutQuad);
+                    _cell = value;
+                }
+            }
+        }
+    }
+
     public bool isDead = false;
     public Vector3? targetPosition;
     public bool cantChain = false;
@@ -19,33 +54,24 @@ public abstract class UnitBehaviour : MonoBehaviour
     public UnitBehaviour combatTarget;
     public UnitBehaviour attackedBy;
     public GameObject defaultAnimatedCharacter;
-    public bool isChained;
+    public bool isChained = false;
     public Vector3 characterScale;
 
     // Serialized fields
-    [SerializeField] private Image swordSprite;
-    [SerializeField] private TextMeshProUGUI attackAmountText;
     [SerializeField] private ParticleSystem increaseHealthParticles;
     [SerializeField] private ParticleSystem healParticles;
     [SerializeField] private ParticleSystem deathParticles;
     [SerializeField] private ParticleSystem attackUpParticles;
     [SerializeField] private ParticleSystem hitParticles;
-    [SerializeField] public GameObject healthUI;
-    [SerializeField] private GameObject heartHolder;
-    [SerializeField] private GameObject fullHeartObject;
-    [SerializeField] private Sprite emptyHeart;
-    [SerializeField] private Image fullHeart;
-    [SerializeField] private GameObject attackTimerObject;
-    [SerializeField] public GameObject skull;
-    [SerializeField] private TextMeshProUGUI attackTimerTimeText;
-    [SerializeField] private Image attackTimerSprite;
+    [SerializeField] private ParticleSystem smokeParticles;
+    
+    [SerializeField] private HealthUI healthUI;
+
     [SerializeField] private GameObject floatingTextStartingPoint;
     [SerializeField] private GameObject floatingTextEndingPoint;
     [SerializeField] private TextMeshProUGUI floatingText;
-    [SerializeField] private TextMeshProUGUI healthAmountText;
-    [SerializeField] public GameObject attackUI;
     [SerializeField] private GameObject bonePile;
-    [SerializeField] private ParticleSystem smokeParticles;
+
     public GameObject animatedCharacter;
 
     // Private fields
@@ -70,6 +96,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     private bool _heartSizeSet;
     private AnimationEffects _animationEffects;
     private AnimationEffects _timerAnimationEffects;
+    private TransformSpringComponent _transformSpringComponent;
 
     // Public Lists
     public List<EffectState> effects = new List<EffectState>();
@@ -87,6 +114,11 @@ public abstract class UnitBehaviour : MonoBehaviour
     private bool _hasShownPanel = false;
     
     private float _cachedZIndex;
+
+    private void Awake()
+    {
+        _transformSpringComponent = GetComponent<TransformSpringComponent>();
+    }
 
     private void SetCharacterShader()
     {
@@ -137,6 +169,7 @@ public abstract class UnitBehaviour : MonoBehaviour
 
         foreach (var effect in _unitData.effects)
         {
+            if (effect == null) continue;
             effects.Add(new EffectState(effect));
         }
         return this;
@@ -177,7 +210,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     private IEnumerator HitEffect()
     {        
-        ShowAndUpdateHealth();
+        healthUI.ShowAndUpdateHealth(currentHp, _maxHp);
         
         //CameraShake.Instance.Shake(.05f);
         var punchDuration = 0.3f;
@@ -353,65 +386,12 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public virtual void ShowAndUpdateHealth()
     {
-        healthUI.SetActive(true);
-
-        healthAmountText.text = Mathf.Max(0, currentHp).ToString();
-
-        if (isDead) return;
-
-        if (currentHp > _maxHp)
-        {
-            healthAmountText.color = new Color32(39, 246, 81, 255);
-            fullHeart.fillAmount = 100;
-        }
-
-        if (currentHp == _maxHp)
-        {
-            fullHeart.fillAmount = 100;
-        }
-
-        if (currentHp < _maxHp)
-        {
-            fullHeart.fillAmount = ((float)currentHp / _maxHp);
-        }
-
-        // play animation
-        healthUI.transform.DOKill();
-        if (!_heartSizeSet)
-        {
-            currentHeartSize = healthUI.transform.localScale;
-            _heartSizeSet = true;
-        }
-
-        healthUI.transform.DOKill();
-        healthUI.transform.localScale = currentHeartSize;
-        var newHeartSize = new Vector3(currentHeartSize.x * 1.2f, currentHeartSize.y * 1.2f, 1);
-        healthUI.transform.DOPunchScale(newHeartSize, .25f, 0, .3f).SetEase(Ease.OutQuad);
+        healthUI.ShowAndUpdateHealth(currentHp, _maxHp);
     }
 
     public void HideHealth()
     {
-        healthUI.SetActive(false);
-    }
-
-    public void ShowAttack()
-    {
-        attackUI.SetActive(true);
-
-        if (!attackUI.activeSelf)
-        {
-            healthUI.transform.DOKill();
-            var currentSwordSize = attackUI.transform.localScale;
-            var newSwordSize = new Vector3(currentSwordSize.x * 1.2f, currentSwordSize.y * 1.2f, 1);
-            attackUI.transform.DOPunchScale(newSwordSize, .25f, 0, .3f).SetEase(Ease.OutQuad);
-        }
-        
-        attackAmountText.text = attack.ToString();
-    }
-
-    public void HideAttack()
-    {
-        attackUI.SetActive(false);
+        healthUI.HideHealth();
     }
 
     private void KillTweens()

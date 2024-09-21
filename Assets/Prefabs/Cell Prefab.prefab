@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2235960464876623196}
   - component: {fileID: 6708314787907563380}
   - component: {fileID: 4921888741588156763}
+  - component: {fileID: 2222318145148783367}
   m_Layer: 0
   m_Name: Cell Prefab
   m_TagString: Untagged
@@ -72,9 +73,9 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: 4d0222a6bc139124abb37e81d28c131d, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.62352943}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -97,3 +98,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardPosition: {x: 0, y: 0, z: 0}
+--- !u!61 &2222318145148783367
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8161242543950384579}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0.002283007}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.9428571, y: 1.9428571}
+    newSize: {x: 1.9428571, y: 1.9428571}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.6232293, y: 1.7282498}
+  m_EdgeRadius: 0

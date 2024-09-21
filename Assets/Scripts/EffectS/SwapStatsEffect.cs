@@ -13,6 +13,5 @@ public class SwapStatsEffect : Effect
         
         (swappedWith.currentHp, swappedWith.attack) = (swappedWith.attack, swappedWith.currentHp);
         swappedWith.ShowAndUpdateHealth();
-        swappedWith.ShowAttack();
     }
 }

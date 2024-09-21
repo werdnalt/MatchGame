@@ -31,9 +31,9 @@ public class UnitManager : MonoBehaviour
     
     public IEnumerator CreateHeroes()
     {
-        foreach (var hero in _player.allHeroes)
+        for (var i = 0; i < boardManager.numColumns; i++)
         {
-            boardManager.SpawnUnit(hero, Timings.HeroRow);
+            boardManager.SpawnUnit(_player.allHeroes[i], i,  Timings.HeroRow);
             yield return null;
         }
     }

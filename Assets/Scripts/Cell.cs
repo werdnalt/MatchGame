@@ -12,7 +12,11 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     public UnitBehaviour UnitBehaviour
     {
         get => _unitBehaviour;
-        set => _unitBehaviour = value;
+        set
+        {
+            _unitBehaviour = value;
+            if (_unitBehaviour) _unitBehaviour.cell = this;
+        }
     }
 
     private UnitBehaviour _unitBehaviour;
@@ -32,17 +36,10 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
             ArrowLine.Instance.SetHoverIndicator(transform.position);
         }
         
-        
-        if (!_unitBehaviour)
-        {
-            
-            return;
-        }
+        if (!_unitBehaviour) return;
         
         UIManager.Instance.ShowUnitPanel(_unitBehaviour);
-        
-        if (!_unitBehaviour.healthUI.activeSelf) _unitBehaviour.ShowAndUpdateHealth();
-        if (!_unitBehaviour.attackUI.activeSelf) _unitBehaviour.ShowAttack();
+        _unitBehaviour.ShowAndUpdateHealth();
 
         _cachedZIndex = _unitBehaviour.transform.position.z;
         var cachedPos = _unitBehaviour.transform.position;
@@ -56,6 +53,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         ActionHandler.Instance.HideIndicators();
         UIManager.Instance.HideUnitPanel();
         CursorAnimation.Instance.UnhighlightChain();
+        ArrowLine.Instance.HideHoverIndicator();
 
         if (!_unitBehaviour) return;
         
@@ -65,13 +63,13 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         // Don't hide health and attack if unit is sitting in enemy front row
         if (Coordinates.row == Timings.EnemyRow) return;
         _unitBehaviour.HideHealth();
-        _unitBehaviour.HideAttack();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         if (!_unitBehaviour || _unitBehaviour.isDragging || !GamePlayDirector.Instance.PlayerActionAllowed || _unitBehaviour.isDead) return;
 
+        ActionHandler.Instance.SetClickedCell(this);
         AudioManager.Instance.Play("wood");
         _unitBehaviour.Jump();
         _unitBehaviour.Drag(true);
@@ -80,6 +78,8 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        StartCoroutine(ActionHandler.Instance.ResolveAction());
+        
         if (!_unitBehaviour) return;
         
         _unitBehaviour.isDragging = false;
@@ -88,8 +88,6 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         {
             //CursorAnimation.Instance.CancelSelection();
         }
-
-        StartCoroutine(ActionHandler.Instance.ResolveAction());
     }
 
     public void OnPointerDown(PointerEventData eventData)

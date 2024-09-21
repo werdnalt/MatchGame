@@ -7,18 +7,12 @@ using UnityEngine;
 
 public class AttackTimer : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI _attackTimerTimeText;
+    [SerializeField] private GameObject attackTimerObject;
+    
     private int _currActionsUntilAttack;
     private int _totalActionsUntilAttack;
-    private AnimationEffects _timerAnimationEffects;
-    private TextMeshProUGUI _attackTimerTimeText;
     
-    public GameObject attackTimerObject;
-
-    private void Awake()
-    {
-        _attackTimerTimeText = GetComponent<TextMeshProUGUI>();
-    }
-
     public void Setup(Unit unit)
     {
         _totalActionsUntilAttack = unit.attackTimer;
@@ -37,7 +31,6 @@ public class AttackTimer : MonoBehaviour
         }
         
         attackTimerObject.SetActive(true);
-        _timerAnimationEffects = attackTimerObject.GetComponent<AnimationEffects>();
         _attackTimerTimeText.text = _currActionsUntilAttack.ToString();
         
         if (_currActionsUntilAttack <= 1) StartPulsing();

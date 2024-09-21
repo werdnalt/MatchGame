@@ -165,7 +165,7 @@ public class CursorAnimation : MonoBehaviour, IPointerUpHandler
         _isSwappingLeft = false;
         
         BoardManager.Instance.SetCellSelector(_startingCell);
-        BoardManager.Instance.SwapUnits(_swappingCell, _startingCell);
+        StartCoroutine(BoardManager.Instance.SwapUnits(_swappingCell, _startingCell));
         
         _spriteRenderer.sprite = regularSelector;
     }

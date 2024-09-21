@@ -26,6 +26,7 @@ public class ActionHandler : MonoBehaviour
     {
         if (cell == null || clickedCell == null) return;
 
+        Debug.Log("Set dragged cell");
         draggedCell = cell;
 
         // Check if clickedCell.unitBehaviour and unitData are null before accessing them
@@ -136,7 +137,7 @@ public class ActionHandler : MonoBehaviour
             if (draggedCell.UnitBehaviour is HeroUnitBehaviour)
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
-                BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates);
+                StartCoroutine(BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates));
                 yield break;
             }
             
@@ -159,8 +160,6 @@ public class ActionHandler : MonoBehaviour
         // clicked unit was enemy
         else
         {
-            // UnitBehaviour draggedUnit = GetUnitBasedOnTribe(draggedCell);
-            // draggedUnit.skull.SetActive(false);
             if (draggedCell.UnitBehaviour == null && !BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
@@ -171,7 +170,7 @@ public class ActionHandler : MonoBehaviour
             if (draggedCell.UnitBehaviour == null && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
-                BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates);
+                StartCoroutine(BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates));
                 ClearSelectedCells();
                 yield break;
             }
@@ -179,7 +178,7 @@ public class ActionHandler : MonoBehaviour
             if (draggedCell.UnitBehaviour._unitData.tribe != Unit.Tribe.Hero && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
-                BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates);
+                StartCoroutine(BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates));
             }
         }
 
