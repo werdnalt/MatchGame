@@ -11,7 +11,7 @@ public class AttackTimer : MonoBehaviour
     [SerializeField] private GameObject attackTimerObject;
     
     private int _currActionsUntilAttack;
-    private int _totalActionsUntilAttack;
+    public int _totalActionsUntilAttack;
     
     public void Setup(Unit unit)
     {

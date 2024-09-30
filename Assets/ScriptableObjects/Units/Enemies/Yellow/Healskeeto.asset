@@ -16,13 +16,10 @@ MonoBehaviour:
   attackTimer: 5
   shouldAnimateLoop: 1
   tribe: 4
-  classification: 2
   hp: 4
   attack: 2
-  experienceAmount: 5
-  unitSprite: {fileID: 21300000, guid: d68ee9dc7a3444f4fb9d966c3e8d02ab, type: 3}
   effects:
-  - {fileID: 11400000, guid: 86a56b5ccdf448b49b91c98c04d7b495, type: 2}
-  passive: 0
+  - {fileID: 11400000, guid: 606f92fbca273e242994f40ec8ac28b7, type: 2}
+  attackRange: 1
+  unitSprite: {fileID: 21300000, guid: d68ee9dc7a3444f4fb9d966c3e8d02ab, type: 3}
   displayName: Healthskeeto
-  attackRange: 0

@@ -111,7 +111,7 @@ public class BoardManager : MonoBehaviour
     /// Creates a UnitBehaviour from provided Unit Data.
     /// Places the block in the appropriate location on the board
     /// </summary>
-    public void SpawnUnit(Unit unit, int lowestRow)
+    public IEnumerator SpawnUnit(Unit unit, int lowestRow)
     {
         // create unit behavior for the unit
         var unitBehaviour = CreateUnitBehaviour(unit);
@@ -122,26 +122,17 @@ public class BoardManager : MonoBehaviour
         if (blockCoordinates == null || blockCoordinates.Equals(new Coordinates(-1, -1)))
         {
             unitBehaviour.RemoveSelf();
-            return;
+            yield break;
         }
 
-        AssignUnitBehaviourToCell(unitBehaviour, blockCoordinates.Value);
-
-        // drop block gameobject into position
-        Drop(unitBehaviour.gameObject, GetPositionFromCoordinates(blockCoordinates.Value).Value);
+        yield return StartCoroutine(SetSpawnedUnitPosition(unitBehaviour, blockCoordinates.Value));
     } 
     
     public void SpawnUnit(Unit unit, int column, int row)
     {
-        // create unit behavior for the unit
         var unitBehaviour = CreateUnitBehaviour(unit);
-
         var coordinates = new Coordinates(column, row);
-        
-        AssignUnitBehaviourToCell(unitBehaviour, coordinates);
-
-        // drop block gameobject into position
-        Drop(unitBehaviour.gameObject, GetPositionFromCoordinates(coordinates).Value);
+        StartCoroutine(UpdateUnitPosition(unitBehaviour, coordinates));
     } 
 
     private void Drop(GameObject blockGameObject, Vector3 position)
@@ -161,7 +152,7 @@ public class BoardManager : MonoBehaviour
         // Calculate the drop duration based on distance to travel and the constant speed
         float dropDistance = Vector3.Distance(dropFrom, dropTo);
         float dropDuration = dropDistance / fallSpeed;
-
+        
         // Create a sequence for DOTween animations
         Sequence mySequence = DOTween.Sequence();
 
@@ -237,8 +228,27 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     /// <param name="cell"></param>
     /// <returns></returns>
-    private Vector3 GetCellPosition(Cell cell)
+    public Vector3 GetCellPosition(Cell cell)
     {
+        var yOffset = .5f;
+        var prefabSize = cellPrefab.GetComponent<SpriteRenderer>().bounds.size;
+        
+        // Calculate the total width and height of the board based on prefab size
+        float boardWidth = numColumns * prefabSize.x; 
+        float boardHeight = (numRows - 1) * prefabSize.x;
+
+        // Calculate the starting position for the board to be centered on the screen
+        float startX = -boardWidth / 2 + prefabSize.x / 2; 
+        float startY = (-boardHeight / 2) + prefabSize.x / 2 + cell.Coordinates.row * prefabSize.y + yOffset;  
+
+        float xPos = startX + cell.Coordinates.column * prefabSize.x;
+        return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
+    }
+    
+    public Vector3 GetCellPosition(Coordinates coordinates)
+    {
+        var cell = GetCell(coordinates);
+        
         var yOffset = .5f;
         var prefabSize = cellPrefab.GetComponent<SpriteRenderer>().bounds.size;
         
@@ -273,7 +283,7 @@ public class BoardManager : MonoBehaviour
     {
         for (var unitsSpawned = 0; unitsSpawned < unitsToSpawn.Count; unitsSpawned++)
         {
-            SpawnUnit(unitsToSpawn[unitsSpawned], Timings.EnemyRow);
+            yield return SpawnUnit(unitsToSpawn[unitsSpawned], Timings.EnemyRow);
             yield return new WaitForSeconds(.1f);
         }
     }
@@ -291,7 +301,7 @@ public class BoardManager : MonoBehaviour
         // find any columns that have at least one available cell
         for (int column = 0; column < numColumns; column++)
         {
-            for (int row = lowestRow; row < +numRows; row++)
+            for (int row = lowestRow; row < numRows; row++)
             {
                 if (GetUnitBehaviour(new Coordinates(column, row)) == null)
                 {
@@ -366,25 +376,44 @@ public class BoardManager : MonoBehaviour
         
         if (leftUnit) TryToAssignToLowerRow(leftUnit);
         if (rightUnit) TryToAssignToLowerRow(rightUnit);
-        //StartCoroutine(WaitToApplyGravity(Timings.TimeBeforeAttack));
+        yield return new WaitForSeconds(Timings.SwapTime);
     }
 
     private void TryToAssignToLowerRow(UnitBehaviour unitBehaviour)
     {
         if (unitBehaviour == null) return;
-        
-        var currentCell = unitBehaviour.cell;
+
+        var currentCell = GetCellFromUnitBehaviour(unitBehaviour);
+        if (!currentCell) return;
+
         for (var i = 0; i < currentCell.Coordinates.row; i++)
         {
             var lowerCoordinates = new Coordinates(currentCell.Coordinates.column, i);
             var unit = GetUnitBehaviour(lowerCoordinates);
+        
+            // Check if the lower cell is empty
             if (unit == null)
             {
-                AssignUnitBehaviourToCell(unitBehaviour, lowerCoordinates);
+                var oldCell = GetCell(unitBehaviour.currentCoordinates);
+                if (oldCell)
+                {
+                    // Reserve the lower cell first to prevent race conditions
+                    var lowerCell = GetCell(lowerCoordinates);
+                    if (lowerCell != null)
+                    {
+                        lowerCell.UnitBehaviour = unitBehaviour;
+                        oldCell.UnitBehaviour = null; // Only unassign after reserving the new cell
+                    }
+                }
+
+                if (lowerCoordinates.Equals(new Coordinates(0, 0))) return;
+                // Start the coroutine to move the unit visually
+                StartCoroutine(UpdateUnitPosition(unitBehaviour, lowerCoordinates));
                 return;
             }
         }
     }
+
 
 
     private void SwapUnitData(Coordinates cell1, Coordinates cell2)
@@ -392,11 +421,11 @@ public class BoardManager : MonoBehaviour
         var unitBehaviour1 = GetUnitBehaviour(cell1);
         var unitBehaviour2 = GetUnitBehaviour(cell2);
 
-        AssignUnitBehaviourToCell(unitBehaviour2, cell1);
-        AssignUnitBehaviourToCell(unitBehaviour1, cell2);
+        StartCoroutine(UpdateUnitPosition(unitBehaviour2, cell1));
+        StartCoroutine(UpdateUnitPosition(unitBehaviour1, cell2));
     }
     
-    private IEnumerator WaitToApplyGravity(float blockSwapTime)
+    public IEnumerator WaitToApplyGravity(float blockSwapTime)
     {
         yield return new WaitForSeconds(blockSwapTime);
         
@@ -407,45 +436,6 @@ public class BoardManager : MonoBehaviour
     {
         RemoveDeadUnits();
         //ApplyGravity();
-    }
-    
-    private void ApplyGravity()
-    {
-        for (var column = 0; column < numColumns; column++)
-        {
-            var collapsedBlocks = new List<UnitBehaviour>();
-            for (var row = 0; row < numRows; row++)
-            {
-                var unitBehaviour = GetUnitBehaviour(new Coordinates(column, row));
-                if (unitBehaviour == null || !unitBehaviour._unitData) continue;
-            
-                collapsedBlocks.Add(unitBehaviour);
-            }
-
-            for (var newRow = 0; newRow < numRows; newRow++)
-            {
-                var collapsedCoordinates = new Coordinates(column, newRow);
-                var cellPosition = GetCell(collapsedCoordinates).boardPosition;
-                    
-                if (newRow < collapsedBlocks.Count)
-                {
-                    // Instruct all non-empty blocks to be compressed to the bottom of the board
-                    var unitBehaviour = collapsedBlocks[newRow];
-                    unitBehaviour.targetPosition = cellPosition;
-                    
-                    if (collapsedCoordinates.row < unitBehaviour.transform.position.y - 1) Drop(unitBehaviour.gameObject, unitBehaviour.transform.position);
-                    if (newRow == Timings.EnemyRow && unitBehaviour is EnemyUnitBehaviour)
-                    {
-                        var enemyUnitBehaviour = unitBehaviour as EnemyUnitBehaviour;
-                        enemyUnitBehaviour.EnableCountdownTimer();
-                    }
-                }
-                else
-                {
-                    AssignUnitBehaviourToCell(null, collapsedCoordinates);
-                }
-            }
-        }
     }
 
     public List<UnitBehaviour> GetChainedUnits(UnitBehaviour origin)
@@ -477,7 +467,7 @@ public class BoardManager : MonoBehaviour
             var neighbor = GetUnitBehaviour(neighborCoordinates);
 
             // If neighbor is of the same tribe and hasn't been visited, we recursively call DFS on it.
-            if (neighbor == null || neighbor._unitData.tribe != current._unitData.tribe ||
+            if (neighbor == null || neighbor.unitData.tribe != current.unitData.tribe ||
                 visited.Contains(neighborCoordinates) || neighbor.cantChain) continue;
 
             DFS(neighbor, visited, allUnits);
@@ -506,6 +496,23 @@ public class BoardManager : MonoBehaviour
         }
 
         return new Coordinates(0, 0);
+    }
+
+    public List<UnitBehaviour> GetAllNeighborUnitBehaviours(UnitBehaviour unitBehaviour)
+    {
+        var unitCoordinates = GetCoordinatesForUnitBehaviour(unitBehaviour);
+        var allNeighbors = new List<UnitBehaviour>();
+        if (unitCoordinates != null)
+        {
+            var allNeighborCoordinates = GetAllNeighboringCoordinates(unitCoordinates.Value);
+            
+            foreach (var neighborCoordinate in allNeighborCoordinates)
+            {
+                var neighborUnitBehaviour = GetUnitBehaviour(neighborCoordinate);
+                allNeighbors.Add(neighborUnitBehaviour);
+            }
+        }
+        return allNeighbors;
     }
     
     public void SetCellSelector(Coordinates coordinates)
@@ -630,6 +637,23 @@ public class BoardManager : MonoBehaviour
 
         return neighbors;
     }
+
+    private void MoveUnitBehaviour(UnitBehaviour unitBehaviour,Vector3 newPos)
+    {
+        if (!unitBehaviour) return;
+
+            // Create a sequence for DOTween animations
+            Sequence mySequence = DOTween.Sequence();
+
+            // Add move tween to the sequence
+            mySequence.Append(unitBehaviour.transform.DOMove(newPos, Timings.SwapTime).SetEase(Ease.InQuad));
+
+            // Add squash effect once the movement is completed
+            mySequence.Append(unitBehaviour.transform.DOScale(new Vector3(1.5f, 0.6f, unitBehaviour.originalScale.z), 0.1f));
+
+            // After squashing, spring back to original size
+            mySequence.Append(unitBehaviour.transform.DOScale(unitBehaviour.originalScale, 0.1f));
+    }
     
 
     #endregion
@@ -642,21 +666,32 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     /// <param name="unitBehaviour"></param>
     /// <param name="cellCoordinates"></param>
-    private void AssignUnitBehaviourToCell(UnitBehaviour unitBehaviour, Coordinates cellCoordinates)
+    private IEnumerator AssignUnitBehaviourToCell(UnitBehaviour unitBehaviour, Coordinates cellCoordinates)
     {
         var cell = _cells[cellCoordinates];
         if (cell == null)
         {
             Debug.LogError($"Cell at {cellCoordinates.column}, {cellCoordinates.row} not found");
+            yield break;
         }
         
+        // Assign unit to the cell
         cell.UnitBehaviour = unitBehaviour;
+
+        if (unitBehaviour == null) yield break;
+
+        // Update the unit's coordinates and sorting order
+        unitBehaviour.currentCoordinates = cellCoordinates;
+        unitBehaviour.ResetSortingOrder();
+
+        // Since this is synchronous, no need for a WaitUntil here
+        yield return null; // Yielding to keep coroutine structure
     }
     
     [CanBeNull]
     public UnitBehaviour GetUnitBehaviour(Coordinates coordinates)
     {
-        return _cells[coordinates].UnitBehaviour;
+        return _cells.TryGetValue(coordinates, out var cell) ? cell.UnitBehaviour : null;
     }
 
     [CanBeNull]
@@ -671,13 +706,25 @@ public class BoardManager : MonoBehaviour
         }
         return null;
     }
+
+    private IEnumerator SetSpawnedUnitPosition(UnitBehaviour unit, Coordinates newCoordinates)
+    {
+        yield return AssignUnitBehaviourToCell(unit, newCoordinates);
+        Drop(unit.gameObject, GetCellPosition(newCoordinates));
+    }
+    
+    private IEnumerator UpdateUnitPosition(UnitBehaviour unit, Coordinates newCoordinates)
+    {
+        yield return AssignUnitBehaviourToCell(unit, newCoordinates);
+        MoveUnitBehaviour(unit, GetPositionFromCoordinates(newCoordinates).Value);
+    }
     
     public void RemoveUnitBehaviour(UnitBehaviour unitBehaviour)
     {
         var unitCoordinates = GetCoordinatesForUnitBehaviour(unitBehaviour);
         if (unitCoordinates == null) return;
 
-        _cells.Remove((Coordinates) unitCoordinates);
+        _cells[(Coordinates) unitCoordinates].UnitBehaviour = null;
         unitBehaviour.RemoveSelf();
     }
     
@@ -701,17 +748,26 @@ public class BoardManager : MonoBehaviour
     
     private void RemoveDeadUnits()
     {
-        // var deadUnitsKeys = _cells
-        //     .Where(kvp => kvp.Value.UnitBehaviour.currentHp <= 0)
-        //     .Select(kvp => kvp.Key)
-        //     .ToList();
-        //
-        // foreach (var key in deadUnitsKeys)
-        // {
-        //     var cell = _cells[key];
-        //     _cells.Remove(key);
-        //     cell.UnitBehaviour.RemoveSelf();
-        // }
+        var allUnitBehaviours = GetAllUnitBehaviours();
+        foreach (var unitBehaviour in allUnitBehaviours)
+        {
+            if (unitBehaviour.isDead)
+            {
+                var coordinates = GetCoordinatesForUnitBehaviour(unitBehaviour).Value;
+                if (_cells.ContainsKey(coordinates)) _cells[coordinates].UnitBehaviour = null;
+                unitBehaviour.RemoveSelf();
+            }
+        }
+
+        allUnitBehaviours = GetAllUnitBehaviours();
+        for (var column = 0; column < numColumns; column++)
+        {
+            for (var row = 0; row < numRows; row++)
+            {
+                var unitBehaviour = GetUnitBehaviour(new Coordinates(column, row));
+                if (unitBehaviour) TryToAssignToLowerRow(unitBehaviour);
+            }
+        }
     }
     
     public List<UnitBehaviour> GetAllUnitBehaviours()
@@ -729,6 +785,25 @@ public class BoardManager : MonoBehaviour
     private Cell GetCell(Coordinates coordinates)
     {
         return _cells[coordinates];
+    }
+
+    public List<Cell> GetAllCells()
+    {
+        return _cells.Values.ToList();
+    }
+    
+    private Cell GetCellFromUnitBehaviour(UnitBehaviour unitBehaviour)
+    {
+        foreach (var kvp in _cells)
+        {
+            Cell cell = kvp.Value;
+            if (cell.UnitBehaviour == unitBehaviour)
+            {
+                return cell;
+            }
+        }
+        
+        return null;
     }
 
     #endregion

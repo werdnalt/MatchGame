@@ -9,14 +9,13 @@ using UnityEngine.UI;
 public class EnemyUnitBehaviour : UnitBehaviour
 {
     [SerializeField] private AttackTimer _attackTimer;
-
+    
     public override UnitBehaviour Initialize(Unit unit)
     {
         base.Initialize(unit);
         
-        _attackTimer.Setup(_unitData);
-        
-        EventPipe.OnActionTaken += HandleActionTaken;
+        _attackTimer.Setup(unitData);
+
         return this;
     }
 
@@ -25,19 +24,11 @@ public class EnemyUnitBehaviour : UnitBehaviour
         return _attackTimer.IsReadyToAttack();
     }
 
-    private void HandleActionTaken()
+    public IEnumerator HandleActionTaken()
     {
-        if (isDead) return;
-
-        if (cell.Coordinates.row - _unitData.attackRange <= Timings.HeroRow)
-        {
-            StartCoroutine(_attackTimer.CountDownTimer());
-        }
-    }
-
-    public void EnableCountdownTimer()
-    {
+        if (isDead) yield break;
         _attackTimer.EnableCountdownTimer();
+        yield return StartCoroutine(_attackTimer.CountDownTimer());
     }
 
     public override IEnumerator Attack(UnitBehaviour attackingTarget)
@@ -98,5 +89,10 @@ public class EnemyUnitBehaviour : UnitBehaviour
 
         // Wait until combatFinished becomes true to exit the coroutine
         yield return new WaitUntil(() => combatFinished);
+    }
+
+    public int GetAttackTimerAmount()
+    {
+        return _attackTimer._totalActionsUntilAttack;
     }
 }

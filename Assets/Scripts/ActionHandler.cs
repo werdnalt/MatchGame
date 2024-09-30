@@ -30,10 +30,10 @@ public class ActionHandler : MonoBehaviour
         draggedCell = cell;
 
         // Check if clickedCell.unitBehaviour and unitData are null before accessing them
-        if (clickedCell.UnitBehaviour?._unitData == null) return;
+        if (clickedCell.UnitBehaviour?.unitData == null) return;
         
         // Check if draggedCell.unitBehaviour and unitData are null before accessing them
-        if (draggedCell != null && draggedCell.UnitBehaviour?._unitData == null)
+        if (draggedCell != null && draggedCell.UnitBehaviour?.unitData == null)
         {
             if (BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
@@ -137,7 +137,7 @@ public class ActionHandler : MonoBehaviour
             if (draggedCell.UnitBehaviour is HeroUnitBehaviour)
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
-                StartCoroutine(BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates));
+                yield return StartCoroutine(BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates));
                 yield break;
             }
             
@@ -175,7 +175,7 @@ public class ActionHandler : MonoBehaviour
                 yield break;
             }
             
-            if (draggedCell.UnitBehaviour._unitData.tribe != Unit.Tribe.Hero && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
+            if (draggedCell.UnitBehaviour.unitData.tribe != Unit.Tribe.Hero && BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
                 ArrowLine.Instance.SetHoverIndicator(draggedCell.transform.position);
                 StartCoroutine(BoardManager.Instance.SwapUnits(clickedCell.Coordinates, draggedCell.Coordinates));

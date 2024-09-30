@@ -5,46 +5,13 @@ using AllIn1SpringsToolkit;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public abstract class UnitBehaviour : MonoBehaviour
 {
-    // Public properties
-    private Cell _cell;  // Backing field for the cell property
-
-    public Cell cell
-    {
-        get => _cell;  // Return the backing field
-        set
-        {
-            if (_cell == null)
-            {
-                _cell = value;
-            }
-            else
-            {
-                var newCell = value;
-
-                // The new cell is in the same column, so we drop the cell
-                if (newCell.Coordinates.column == _cell.Coordinates.column)
-                {
-                    var dropDistance = Vector3.Distance(_cell.transform.position, newCell.transform.position);
-                    var dropDuration = dropDistance / 15;
-                    var newScale = new Vector3(originalScale.x * 1.2f, originalScale.y * 1.2f, originalScale.z * 1.2f);
-                    transform.DOMove(newCell.transform.position, dropDuration).SetEase(Ease.OutQuad)
-                        .OnComplete(() => _transformSpringComponent.SetCurrentValueScale(newScale));
-                }
-                // The new cell is in the same row, we are swapping it with a neighbor
-                else
-                {
-                    transform.DOMove(newCell.transform.position, Timings.SwapTime).SetEase(Ease.OutQuad);
-                    _cell = value;
-                }
-            }
-        }
-    }
-
+    public Coordinates currentCoordinates;
     public bool isDead = false;
     public Vector3? targetPosition;
     public bool cantChain = false;
@@ -75,7 +42,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     public GameObject animatedCharacter;
 
     // Private fields
-    public Unit _unitData;
+    public Unit unitData;
     private SpriteRenderer _blockIcon;
     private float _spriteDuration;
     private int _currentSpriteIndex;
@@ -90,6 +57,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     public int _maxHp;
     private bool isCountingDown;
     public bool isDragging;
+    private SortingGroup _sortingGroup;
     
     private List<GameObject> animatedCharacterParts = new List<GameObject>();
     private Vector3 currentHeartSize;
@@ -109,7 +77,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     private float _timeUntilChainShown = .5f;
     private float _infoPanelTimeHoverThreshold = .5f;
     
-    private Vector3 originalScale;
+    public Vector3 originalScale;
     private bool scaleSet = false;
     private bool _hasShownPanel = false;
     
@@ -118,6 +86,13 @@ public abstract class UnitBehaviour : MonoBehaviour
     private void Awake()
     {
         _transformSpringComponent = GetComponent<TransformSpringComponent>();
+        _sortingGroup = GetComponentInChildren<SortingGroup>();
+        if (!_sortingGroup)
+        {
+            _sortingGroup = gameObject.AddComponent<SortingGroup>();
+        }
+
+        originalScale = transform.localScale;
     }
 
     private void SetCharacterShader()
@@ -136,13 +111,13 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public virtual UnitBehaviour Initialize(Unit unit)
     {
-        _unitData = unit;
+        unitData = unit;
         
-        attack = _unitData.attack;
-        _maxHp = _unitData.hp;
+        attack = unitData.attack;
+        _maxHp = unitData.hp;
         currentHp = _maxHp;
         
-        if (_unitData.tribe == Unit.Tribe.NA)
+        if (unitData.tribe == Unit.Tribe.NA)
         {
             cantChain = true;
         }
@@ -154,9 +129,9 @@ public abstract class UnitBehaviour : MonoBehaviour
         }
         
         // set animated Character
-        if (_unitData.animatedCharacterPrefab)
+        if (unitData.animatedCharacterPrefab)
         {
-            animatedCharacter = Instantiate(_unitData.animatedCharacterPrefab, transform);
+            animatedCharacter = Instantiate(unitData.animatedCharacterPrefab, transform);
         }
         else
         {
@@ -167,7 +142,7 @@ public abstract class UnitBehaviour : MonoBehaviour
 
         SetCharacterShader();
 
-        foreach (var effect in _unitData.effects)
+        foreach (var effect in unitData.effects)
         {
             if (effect == null) continue;
             effects.Add(new EffectState(effect));
@@ -209,18 +184,11 @@ public abstract class UnitBehaviour : MonoBehaviour
     }
     
     private IEnumerator HitEffect()
-    {        
+    {
+        var hitEffectDuration = .5f;
         healthUI.ShowAndUpdateHealth(currentHp, _maxHp);
-        
-        //CameraShake.Instance.Shake(.05f);
-        var punchDuration = 0.3f;
-        var newScale = new Vector3(transform.localScale.x * 1.1f, transform.localScale.y * 1.1f, 1);
-    
-        // Start the punch scale. OnComplete callback is used to set a flag when the punch animation is finished.
-        var punchFinished = false;
-        transform.DOKill();
-        transform.DOPunchScale(newScale, punchDuration, 1, 1).OnComplete(() => punchFinished = true);
-    
+        //PunchScale();
+
         // Enable hit effect
         foreach (var part in animatedCharacterParts)
         {
@@ -228,16 +196,13 @@ public abstract class UnitBehaviour : MonoBehaviour
             if (mat) mat.SetFloat(HIT, 1);
         }
     
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(hitEffectDuration);
 
         foreach (var part in animatedCharacterParts)
         {
             var mat = part.GetComponent<Renderer>().material;
             if (mat) mat.SetFloat(HIT, 0);
         }
-    
-        // Wait for the punch animation to complete
-        yield return new WaitUntil(() => punchFinished);
     }
     
     public void EnableSwapMotionBlur()
@@ -333,12 +298,12 @@ public abstract class UnitBehaviour : MonoBehaviour
         }
         FXManager.Instance.PlayParticles(FXManager.ParticleType.Death, transform.position);
         
-        foreach(var effect in _unitData.effects)
+        foreach(var effect in unitData.effects)
         {
             effect.OnDeath(killedBy, this);
         }
 
-        if (_unitData.tribe != Unit.Tribe.Hero)
+        if (unitData.tribe != Unit.Tribe.Hero)
         {
             return;
         }
@@ -428,11 +393,28 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     public void ApplyJelloEffect()
     {
-        //_animationEffects.Jello();
+        // var squash = new Vector3(originalScale.x * 1.4f, originalScale.y * .5f, originalScale.z);
+        // _transformSpringComponent.SetCurrentValueScale(squash);
     }
 
     public void Drag(bool isDragging)
     {
         this.isDragging = isDragging;
+    }
+
+    private void PunchScale()
+    {
+        var newScale = new Vector3(originalScale.x * 1.3f, originalScale.y * 1.3f, originalScale.z * 1.3f);
+        _transformSpringComponent.SetCurrentValueScale(newScale);
+    }
+
+    public void BringSortingToFront()
+    {
+        _sortingGroup.sortingOrder = 20;
+    }
+
+    public void ResetSortingOrder()
+    {
+        _sortingGroup.sortingOrder = 10 - currentCoordinates.row;
     }
 }

@@ -58,7 +58,7 @@ public class TreasureBehaviour : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
         if (!unitBehaviour) return;
         
-        if (col.gameObject.GetComponent<UnitBehaviour>()._unitData.tribe == Unit.Tribe.Hero)
+        if (col.gameObject.GetComponent<UnitBehaviour>().unitData.tribe == Unit.Tribe.Hero)
         {
             unitBehaviour.Jump();
             Debug.Log("HERO INTERACTION");

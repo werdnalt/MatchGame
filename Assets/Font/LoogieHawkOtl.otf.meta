@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 8d007016fd0df02418d8b4f5c1d1b1d4
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Loogie Hawk
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: e8102c3af6c33ce4dba5de0c3e94e71d, type: 3}
+  - {fileID: 12800000, guid: f9ab2bc13cd3400408b8b09ef3acf48b, type: 3}
+  - {fileID: 12800000, guid: 680ed8eec61a38e4fbd9836f5121529d, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

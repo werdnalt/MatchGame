@@ -24,6 +24,35 @@ public class UnitManager : MonoBehaviour
         }
     }
 
+    public IEnumerator HandlePlayerActionTaken()
+    {
+        var allCells = boardManager.GetAllCells();
+        foreach (var cell in allCells)
+        {
+            // Check if there is a UnitBehaviour at the cell
+            if (!cell.UnitBehaviour || cell.UnitBehaviour is HeroUnitBehaviour) continue;
+            
+            // Check if the UnitBehaviour's attack range would put them in range of the Hero Row
+            if (cell.UnitBehaviour.unitData.attackRange >= cell.Coordinates.row)
+            {
+                // Show their attack timer UI and count it down
+                var enemyUnitBehaviour = cell.UnitBehaviour as EnemyUnitBehaviour;
+                if (enemyUnitBehaviour) yield return StartCoroutine(enemyUnitBehaviour.HandleActionTaken());
+            }
+        }
+
+        foreach (var cell in allCells)
+        {
+            if (!cell.UnitBehaviour || cell.UnitBehaviour is HeroUnitBehaviour) continue;
+
+            var enemyUnitBehaviour = cell.UnitBehaviour as EnemyUnitBehaviour;
+            if (enemyUnitBehaviour != null && !enemyUnitBehaviour.ShouldAttack()) continue;
+            
+            var hero = boardManager.GetUnitBehaviour(new Coordinates(cell.Coordinates.column, Timings.HeroRow));
+            if (hero) yield return StartCoroutine(enemyUnitBehaviour.Attack(hero));
+        }
+    }
+
     private void Start()
     {
         _player = Player.Instance;
@@ -35,23 +64,6 @@ public class UnitManager : MonoBehaviour
         {
             boardManager.SpawnUnit(_player.allHeroes[i], i,  Timings.HeroRow);
             yield return null;
-        }
-    }
-
-    public IEnumerator TryEnemyAttacks()
-    {
-        var frontRowEnemies = boardManager.FrontRowEnemies;
-        foreach (var enemy in frontRowEnemies)
-        {
-            if (!enemy.ShouldAttack()) continue;
-            
-            var enemyCoordinates = boardManager.GetCoordinatesForUnitBehaviour(enemy);
-            if (enemyCoordinates != null)
-            {
-                var column = enemyCoordinates.Value.column;
-                var hero = boardManager.GetUnitBehaviour(new Coordinates(column, Timings.HeroRow));
-                if (hero) yield return StartCoroutine(enemy.Attack(hero));
-            }
         }
     }
     
@@ -66,7 +78,7 @@ public class UnitManager : MonoBehaviour
         
         
         if ((attackingUnitCoordinates.Value.column == attackedUnitCoordinates.Value.column) && 
-            Mathf.Abs(attackingUnitCoordinates.Value.row - attackedUnitCoordinates.Value.row) <= attackingUnit._unitData.attackRange)
+            Mathf.Abs(attackingUnitCoordinates.Value.row - attackedUnitCoordinates.Value.row) <= attackingUnit.unitData.attackRange)
         {
             return true;
         }

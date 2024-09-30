@@ -12,16 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: Warrior
   m_EditorClassIdentifier: 
-  animatedCharacterPrefab: {fileID: 0}
+  animatedCharacterPrefab: {fileID: 3710274101829224566, guid: afa8b35efa2fad044ba2ca207544e8e8, type: 3}
   attackTimer: 4
   shouldAnimateLoop: 0
   tribe: 0
-  classification: 0
   hp: 5
   attack: 4
-  experienceAmount: 0
-  unitSprite: {fileID: 21300000, guid: a6fb9149f81a81d4f8d7fbe71077cc0e, type: 3}
   effects: []
-  passive: 0
+  attackRange: 1
+  unitSprite: {fileID: 21300000, guid: a6fb9149f81a81d4f8d7fbe71077cc0e, type: 3}
   displayName: Warrior
-  attackRange: 0

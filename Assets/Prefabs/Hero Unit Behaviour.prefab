@@ -660,7 +660,7 @@ MonoBehaviour:
   floatingText: {fileID: 4186556226490463639}
   bonePile: {fileID: 2056162977600491825}
   animatedCharacter: {fileID: 0}
-  _unitData: {fileID: 0}
+  unitData: {fileID: 0}
   _maxHp: 0
   isDragging: 0
 --- !u!1 &2056162977600491825

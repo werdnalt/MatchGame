@@ -11,4 +11,10 @@ public static class EventPipe
         OnActionTaken?.Invoke();
     }
     
+    public static event Action OnPlayerAttack;
+    public static void PlayerAttack()
+    {
+        OnPlayerAttack?.Invoke();
+    }
+    
 }

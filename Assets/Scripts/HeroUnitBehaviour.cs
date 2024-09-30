@@ -10,23 +10,17 @@ public class HeroUnitBehaviour : UnitBehaviour
 {
     public override IEnumerator Attack(UnitBehaviour attackingTarget)
     {
+        var originalPos = BoardManager.Instance.GetCellPosition(currentCoordinates);
         if (isDead) yield break;
 
+        EventPipe.PlayerAttack();
         var combatFinished = false;
-
-        if (!combatTarget)
-        {
-            yield break; // If there's no combat target, simply exit the coroutine
-        }
 
         foreach (var effectState in effects)
         {
             effectState.effect.OnAttack(this, attackingTarget, ref attack);
         }
         
-        yield return new WaitForSeconds(Timings.TimeBeforeAttack);
-
-        var originalPos = transform.position;
         var slightBackwardPos =
             originalPos -
             (attackingTarget.transform.position - originalPos).normalized *
@@ -36,6 +30,7 @@ public class HeroUnitBehaviour : UnitBehaviour
         AudioManager.Instance.PlayWithRandomPitch("whoosh");
 
         transform.DOKill();
+
         // First, move slightly backward
         transform.DOMove(slightBackwardPos, 0.05f).OnComplete(() =>
         {
@@ -56,7 +51,7 @@ public class HeroUnitBehaviour : UnitBehaviour
                     target.TakeDamage(attack, this);
                 }
 
-                transform.DOMove(originalPos, .3f).SetEase(Ease.OutQuad).OnComplete(() =>
+                transform.DOMove(originalPos, .5f).SetEase(Ease.OutQuad).OnComplete(() =>
                 {
                     EventPipe.TakeAction();
                     combatFinished = true;

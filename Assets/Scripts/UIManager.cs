@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,23 +14,27 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
     public InputActionAsset inputAction;
     
+
+    
     [SerializeField] public GameObject chestOverlay;
     [SerializeField] private Image treasureImage;
     [SerializeField] private TextMeshProUGUI treasureNameText;
     [SerializeField] private TextMeshProUGUI treasureEffectText;
 
     [SerializeField] private GameObject unitPanel;
-    [SerializeField] private GameObject effectTextParent;
     [SerializeField] private Image unitPortrait;
     [SerializeField] private TextMeshProUGUI attackText;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI tribeText;
     [SerializeField] private Image tribePlacard;
-    [SerializeField] private GameObject effectTextPrefab;
     [SerializeField] private List<TreasureChoiceBehaviour> treasureChoices;
     [SerializeField] private TextMeshProUGUI treasureReceivedText;
     [SerializeField] private RectTransform tooltipRectTransform;
+    
+    [SerializeField] private PopupTooltip popupTooltip;
+    
+
     
     [SerializeField] private TextMeshProUGUI energyText;
     
@@ -113,54 +118,7 @@ public class UIManager : MonoBehaviour
 
     public void ShowUnitPanel(UnitBehaviour unitBehaviour)
     {
-        for (var i = _instantiatedEffectPrefabs.Count - 1; i >= 0; i--)
-        {
-            Destroy(_instantiatedEffectPrefabs[i].gameObject);
-        }
-        
-        _popEffect.EnableAndPop();
-
-        // var panelPos = new Vector3(unitBehaviour.transform.position.x + 3.5f, unitBehaviour.transform.position.y, 1);
-        // unitPanel.transform.position = panelPos;
-        
-        var endingPos = new Vector3(0, 30f, 0);
-
-        switch (unitBehaviour._unitData.tribe)
-        {
-            case Unit.Tribe.Beasts:
-                tribePlacard.color = new Color32(249, 194, 43, 255);
-                break;
-            case Unit.Tribe.Void:
-                tribePlacard.color = new Color32(107,62,117, 255);
-                break;
-            case Unit.Tribe.Plants:
-                tribePlacard.color = new Color32(213,224,75, 255);
-                break;
-        }
-        
-        attackText.text = unitBehaviour.attack.ToString();
-
-        healthText.text = ($"{unitBehaviour.currentHp}");
-        nameText.text = unitBehaviour._unitData.displayName;
-        tribeText.text = unitBehaviour._unitData.tribe.ToString();
-        
-        foreach (var effectState in unitBehaviour.effects)
-        {
-            var effectTextInstance = Instantiate(effectTextPrefab, effectTextParent.transform);
-            Debug.Log("spawned effect prefab");
-            // var effectBehaviour = effectTextInstance.GetComponent<EffectBehaviour>();
-            //
-            // if (!effectBehaviour) continue;
-            
-            effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text = effectState.effect.effectDescription;
-            if (effectState.isSilenced)
-            {
-                effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text =
-                    ($"<s>{effectState.effect.effectDescription}</s>");
-            }
-            
-            _instantiatedEffectPrefabs.Add(effectTextInstance);
-        }
+        popupTooltip.ShowUnitPanel(unitBehaviour);
     }
 
     public void HideUnitPanel()
@@ -239,4 +197,7 @@ public class UIManager : MonoBehaviour
         chestOverlay.GetComponent<PopEffect>().DisableAndPop();
         chestDestroyed = false;
     }
+    
+
+    
 }

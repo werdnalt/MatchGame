@@ -32,8 +32,14 @@ public class GamePlayDirector : MonoBehaviour
         _unitManager = FindObjectOfType<UnitManager>();
 
         EventPipe.OnActionTaken += OnPlayerAction;
+        EventPipe.OnPlayerAttack += HandlePlayerAttack;
 
         StartCoroutine(StartLevel());
+    }
+
+    private void HandlePlayerAttack()
+    {
+        PlayerActionAllowed = false;
     }
 
     private IEnumerator StartLevel()
@@ -52,12 +58,17 @@ public class GamePlayDirector : MonoBehaviour
 
     private void OnPlayerAction()
     {
+        PlayerActionAllowed = false;
         StartCoroutine(HandlePlayerAction());
     }
 
     private IEnumerator HandlePlayerAction()
     {
         // check for any enemies that should attack
-        yield return StartCoroutine(_unitManager.TryEnemyAttacks());
+        yield return StartCoroutine(_unitManager.HandlePlayerActionTaken());
+
+        yield return StartCoroutine(_boardManager.WaitToApplyGravity(.5f));
+
+        PlayerActionAllowed = true;
     }
 }

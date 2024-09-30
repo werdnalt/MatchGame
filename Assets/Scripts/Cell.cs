@@ -7,16 +7,17 @@ using UnityEngine.EventSystems;
 
 public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IDragHandler, IPointerUpHandler
 {
-    public Coordinates Coordinates;
+    private Coordinates _coordinates;
+    public Coordinates Coordinates
+    {
+        set;
+        get;
+    }
     public Vector3 boardPosition;
     public UnitBehaviour UnitBehaviour
     {
         get => _unitBehaviour;
-        set
-        {
-            _unitBehaviour = value;
-            if (_unitBehaviour) _unitBehaviour.cell = this;
-        }
+        set => _unitBehaviour = value;
     }
 
     private UnitBehaviour _unitBehaviour;
@@ -40,10 +41,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         
         UIManager.Instance.ShowUnitPanel(_unitBehaviour);
         _unitBehaviour.ShowAndUpdateHealth();
-
-        _cachedZIndex = _unitBehaviour.transform.position.z;
-        var cachedPos = _unitBehaviour.transform.position;
-        _unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, -3);
+        _unitBehaviour.BringSortingToFront();
         
         _unitBehaviour.ApplyJelloEffect();
     }
@@ -57,6 +55,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
         if (!_unitBehaviour) return;
         
+        _unitBehaviour.ResetSortingOrder();
         var cachedPos = _unitBehaviour.transform.position;
         _unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, _cachedZIndex);
         
@@ -71,7 +70,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
         ActionHandler.Instance.SetClickedCell(this);
         AudioManager.Instance.Play("wood");
-        _unitBehaviour.Jump();
+        //_unitBehaviour.Jump();
         _unitBehaviour.Drag(true);
         ArrowLine.Instance.StartDrawingLine(_unitBehaviour.transform.position);
     }

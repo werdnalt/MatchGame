@@ -45,7 +45,6 @@ GameObject:
   - component: {fileID: -7826357714210302745}
   - component: {fileID: 8738678404145434071}
   - component: {fileID: 4453177449654641031}
-  - component: {fileID: 5074579231345112182}
   m_Layer: 2
   m_Name: Enemy Unit Behaviour
   m_TagString: Untagged
@@ -198,294 +197,10 @@ MonoBehaviour:
   floatingText: {fileID: 4186556226490463639}
   bonePile: {fileID: 0}
   animatedCharacter: {fileID: 0}
-  _unitData: {fileID: 0}
+  unitData: {fileID: 0}
   _maxHp: 0
   isDragging: 0
   _attackTimer: {fileID: 2880612500320844969}
---- !u!114 &5074579231345112182
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1956031276096587056}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a9f3b58cc7b7e9408ac5f31edd2d8b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  doesAutoInitialize: 1
-  useScaledTime: 1
-  hasCustomInitialValues: 0
-  hasCustomTarget: 0
-  generalPropertiesUnfolded: 1
-  initialValuesUnfolded: 0
-  spaceType: 0
-  positionSpring:
-    unifiedForceAndDrag: 1
-    unifiedForce: 150
-    unifiedDrag: 10
-    useInitialValues: 0
-    useCustomTarget: 0
-    springEnabled: 0
-    clampingEnabled: 0
-    springValues:
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    showDebugFields: 0
-    unfolded: 0
-    eventsEnabled: 0
-  scaleSpring:
-    unifiedForceAndDrag: 1
-    unifiedForce: 150
-    unifiedDrag: 10
-    useInitialValues: 0
-    useCustomTarget: 0
-    springEnabled: 1
-    clampingEnabled: 0
-    springValues:
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    showDebugFields: 0
-    unfolded: 0
-    eventsEnabled: 0
-  rotationSpring:
-    unifiedForceAndDrag: 1
-    unifiedForce: 150
-    unifiedDrag: 10
-    useInitialValues: 0
-    useCustomTarget: 0
-    springEnabled: 0
-    clampingEnabled: 0
-    springValues:
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    - initialValue: 0
-      clampTarget: 0
-      clampCurrentValue: 0
-      stopSpringOnCurrentValueClamp: 0
-      minValue: 0
-      maxValue: 100
-      update: 1
-      force: 150
-      drag: 10
-      target: 0
-      currentValue: 0
-      candidateValue: 0
-      velocity: 0
-      clamped: 0
-      operationValue: 0
-    showDebugFields: 0
-    unfolded: 0
-    eventsEnabled: 0
-    axisRestriction: 0
-  followerTransform: {fileID: 2200278036780051956}
-  useTransformAsTarget: 0
-  targetTransform: {fileID: 0}
 --- !u!1 &2057234760108249943
 GameObject:
   m_ObjectHideFlags: 0
@@ -882,14 +597,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
---- !u!4 &4527682790098464090 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4223877005074994144, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
-  m_PrefabInstance: {fileID: 309541400584158906}
-  m_PrefabAsset: {fileID: 0}
 --- !u!198 &4527682790098464069 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 4223877005074994175, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
+  m_PrefabInstance: {fileID: 309541400584158906}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &4527682790098464090 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4223877005074994144, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
   m_PrefabInstance: {fileID: 309541400584158906}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1962366528136808460
@@ -1074,17 +789,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5619502590716682564, guid: 905b853a635f05b4e89dea89d47fd610, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.394
+      objectReference: {fileID: 0}
     - target: {fileID: 5987263885491477998, guid: 905b853a635f05b4e89dea89d47fd610, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 905b853a635f05b4e89dea89d47fd610, type: 3}
---- !u!224 &2874046351042438257 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 929414786969626708, guid: 905b853a635f05b4e89dea89d47fd610, type: 3}
-  m_PrefabInstance: {fileID: 3100543895532309541}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2880612500320844969 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 936368224069087372, guid: 905b853a635f05b4e89dea89d47fd610, type: 3}
@@ -1096,6 +810,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d5bea78487d5e947bfe7a84702593c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &2874046351042438257 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 929414786969626708, guid: 905b853a635f05b4e89dea89d47fd610, type: 3}
+  m_PrefabInstance: {fileID: 3100543895532309541}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4389088883344766236
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1177,7 +896,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7749533851366560677, guid: ddf60da785f419b4ea6613eccd43b3f1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: -0.373
       objectReference: {fileID: 0}
     - target: {fileID: 7749533851366560677, guid: ddf60da785f419b4ea6613eccd43b3f1, type: 3}
       propertyPath: m_AnchoredPosition.y
