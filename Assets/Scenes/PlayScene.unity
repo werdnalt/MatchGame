@@ -5798,7 +5798,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3b2d01326dd3604e91f8a39e2aa79af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugText: {fileID: 992295449}
+  debugText: {fileID: 0}
 --- !u!114 &992295449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6403,29 +6403,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 573242dc037c5044e92088e4050fff06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nameplateImage: {fileID: 2076083476}
-  unitNameText: {fileID: 1351338229}
-  healthAmountText: {fileID: 1643521957}
-  attackAmountText: {fileID: 370142532}
-  rangeAmountText: {fileID: 1288800650}
-  timerText: {fileID: 1489209191}
-  timerImage: {fileID: 95353078}
-  keywords:
-  - pattern: 'ON SWAP:'
-    spriteName: <sprite=3>
-    highlightColor: {r: 0.8862746, g: 0.7058824, b: 0.43921572, a: 0}
-  - pattern: 'ON ATTACK:'
-    spriteName: <sprite=2>
-    highlightColor: {r: 0.3647059, g: 0.654902, b: 0.3647059, a: 0}
-  - pattern: 'ON DEATH:'
-    spriteName: <sprite=0>
-    highlightColor: {r: 0.5254902, g: 0.8745099, b: 0.8078432, a: 0}
-  - pattern: 'WHEN HIT:'
-    spriteName: <sprite=1>
-    highlightColor: {r: 0.7372549, g: 0.34509805, b: 0.37647063, a: 0}
-  effectTextPrefab: {fileID: 8219704417550726768, guid: ad5d265f31b8ef840847f187567432a4, type: 3}
-  effectTextParent: {fileID: 837695598}
-  _popEffect: {fileID: 1011925386}
+  nameplateImage: {fileID: 0}
+  unitNameText: {fileID: 0}
+  healthAmountText: {fileID: 0}
+  attackAmountText: {fileID: 0}
+  rangeAmountText: {fileID: 0}
+  timerText: {fileID: 0}
+  timerImage: {fileID: 0}
+  keywords: []
+  effectTextPrefab: {fileID: 0}
+  effectTextParent: {fileID: 0}
+  _popEffect: {fileID: 0}
 --- !u!1 &1021038161
 GameObject:
   m_ObjectHideFlags: 0
@@ -7057,7 +7045,7 @@ MonoBehaviour:
   - {fileID: 111390291}
   treasureReceivedText: {fileID: 263525928}
   tooltipRectTransform: {fileID: 1738755095}
-  popupTooltip: {fileID: 1011925387}
+  popupTooltip: {fileID: 0}
   energyText: {fileID: 1645861293}
   toolTip: {fileID: 1738755094}
   heroUIParent: {fileID: 1252973943}
@@ -17894,7 +17882,7 @@ MonoBehaviour:
   - {fileID: 1507823556}
   - {fileID: 943315878}
   - {fileID: 771286611}
-  cellPrefab: {fileID: 4921888741588156763, guid: 183066e6549d759408145f98b5c36cbc, type: 3}
+  cellPrefab: {fileID: 0}
   heroCellPrefabs:
   - {fileID: 0}
   - {fileID: 0}
