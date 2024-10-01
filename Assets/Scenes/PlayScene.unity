@@ -6403,17 +6403,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 573242dc037c5044e92088e4050fff06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nameplateImage: {fileID: 0}
-  unitNameText: {fileID: 0}
-  healthAmountText: {fileID: 0}
-  attackAmountText: {fileID: 0}
-  rangeAmountText: {fileID: 0}
-  timerText: {fileID: 0}
-  timerImage: {fileID: 0}
+  nameplateImage: {fileID: 2076083476}
+  unitNameText: {fileID: 1351338229}
+  healthAmountText: {fileID: 1643521957}
+  attackAmountText: {fileID: 370142532}
+  rangeAmountText: {fileID: 1288800650}
+  timerText: {fileID: 1489209191}
+  timerImage: {fileID: 95353078}
   keywords: []
-  effectTextPrefab: {fileID: 0}
-  effectTextParent: {fileID: 0}
-  _popEffect: {fileID: 0}
+  effectTextPrefab: {fileID: 8219704417550726768, guid: ad5d265f31b8ef840847f187567432a4, type: 3}
+  effectTextParent: {fileID: 837695598}
+  _popEffect: {fileID: 1011925386}
 --- !u!1 &1021038161
 GameObject:
   m_ObjectHideFlags: 0
@@ -7027,7 +7027,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22f3e6982e429c849804685989b9eb62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputAction: {fileID: -944628639613478452, guid: 3efefcb78752b384e9d8c995f076c873, type: 3}
+  inputAction: {fileID: -944628639613478452, guid: cae3b0685415ddd41841fbf98f794529, type: 3}
   chestOverlay: {fileID: 1139969028}
   treasureImage: {fileID: 839781194}
   treasureNameText: {fileID: 1397575778}
@@ -7045,7 +7045,7 @@ MonoBehaviour:
   - {fileID: 111390291}
   treasureReceivedText: {fileID: 263525928}
   tooltipRectTransform: {fileID: 1738755095}
-  popupTooltip: {fileID: 0}
+  popupTooltip: {fileID: 1011925387}
   energyText: {fileID: 1645861293}
   toolTip: {fileID: 1738755094}
   heroUIParent: {fileID: 1252973943}
