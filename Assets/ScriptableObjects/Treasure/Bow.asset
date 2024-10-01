@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ba0eb26beacc8e44bd477fa145c7c1d, type: 3}
   m_Name: Bow
   m_EditorClassIdentifier: 
-  effect: {fileID: 11400000, guid: a0d732eab16caf04d86e92a793af1b72, type: 2}
+  effect: {fileID: 11400000, guid: 04c816c9f5ac9534d871a8263c6608cb, type: 2}
   treasureDescription: Increases range by 1
   treasureSprite: {fileID: 21300000, guid: b7e5650dc401b2c4b8e803e47beca56c, type: 3}
   treasureUISprite: {fileID: 21300000, guid: c966758f0ddef4846ac7f65402c5cc61, type: 3}

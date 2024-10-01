@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82a39faef3e0aca439cbd80ea71b8ed2, type: 3}
-  m_Name: IncreaseAttackEffect
+  m_Script: {fileID: 11500000, guid: 822c0ca4f25901348bbb3d6df8aba20f, type: 3}
+  m_Name: Wolf
   m_EditorClassIdentifier: 
-  effectDescription: <color=#e83b3b>ON ATTACK:</color> <color=#1ebc73>INCREASE</color>
-    <sprite="sword" index=0> by 1
-  effectSprite: {fileID: 0}
-  numUses: 1
-  increaseAmount: 1
+  unit: {fileID: 11400000, guid: 23a91e0c37d305e419a33962ca9ce1b6, type: 2}
+  weight: 30

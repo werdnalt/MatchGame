@@ -7,12 +7,14 @@ public class IncreaseHealthEffect : Effect
 {
     public int increaseAmount;
     
-    public override void OnSwap(Coordinates swappedUnitCoordinates, Coordinates swappedWithCoordinates)
+    public override bool OnSwap(Coordinates swappedUnitCoordinates, Coordinates swappedWithCoordinates)
     {
         var swappedUnit = BoardManager.Instance.GetUnitBehaviour(swappedUnitCoordinates);
-        if (!swappedUnit) return;
+        if (!swappedUnit) return false;
         
         swappedUnit.IncreaseHealth(increaseAmount);
         //UIManager.Instance.ShowUnitPanel(swappedUnit);
+
+        return true;
     }
 }

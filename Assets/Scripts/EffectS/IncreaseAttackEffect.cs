@@ -5,8 +5,10 @@ public class IncreaseAttackEffect : Effect
 {
     public int increaseAmount;
 
-    public override void OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
+    public override bool OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
     {
         attackingUnit.attack += increaseAmount;
+
+        return true;
     }
 }

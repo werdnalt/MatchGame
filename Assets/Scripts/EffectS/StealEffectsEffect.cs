@@ -5,12 +5,12 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "StealEffectsEffect", menuName = "ScriptableObjects/Effects/StealEffectsEffect", order = 2)]
 public class StealEffectsEffect : Effect
 {
-    public override void OnSwap(Coordinates swappedUnitCoordinates, Coordinates swappedWithCoordinates)
+    public override bool OnSwap(Coordinates swappedUnitCoordinates, Coordinates swappedWithCoordinates)
     {
         var swappedUnit = BoardManager.Instance.GetUnitBehaviour(swappedUnitCoordinates);
         var swappedWith = BoardManager.Instance.GetUnitBehaviour(swappedWithCoordinates);
         
-        if (!swappedWith || !swappedUnit || swappedWith.effects.Count == 0) return;
+        if (!swappedWith || !swappedUnit || swappedWith.effects.Count == 0) return false;
         
         for (var i = swappedWith.effects.Count - 1; i >= 0; i--)
         {
@@ -18,5 +18,7 @@ public class StealEffectsEffect : Effect
             swappedUnit.effects.Add(effectState);
             swappedWith.effects.Remove(effectState);
         }
+
+        return true;
     }
 }

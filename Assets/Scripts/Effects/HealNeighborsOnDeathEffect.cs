@@ -8,7 +8,7 @@ public class HealNeighborsOnDeathEffect : Effect
 {
     public int healAmount;
     
-    public override void OnDeath(UnitBehaviour killedBy, UnitBehaviour killed)
+    public override bool OnDeath(UnitBehaviour killedBy, UnitBehaviour killed)
     {
         var allNeighbors = BoardManager.Instance.GetAllNeighborUnitBehaviours(killed);
         foreach (var neighbor in allNeighbors)
@@ -18,5 +18,7 @@ public class HealNeighborsOnDeathEffect : Effect
                 neighbor.Heal(healAmount);
             }
         }
+
+        return true;
     }
 }

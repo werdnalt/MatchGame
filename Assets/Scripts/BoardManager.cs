@@ -315,22 +315,46 @@ public class BoardManager : MonoBehaviour
         EventPipe.TakeAction();
         AudioManager.Instance.PlayWithRandomPitch("whoosh");
 
+        List<EffectState> effectsToRemove = new List<EffectState>();
         // Execute On Swap effects
         if (leftUnit && leftUnit.effects.Count > 0)
         {
             var leftEffectsCopy = new List<EffectState>(leftUnit.effects);  // Create a copy
             foreach (var effectState in leftEffectsCopy)
             {
-                effectState.effect.OnSwap(leftBlockCoords, rightBlockCoords);
+                var isImplemented = effectState.effect.OnSwap(leftBlockCoords, rightBlockCoords);
+                if (isImplemented)
+                {
+                    Debug.Log($"{effectState.effect.name} implements On Attack");
+                    var isDepleted = effectState.isDepleted();
+                    if (isDepleted) effectsToRemove.Add(effectState);
+                }
             }
         }
+        
+        foreach (var effectState in effectsToRemove)
+        {
+            leftUnit.RemoveEffect(effectState);
+        }
+        effectsToRemove.Clear();
 
         if (rightUnit && rightUnit.effects.Count > 0)
         {
             var rightEffectsCopy = new List<EffectState>(rightUnit.effects);  // Create a copy
             foreach (var effectState in rightEffectsCopy)
             {
-                effectState.effect.OnSwap(rightBlockCoords, leftBlockCoords);
+                var isImplemented = effectState.effect.OnSwap(rightBlockCoords, leftBlockCoords);
+                if (isImplemented)
+                {
+                    Debug.Log($"{effectState.effect.name} implements On Attack");
+                    var isDepleted = effectState.isDepleted();
+                    if (isDepleted) effectsToRemove.Add(effectState);
+                }
+            }
+            
+            foreach (var effectState in effectsToRemove)
+            {
+                rightUnit.RemoveEffect(effectState);
             }
         }
 

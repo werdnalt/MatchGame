@@ -14,8 +14,6 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
     public InputActionAsset inputAction;
     
-
-    
     [SerializeField] public GameObject chestOverlay;
     [SerializeField] private Image treasureImage;
     [SerializeField] private TextMeshProUGUI treasureNameText;
@@ -49,6 +47,7 @@ public class UIManager : MonoBehaviour
     
     private Vector2 _mousePos;
     private InputAction _mousePositionAction;
+    private UnitBehaviour _heroWhoOpenedChest;
 
     public GameObject heroUIParent;
     public bool chestDestroyed;
@@ -136,9 +135,10 @@ public class UIManager : MonoBehaviour
         energyText.text = $"Actions: {amountLeft}";
     }
 
-    public void ChestDestroyed(List<Treasure> treasures)
+    public void ChestDestroyed(List<Treasure> treasures, UnitBehaviour heroWhoOpenedChest)
     {
         chestDestroyed = true;
+        _heroWhoOpenedChest = heroWhoOpenedChest;
         _currentTreasure = treasures;
     }
 
@@ -192,8 +192,9 @@ public class UIManager : MonoBehaviour
         toolTip.SetActive(false);
     }
     
-    public void HideTreasurePopup()
+    public void AwardTreasure(Treasure chosenTreasure)
     {
+        _heroWhoOpenedChest.AddEffect(chosenTreasure.effect);
         chestOverlay.GetComponent<PopEffect>().DisableAndPop();
         chestDestroyed = false;
     }

@@ -7,8 +7,9 @@ public class HealEffect : Effect
 {
     public int healAmount;
 
-    public override void OnDeath(UnitBehaviour killedBy, UnitBehaviour killed)
+    public override bool OnDeath(UnitBehaviour killedBy, UnitBehaviour killed)
     {
         killedBy.Heal(healAmount);
+        return true;
     }
 }

@@ -18,18 +18,24 @@ public abstract class Effect : ScriptableObject
     public virtual void OnKill(UnitBehaviour killedBy, UnitBehaviour killed) { }
     
     // This function gets called when a block dies.
-    public virtual void OnDeath(UnitBehaviour killedBy, UnitBehaviour killed) { }
+    public virtual bool OnDeath(UnitBehaviour killedBy, UnitBehaviour killed)
+    {
+        return false;}
     
     // This function gets called when a block swaps.
-    public virtual void OnSwap(Coordinates swappedUnitCoordinates, Coordinates swappedByUnitCoordinates) { }
+    public virtual bool OnSwap(Coordinates swappedUnitCoordinates, Coordinates swappedByUnitCoordinates)
+    {
+        return false;}
     
     // This function gets called when a block falls.
     public virtual void OnFall() { }
 
     public virtual bool OnHit(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
     { return false; }
-    
-    public virtual void OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount) { }
+
+    public virtual bool OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
+    {
+        return false; }
 
     public virtual void OnObtained(UnitBehaviour unitObtained)
     {

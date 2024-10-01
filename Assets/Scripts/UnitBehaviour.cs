@@ -159,29 +159,41 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     private IEnumerator ProcessDamage(int amount, UnitBehaviour attackingUnit)
     {
+        List<EffectState> effectsToRemove = new List<EffectState>();
+
         foreach (var effectState in effects)
         {
             var isImplemented = effectState.effect.OnHit(attackingUnit, this, ref amount);
             if (isImplemented)
             {
                 Debug.Log($"{effectState.effect.name} implements On Hit");
-                var isDepleted = effectState.isDepleted();
+                if (effectState.isDepleted())
+                {
+                    effectsToRemove.Add(effectState);  // Add to the list to remove later
+                }
             }
         }
-        
+
+        // Remove effects after the iteration is complete
+        foreach (var effectState in effectsToRemove)
+        {
+            RemoveEffect(effectState);
+        }
+
         attackedBy = attackingUnit;
         AudioManager.Instance.PlayWithRandomPitch("hit");
         FXManager.Instance.PlayParticles(FXManager.ParticleType.Hit, transform.position);
-        
+
         currentHp -= amount;
-        
+
         yield return StartCoroutine(HitEffect());
-        
+
         if (currentHp <= 0)
         {
             Die(attackingUnit);
         }
     }
+
     
     private IEnumerator HitEffect()
     {
@@ -291,6 +303,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     private void Die(UnitBehaviour killedBy)
     {
         isDead = true;
+        List<EffectState> effectsToRemove = new List<EffectState>();
         foreach (var part in animatedCharacterParts)
         {
             var mat = part.GetComponent<Renderer>().material;
@@ -298,9 +311,21 @@ public abstract class UnitBehaviour : MonoBehaviour
         }
         FXManager.Instance.PlayParticles(FXManager.ParticleType.Death, transform.position);
         
-        foreach(var effect in unitData.effects)
+        foreach(var effectState in effects)
         {
-            effect.OnDeath(killedBy, this);
+            var isImplemented = effectState.effect.OnDeath(killedBy, this);
+            if (isImplemented)
+            {
+                Debug.Log($"{effectState.effect.name} implements On Death");
+                var isDepleted = effectState.isDepleted();
+                if (isDepleted) effectsToRemove.Add(effectState);
+            }
+        }
+        
+        // Remove effects after the iteration is complete
+        foreach (var effectState in effectsToRemove)
+        {
+            RemoveEffect(effectState);
         }
 
         if (unitData.tribe != Unit.Tribe.Hero)
@@ -349,6 +374,11 @@ public abstract class UnitBehaviour : MonoBehaviour
         deathParticles.Play();
     }
 
+    public void RemoveEffect(EffectState effect)
+    {
+        effects.Remove(effect);
+    }
+    
     public virtual void ShowAndUpdateHealth()
     {
         healthUI.ShowAndUpdateHealth(currentHp, _maxHp);

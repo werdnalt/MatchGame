@@ -50,9 +50,22 @@ public class EnemyUnitBehaviour : UnitBehaviour
 
         var combatFinished = false;
         
+        List<EffectState> effectsToRemove = new List<EffectState>();
         foreach (var effectState in effects)
         {
-            effectState.effect.OnAttack(this, attackingTarget, ref attack);
+            var isImplemented = effectState.effect.OnAttack(this, attackingTarget, ref attack);
+            if (isImplemented)
+            {
+                Debug.Log($"{effectState.effect.name} implements On Attack");
+                var isDepleted = effectState.isDepleted();
+                if (isDepleted) effectsToRemove.Add(effectState);
+            }
+        }
+        
+        // Remove effects after the iteration is complete
+        foreach (var effectState in effectsToRemove)
+        {
+            RemoveEffect(effectState);
         }
         
         yield return new WaitForSeconds(Timings.TimeBeforeAttack);

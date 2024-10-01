@@ -7,7 +7,7 @@ public class UltimateHealEffect : Effect
 {
     public int healAmount;
     
-    public override void OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
+    public override bool OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
     {
         damageAmount = damageAmount;
 
@@ -24,5 +24,7 @@ public class UltimateHealEffect : Effect
         if (unitToRight) unitToRight.Heal(healAmount);
         
         attackingUnit.Heal(healAmount);
+
+        return true;
     }
 }

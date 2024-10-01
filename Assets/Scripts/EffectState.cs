@@ -17,6 +17,8 @@ public class EffectState
 
     public bool isDepleted()
     {
+        if (numUses <= -1) return false;
+        
         currUses++;
         return currUses >= numUses;
     }

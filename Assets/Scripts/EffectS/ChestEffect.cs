@@ -7,8 +7,10 @@ public class ChestEffect : Effect
 {
     public List<Treasure> treasures;
     
-    public override void OnDeath(UnitBehaviour killedBy, UnitBehaviour killed)
+    public override bool OnDeath(UnitBehaviour killedBy, UnitBehaviour killed)
     {
-        UIManager.Instance.ChestDestroyed(treasures);
+        UIManager.Instance.ChestDestroyed(treasures, killedBy);
+
+        return true;
     }
 }
