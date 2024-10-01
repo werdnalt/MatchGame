@@ -46,10 +46,15 @@ public class UnitManager : MonoBehaviour
             if (!cell.UnitBehaviour || cell.UnitBehaviour is HeroUnitBehaviour) continue;
 
             var enemyUnitBehaviour = cell.UnitBehaviour as EnemyUnitBehaviour;
-            if (enemyUnitBehaviour != null && !enemyUnitBehaviour.ShouldAttack()) continue;
+            if (enemyUnitBehaviour == null || !enemyUnitBehaviour.ShouldAttack()) continue;
             
-            var hero = boardManager.GetUnitBehaviour(new Coordinates(cell.Coordinates.column, Timings.HeroRow));
-            if (hero) yield return StartCoroutine(enemyUnitBehaviour.Attack(hero));
+            Debug.Log($"Enemy is ready to attack");
+            
+            var hero = boardManager.GetUnitBehaviour(new Coordinates(enemyUnitBehaviour.currentCoordinates.column, Timings.HeroRow));
+            if (hero)
+            {
+                yield return StartCoroutine(enemyUnitBehaviour.Attack(hero));
+            }
         }
     }
 

@@ -16,6 +16,7 @@ public class AttackTimer : MonoBehaviour
     public void Setup(Unit unit)
     {
         _totalActionsUntilAttack = unit.attackTimer;
+        _currActionsUntilAttack = _totalActionsUntilAttack;
     }
     
     public void EnableCountdownTimer()
@@ -94,6 +95,6 @@ public class AttackTimer : MonoBehaviour
 
     public bool IsReadyToAttack()
     {
-        return _currActionsUntilAttack <= _totalActionsUntilAttack;
+        return _currActionsUntilAttack <= 0;
     }
 }

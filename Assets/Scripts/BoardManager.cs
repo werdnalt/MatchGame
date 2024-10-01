@@ -51,6 +51,7 @@ public class BoardManager : MonoBehaviour
     [SerializeField] private UnitBehaviour heroUnitBehaviourPrefab;
     [SerializeField] private UnitBehaviour enemyUnitBehaviourPrefab;
 
+    [SerializeField] private List<Cell> cellTiles;
     [SerializeField] private Cell cellPrefab;
     [SerializeField] private List<Cell> heroCellPrefabs;
     [SerializeField] private GameObject blocksParent;
@@ -157,7 +158,7 @@ public class BoardManager : MonoBehaviour
         Sequence mySequence = DOTween.Sequence();
 
         // Add move tween to the sequence
-        mySequence.Append(blockGameObject.transform.DOMove(dropTo, dropDuration).SetEase(Ease.InQuad));
+        mySequence.Append(blockGameObject.transform.DOMove(dropTo, dropDuration).SetEase(Ease.InQuad)).OnComplete(()=> CheckToShowHealthUI(blockGameObject.GetComponent<UnitBehaviour>()));
 
         // Add squash effect once the movement is completed
         mySequence.Append(blockGameObject.transform.DOScale(new Vector3(1.5f, 0.6f, initialScale.z), 0.1f));
@@ -166,11 +167,26 @@ public class BoardManager : MonoBehaviour
         mySequence.Append(blockGameObject.transform.DOScale(initialScale, 0.1f));
     }
 
+    private void CheckToShowHealthUI(UnitBehaviour unitBehaviour)
+    {
+        if (!unitBehaviour) return;
+
+        if (unitBehaviour is EnemyUnitBehaviour)
+        {
+            if (unitBehaviour.currentCoordinates.row - unitBehaviour.unitData.attackRange <= 0)
+            {
+                unitBehaviour.ShowAndUpdateHealth();
+                var enemyUnitBehaviour = unitBehaviour as EnemyUnitBehaviour;
+                enemyUnitBehaviour.ShowCountdownTimer();
+            }
+        }
+    }
+
     private Vector3? GetPositionFromCoordinates(Coordinates coordinates)
     {
         if (_cells.TryGetValue(coordinates, out var cell))
         {
-            return cell.boardPosition;
+            return cell.transform.position;
         }
 
         return null;
@@ -184,84 +200,30 @@ public class BoardManager : MonoBehaviour
     public IEnumerator CreateBoard()
     {
         var boardReady = false;
-        var cellInstances = new List<Cell>();
 
-        // create Cells
-        for (var i = 0; i < numColumns; i++)
+        // Create Cells
+        for (var i = 0; i < numColumns; i++) // Outer loop for columns
         {
-            for (var j = 0; j < numRows; j++)
+            for (var j = 0; j < numRows; j++) // Inner loop for rows
             {
-                var cellInstance = Instantiate(cellPrefab, cellsParent.transform);
+                // Correct index calculation for column-first ordering
+                var cellInstance = cellTiles[i * numRows + j];
                 cellInstance.Coordinates = new Coordinates(i, j);
                 cellInstance.name = $"{i}, {j}";
-                cellInstance.boardPosition = GetCellPosition(cellInstance);
-                
-                cellInstances.Add(cellInstance);
                 _cells.Add(cellInstance.Coordinates, cellInstance);
             }
         }
 
-        // Shuffle the blocksToDrop list
-        var rng = new System.Random();
-        var n = cellInstances.Count;
-        while (n > 1)
-        {
-            n--;
-            var k = rng.Next(n + 1);
-            (cellInstances[k], cellInstances[n]) = (cellInstances[n], cellInstances[k]);
-        }
-
-        // Drop blocks in shuffled order
-        foreach (var cell in cellInstances)
-        {
-            Drop(cell.gameObject, cell.boardPosition);
-            yield return new WaitForSeconds(initialBlockDropSpeed);
-        }
-        
         boardReady = true;
-        yield return new WaitUntil(() => boardReady);
+        yield return new WaitUntil(() => boardReady); // Wait for 1 second before signaling that the board is ready
         EventManager.Instance.BoardReady();
     }
-    
-    /// <summary>
-    /// Returns the World Position where a cell should be placed based on the number of total cells and the cell size.
-    /// </summary>
-    /// <param name="cell"></param>
-    /// <returns></returns>
-    public Vector3 GetCellPosition(Cell cell)
-    {
-        var yOffset = .5f;
-        var prefabSize = cellPrefab.GetComponent<SpriteRenderer>().bounds.size;
-        
-        // Calculate the total width and height of the board based on prefab size
-        float boardWidth = numColumns * prefabSize.x; 
-        float boardHeight = (numRows - 1) * prefabSize.x;
 
-        // Calculate the starting position for the board to be centered on the screen
-        float startX = -boardWidth / 2 + prefabSize.x / 2; 
-        float startY = (-boardHeight / 2) + prefabSize.x / 2 + cell.Coordinates.row * prefabSize.y + yOffset;  
-
-        float xPos = startX + cell.Coordinates.column * prefabSize.x;
-        return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
-    }
     
     public Vector3 GetCellPosition(Coordinates coordinates)
     {
         var cell = GetCell(coordinates);
-        
-        var yOffset = .5f;
-        var prefabSize = cellPrefab.GetComponent<SpriteRenderer>().bounds.size;
-        
-        // Calculate the total width and height of the board based on prefab size
-        float boardWidth = numColumns * prefabSize.x; 
-        float boardHeight = (numRows - 1) * prefabSize.x;
-
-        // Calculate the starting position for the board to be centered on the screen
-        float startX = -boardWidth / 2 + prefabSize.x / 2; 
-        float startY = (-boardHeight / 2) + prefabSize.x / 2 + cell.Coordinates.row * prefabSize.y + yOffset;  
-
-        float xPos = startX + cell.Coordinates.column * prefabSize.x;
-        return new Vector3(xPos, startY, 0f); // Assuming Z value is 0, adjust if needed
+        return cell.transform.position;
     }
 
     public IEnumerator SpawnWave()
@@ -683,6 +645,12 @@ public class BoardManager : MonoBehaviour
         // Update the unit's coordinates and sorting order
         unitBehaviour.currentCoordinates = cellCoordinates;
         unitBehaviour.ResetSortingOrder();
+
+        if (unitBehaviour is EnemyUnitBehaviour)
+        {
+            var enemyBehaviour = unitBehaviour as EnemyUnitBehaviour;
+            enemyBehaviour.TryToShowCountdownTimer();
+        }
 
         // Since this is synchronous, no need for a WaitUntil here
         yield return null; // Yielding to keep coroutine structure

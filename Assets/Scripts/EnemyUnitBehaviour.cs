@@ -21,12 +21,25 @@ public class EnemyUnitBehaviour : UnitBehaviour
 
     public bool ShouldAttack()
     {
-        return _attackTimer.IsReadyToAttack();
+        Debug.Log($"Should {unitData.displayName} attack? Range = {unitData.attackRange}, row = {currentCoordinates.row}. Ready to attack?: {_attackTimer.IsReadyToAttack()}");
+        
+        
+        return _attackTimer.IsReadyToAttack() && unitData.attackRange >= currentCoordinates.row;
     }
 
+    public void TryToShowCountdownTimer()
+    {
+        if (unitData.attackRange >= currentCoordinates.row) ShowCountdownTimer();
+    }
+
+    public void ShowCountdownTimer()
+    {
+        _attackTimer.EnableCountdownTimer();
+    }
+    
     public IEnumerator HandleActionTaken()
     {
-        if (isDead) yield break;
+        if (isDead || unitData.attackRange < currentCoordinates.row) yield break;
         _attackTimer.EnableCountdownTimer();
         yield return StartCoroutine(_attackTimer.CountDownTimer());
     }
@@ -36,12 +49,7 @@ public class EnemyUnitBehaviour : UnitBehaviour
         if (isDead) yield break;
 
         var combatFinished = false;
-
-        if (!combatTarget)
-        {
-            yield break; // If there's no combat target, simply exit the coroutine
-        }
-
+        
         foreach (var effectState in effects)
         {
             effectState.effect.OnAttack(this, attackingTarget, ref attack);

@@ -639,7 +639,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDead: 0
-  cantChain: 0
+  cantChain: 1
   currentHp: 0
   attack: 0
   combatOrderText: {fileID: 0}
@@ -663,6 +663,7 @@ MonoBehaviour:
   unitData: {fileID: 0}
   _maxHp: 0
   isDragging: 0
+  originalScale: {x: 0, y: 0, z: 0}
 --- !u!1 &2056162977600491825
 GameObject:
   m_ObjectHideFlags: 0
