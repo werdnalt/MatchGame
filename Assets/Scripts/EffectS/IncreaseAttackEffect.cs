@@ -8,7 +8,7 @@ public class IncreaseAttackEffect : Effect
     public override bool OnAttack(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
     {
         attackingUnit.attack += increaseAmount;
-
+        attackingUnit.DisplayFloatingText("ATK UP!", 1);
         return true;
     }
 }

@@ -379,6 +379,23 @@ public abstract class UnitBehaviour : MonoBehaviour
         effects.Remove(effect);
     }
     
+    public void DisplayFloatingText(string textToDisplay, float duration)
+    {
+        floatingText.transform.position = floatingTextStartingPoint.transform.position;
+        floatingText.gameObject.SetActive(true);
+        floatingText.text = textToDisplay;
+
+        floatingText.transform.DOMove(floatingTextEndingPoint.transform.position, .75f, false).SetEase(Ease.OutExpo);
+        StartCoroutine(TurnOffFloatingText(duration));
+    }
+
+    private IEnumerator TurnOffFloatingText(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        
+        floatingText.gameObject.SetActive(false);
+    }
+    
     public virtual void ShowAndUpdateHealth()
     {
         healthUI.ShowAndUpdateHealth(currentHp, _maxHp);
