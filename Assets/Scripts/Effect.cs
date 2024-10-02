@@ -8,6 +8,7 @@ public abstract class Effect : ScriptableObject
     public string effectDescription;
     public Sprite effectSprite;
     public int numUses;
+    public Treasure fromTreasure = null;
     
     public void SetUnitBehaviour(UnitBehaviour unitBehaviour)
     {

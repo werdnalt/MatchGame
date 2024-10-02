@@ -140,6 +140,8 @@ public class UIManager : MonoBehaviour
         chestDestroyed = true;
         _heroWhoOpenedChest = heroWhoOpenedChest;
         _currentTreasure = treasures;
+
+        StartCoroutine(ChestEvent());
     }
 
     public IEnumerator ChestEvent()
@@ -195,6 +197,7 @@ public class UIManager : MonoBehaviour
     public void AwardTreasure(Treasure chosenTreasure)
     {
         _heroWhoOpenedChest.AddEffect(chosenTreasure.effect);
+        EventPipe.AddTreasure(new HeroAndTreasure(_heroWhoOpenedChest, chosenTreasure));
         chestOverlay.GetComponent<PopEffect>().DisableAndPop();
         chestDestroyed = false;
     }

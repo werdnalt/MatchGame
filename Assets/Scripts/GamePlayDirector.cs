@@ -66,12 +66,7 @@ public class GamePlayDirector : MonoBehaviour
     {
         // check for any enemies that should attack
         yield return StartCoroutine(_unitManager.HandlePlayerActionTaken());
-
-        if (UIManager.Instance.chestDestroyed)
-        {
-            yield return StartCoroutine(UIManager.Instance.ChestEvent());
-        }
-
+        
         yield return StartCoroutine(_boardManager.WaitToApplyGravity(.5f));
 
         PlayerActionAllowed = true;

@@ -24,6 +24,10 @@ public class HeroUnitBehaviour : UnitBehaviour
             {
                 Debug.Log($"{effectState.effect.name} implements On Attack");
                 var isDepleted = effectState.isDepleted();
+                if (effectState.effect.fromTreasure)
+                {
+                    EventPipe.UseTreasure(new HeroAndTreasure(this, effectState.effect.fromTreasure));
+                }
                 if (isDepleted) effectsToRemove.Add(effectState);
             }
         }

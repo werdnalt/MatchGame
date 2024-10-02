@@ -132,6 +132,7 @@ public class BoardManager : MonoBehaviour
     public void SpawnUnit(Unit unit, int column, int row)
     {
         var unitBehaviour = CreateUnitBehaviour(unit);
+        if (unitBehaviour is HeroUnitBehaviour) EventPipe.AddHero(unitBehaviour);
         var coordinates = new Coordinates(column, row);
         StartCoroutine(UpdateUnitPosition(unitBehaviour, coordinates));
     } 
@@ -327,6 +328,10 @@ public class BoardManager : MonoBehaviour
                 {
                     Debug.Log($"{effectState.effect.name} implements On Attack");
                     var isDepleted = effectState.isDepleted();
+                    if (effectState.effect.fromTreasure)
+                    {
+                        EventPipe.UseTreasure(new HeroAndTreasure(leftUnit, effectState.effect.fromTreasure));
+                    }
                     if (isDepleted) effectsToRemove.Add(effectState);
                 }
             }
@@ -348,6 +353,10 @@ public class BoardManager : MonoBehaviour
                 {
                     Debug.Log($"{effectState.effect.name} implements On Attack");
                     var isDepleted = effectState.isDepleted();
+                    if (effectState.effect.fromTreasure)
+                    {
+                        EventPipe.UseTreasure(new HeroAndTreasure(rightUnit, effectState.effect.fromTreasure));
+                    }
                     if (isDepleted) effectsToRemove.Add(effectState);
                 }
             }

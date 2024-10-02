@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79036bf6a0e8a3f40ac504cdfbf587bc, type: 3}
   m_Name: ReduceDamageEffect
   m_EditorClassIdentifier: 
-  effectDescription: Reduce Damage Taken to 1
+  effectDescription: 'WHEN ATTACKED: Reduce damage taken to 1'
   effectSprite: {fileID: 21300000, guid: 35f842f72cd8cb64a83027e3999d7b65, type: 3}
   numUses: 3
+  fromTreasure: {fileID: 0}

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82a39faef3e0aca439cbd80ea71b8ed2, type: 3}
+  m_Name: IncreaseAttackEffect_Treasure
+  m_EditorClassIdentifier: 
+  effectDescription: <color=#e83b3b>ON ATTACK:</color> <color=#1ebc73>INCREASE</color>
+    <sprite="sword" index=0> by 1
+  effectSprite: {fileID: 0}
+  numUses: 1
+  fromTreasure: {fileID: 11400000, guid: 35ebbbbaaea579e4a85c5e66a3cd235c, type: 2}
+  increaseAmount: 1

@@ -83,6 +83,14 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     private float _cachedZIndex;
 
+    public enum Stats
+    {
+        Health,
+        Attack,
+        Range,
+        Shield
+    }
+
     private void Awake()
     {
         _transformSpringComponent = GetComponent<TransformSpringComponent>();
@@ -167,6 +175,10 @@ public abstract class UnitBehaviour : MonoBehaviour
             if (isImplemented)
             {
                 Debug.Log($"{effectState.effect.name} implements On Hit");
+                if (effectState.effect.fromTreasure)
+                {
+                    EventPipe.UseTreasure(new HeroAndTreasure(this, effectState.effect.fromTreasure));
+                }
                 if (effectState.isDepleted())
                 {
                     effectsToRemove.Add(effectState);  // Add to the list to remove later
@@ -197,7 +209,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     private IEnumerator HitEffect()
     {
-        var hitEffectDuration = .5f;
+        var hitEffectDuration = .25f;
         healthUI.ShowAndUpdateHealth(currentHp, _maxHp);
         //PunchScale();
 
@@ -318,6 +330,10 @@ public abstract class UnitBehaviour : MonoBehaviour
             {
                 Debug.Log($"{effectState.effect.name} implements On Death");
                 var isDepleted = effectState.isDepleted();
+                if (effectState.effect.fromTreasure)
+                {
+                    EventPipe.UseTreasure(new HeroAndTreasure(this, effectState.effect.fromTreasure));
+                }
                 if (isDepleted) effectsToRemove.Add(effectState);
             }
         }
@@ -374,9 +390,9 @@ public abstract class UnitBehaviour : MonoBehaviour
         deathParticles.Play();
     }
 
-    public void RemoveEffect(EffectState effect)
+    public void RemoveEffect(EffectState effectState)
     {
-        effects.Remove(effect);
+        effects.Remove(effectState);
     }
     
     public void DisplayFloatingText(string textToDisplay, float duration)
