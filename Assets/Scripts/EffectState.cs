@@ -8,6 +8,7 @@ public class EffectState
     public int numUses;
     public int currUses;
     public bool isSilenced;
+    
 
     public EffectState(Effect effect)
     {

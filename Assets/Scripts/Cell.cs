@@ -40,6 +40,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         if (!_unitBehaviour) return;
         
         UIManager.Instance.ShowUnitPanel(_unitBehaviour);
+        _unitBehaviour.Grow();
         _unitBehaviour.ShowAndUpdateHealth();
         _unitBehaviour.BringSortingToFront();
         
@@ -55,6 +56,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
         if (!_unitBehaviour) return;
         
+        _unitBehaviour.Shrink();
         _unitBehaviour.ResetSortingOrder();
         var cachedPos = _unitBehaviour.transform.position;
         _unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, _cachedZIndex);

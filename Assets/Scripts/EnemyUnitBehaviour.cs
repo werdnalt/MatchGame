@@ -37,11 +37,11 @@ public class EnemyUnitBehaviour : UnitBehaviour
         _attackTimer.EnableCountdownTimer();
     }
     
-    public IEnumerator HandleActionTaken()
+    public IEnumerator HandleActionTaken(int actions)
     {
         if (isDead || unitData.attackRange < currentCoordinates.row) yield break;
         _attackTimer.EnableCountdownTimer();
-        yield return StartCoroutine(_attackTimer.CountDownTimer());
+        yield return StartCoroutine(_attackTimer.CountDownTimer(actions));
     }
 
     public override IEnumerator Attack(UnitBehaviour attackingTarget)

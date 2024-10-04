@@ -17,10 +17,10 @@ public struct HeroAndTreasure
 
 public static class EventPipe
 {
-    public static event Action OnActionTaken;
-    public static void TakeAction()
+    public static event Action<int> OnActionTaken;
+    public static void TakeAction(int numActions)
     {
-        OnActionTaken?.Invoke();
+        OnActionTaken?.Invoke(numActions);
     }
     
     public static event Action OnPlayerAttack;

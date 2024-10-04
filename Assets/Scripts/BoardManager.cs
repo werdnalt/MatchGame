@@ -313,7 +313,7 @@ public class BoardManager : MonoBehaviour
         
         SwapUnitData(leftBlockCoords, rightBlockCoords);
         
-        EventPipe.TakeAction();
+        EventPipe.TakeAction(1);
         AudioManager.Instance.PlayWithRandomPitch("whoosh");
 
         List<EffectState> effectsToRemove = new List<EffectState>();

@@ -61,6 +61,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     private bool isCountingDown;
     public bool isDragging;
     private SortingGroup _sortingGroup;
+    private CharacterAnimator _characterAnimator;
     
     private List<GameObject> animatedCharacterParts = new List<GameObject>();
     private Vector3 currentHeartSize;
@@ -143,6 +144,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         if (unitData.animatedCharacterPrefab)
         {
             animatedCharacter = Instantiate(unitData.animatedCharacterPrefab, transform);
+            _characterAnimator = animatedCharacter.GetComponent<CharacterAnimator>();
         }
         else
         {
@@ -195,6 +197,7 @@ public abstract class UnitBehaviour : MonoBehaviour
             RemoveEffect(effectState);
         }
 
+        PunchScale();
         attackedBy = attackingUnit;
         AudioManager.Instance.PlayWithRandomPitch("hit");
         FXManager.Instance.PlayParticles(FXManager.ParticleType.Hit, transform.position);
@@ -424,7 +427,12 @@ public abstract class UnitBehaviour : MonoBehaviour
     public void AddEffect(Effect effect)
     {
         effects.Add(new EffectState(effect));
-        
+
+        if (effect.fromTreasure)
+        {
+            DisplayFloatingText($"Got {effect.fromTreasure.name}!", 1);
+        }
+        StartCoroutine(HitEffect());
         Jump();
         deathParticles.Play();
     }
@@ -504,10 +512,22 @@ public abstract class UnitBehaviour : MonoBehaviour
         this.isDragging = isDragging;
     }
 
-    private void PunchScale()
+    public void PunchScale()
     {
-        var newScale = new Vector3(originalScale.x * 1.3f, originalScale.y * 1.3f, originalScale.z * 1.3f);
-        _transformSpringComponent.SetCurrentValueScale(newScale);
+        if (_characterAnimator)
+        {
+            _characterAnimator.PunchScale();
+        }
+    }
+
+    public void Grow()
+    {
+        if (_characterAnimator) _characterAnimator.Grow();
+    }
+
+    public void Shrink()
+    {
+        if (_characterAnimator) _characterAnimator.Shrink();
     }
 
     public void BringSortingToFront()

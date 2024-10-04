@@ -10,6 +10,7 @@ public class HeroUnitBehaviour : UnitBehaviour
 {
     public override IEnumerator Attack(UnitBehaviour attackingTarget)
     {
+        var actionCost = 1;
         var originalPos = BoardManager.Instance.GetCellPosition(currentCoordinates);
         if (isDead) yield break;
 
@@ -22,6 +23,7 @@ public class HeroUnitBehaviour : UnitBehaviour
             var isImplemented = effectState.effect.OnAttack(this, attackingTarget, ref attack);
             if (isImplemented)
             {
+                if (effectState.effect.actionCost > actionCost) actionCost = effectState.effect.actionCost;
                 Debug.Log($"{effectState.effect.name} implements On Attack");
                 var isDepleted = effectState.isDepleted();
                 if (effectState.effect.fromTreasure)
@@ -71,7 +73,7 @@ public class HeroUnitBehaviour : UnitBehaviour
 
                 transform.DOMove(originalPos, .5f).SetEase(Ease.OutQuad).OnComplete(() =>
                 {
-                    EventPipe.TakeAction();
+                    EventPipe.TakeAction(actionCost);
                     combatFinished = true;
                 });
             });

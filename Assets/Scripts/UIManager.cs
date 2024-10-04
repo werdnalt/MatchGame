@@ -18,6 +18,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image treasureImage;
     [SerializeField] private TextMeshProUGUI treasureNameText;
     [SerializeField] private TextMeshProUGUI treasureEffectText;
+    [SerializeField] private TreasureUIManager treasureUIManager;
 
     [SerializeField] private GameObject unitPanel;
     [SerializeField] private Image unitPortrait;
@@ -52,7 +53,6 @@ public class UIManager : MonoBehaviour
     public GameObject heroUIParent;
     public bool chestDestroyed;
     private List<Treasure> _currentTreasure;
-    public Treasure chosenTreasure;
 
     private void Awake()
     {
@@ -180,6 +180,7 @@ public class UIManager : MonoBehaviour
             treasureChoices[i].SetTreasure(randomTreasure);
         }
         
+        treasureUIManager.EnableUI();
         chestOverlay.GetComponent<PopEffect>().EnableAndPop();
     }
 
@@ -194,13 +195,47 @@ public class UIManager : MonoBehaviour
         toolTip.SetActive(false);
     }
     
-    public void AwardTreasure(Treasure chosenTreasure)
+    public IEnumerator AwardTreasure(TreasureChoiceBehaviour chosenTreasure)
     {
-        _heroWhoOpenedChest.AddEffect(chosenTreasure.effect);
-        EventPipe.AddTreasure(new HeroAndTreasure(_heroWhoOpenedChest, chosenTreasure));
-        chestOverlay.GetComponent<PopEffect>().DisableAndPop();
+        treasureUIManager.HideUI();
+        yield return StartCoroutine(AnimateTreasureToHero(chosenTreasure));
+        _heroWhoOpenedChest.AddEffect(chosenTreasure.treasure.effect);
+        EventPipe.AddTreasure(new HeroAndTreasure(_heroWhoOpenedChest, chosenTreasure.treasure));
+        chestOverlay.GetComponent<PopEffect>().DisableObject();
         chestDestroyed = false;
     }
+
+    private IEnumerator AnimateTreasureToHero(TreasureChoiceBehaviour treasure)
+    {
+        var duration = .75f;
+        // Get the hero's world position
+        Vector3 worldPosition = _heroWhoOpenedChest.transform.position;
+        Debug.Log($"Hero world pos: {worldPosition}");
+    
+        // Convert the hero's world position to screen space
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
+        Debug.Log($"Hero screen pos: {screenPosition}");
+
+        // Get the starting position of the treasure in screen space
+        Vector3 startPosition = treasure.transform.position;
+
+        // Create a control point that is higher than the start and target positions (for an arc)
+        Vector3 controlPoint = (startPosition + screenPosition) / 2f;  // Midpoint between start and target
+        controlPoint.y += 1000f;  // Raise the control point slightly to create the arc (adjust the value for height)
+
+        // Define the path (start, control point, and target)
+        Vector3[] path = new Vector3[] { startPosition, controlPoint, screenPosition };
+
+        // Animate the treasure scaling down
+        treasure.transform.DOScale(new Vector3(.3f, .3f, .3f), 0.3f).SetEase(Ease.OutQuad);
+
+        // Animate along the path using DOPath
+        treasure.transform.DOPath(path, duration, PathType.CatmullRom).SetEase(Ease.OutQuad);
+
+        // Wait for the animation to finish
+        yield return new WaitForSeconds(duration);
+    }
+
     
 
     

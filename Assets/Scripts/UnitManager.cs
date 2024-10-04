@@ -24,7 +24,7 @@ public class UnitManager : MonoBehaviour
         }
     }
 
-    public IEnumerator HandlePlayerActionTaken()
+    public IEnumerator HandlePlayerActionTaken(int actions)
     {
         var allCells = boardManager.GetAllCells();
         foreach (var cell in allCells)
@@ -37,7 +37,7 @@ public class UnitManager : MonoBehaviour
             {
                 // Show their attack timer UI and count it down
                 var enemyUnitBehaviour = cell.UnitBehaviour as EnemyUnitBehaviour;
-                if (enemyUnitBehaviour) yield return StartCoroutine(enemyUnitBehaviour.HandleActionTaken());
+                if (enemyUnitBehaviour) yield return StartCoroutine(enemyUnitBehaviour.HandleActionTaken(actions));
             }
         }
 

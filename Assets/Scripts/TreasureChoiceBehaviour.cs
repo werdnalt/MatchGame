@@ -13,6 +13,7 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
     public TextMeshProUGUI treasureDescriptionText;
     public Image treasureSprite;
     public TextMeshProUGUI treasureName;
+    public Image treasureBG;
 
     private Vector3 _startingScale;
 
@@ -22,7 +23,7 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
 
     private bool canShowDescription;
 
-    private void Start()
+    private void Awake()
     {
         EventManager.Instance.onTreasureChosen += HideSelf;
         EventManager.Instance.onTreasureChosen += DisableDescription;
@@ -32,6 +33,8 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
     private void OnEnable()
     {
         canShowDescription = true;
+        transform.localScale = _startingScale;
+        treasureBG.gameObject.SetActive(true);
     }
 
     private void DisableDescription(GameObject gameObject)
@@ -70,15 +73,19 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        scaleAndShake.Animate();
+        //scaleAndShake.Animate();
         EventManager.Instance.ChooseTreasure(this.gameObject);
-        treasureName.gameObject.SetActive(false);
+        treasureBG.gameObject.SetActive(false);
         treasureDescriptionText.text = "";
-        transform.DOMove(chosenTreasurePosition, 1f).SetEase(Ease.OutQuad).OnComplete(()=>
-        {
-            UIManager.Instance.AwardTreasure(treasure);
-            UIManager.Instance.chosenTreasure = treasure;
-        });
+        treasureName.text = "";
+        StartCoroutine(UIManager.Instance.AwardTreasure(this));
+        
+        // treasureName.gameObject.SetActive(false);
+        // treasureDescriptionText.text = "";
+        // transform.DOMove(chosenTreasurePosition, 1f).SetEase(Ease.OutQuad).OnComplete(()=>
+        // {
+        //     
+        // });
     }
 
     public void HideSelf(GameObject t)

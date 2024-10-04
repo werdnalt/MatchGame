@@ -164,6 +164,7 @@ MonoBehaviour:
   treasureDescriptionText: {fileID: 0}
   treasureSprite: {fileID: 7292658400513433468}
   treasureName: {fileID: 7292658399988958292}
+  treasureBG: {fileID: 7292658399542060880}
   chosenTreasurePosition: {x: 0, y: 0, z: 0}
   scaleAndShake: {fileID: 7292658400513433466}
   treasureObject: {fileID: 7611209912567365196}

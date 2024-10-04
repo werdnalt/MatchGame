@@ -649,6 +649,7 @@ MonoBehaviour:
   defaultAnimatedCharacter: {fileID: 5192616394676795979}
   isChained: 0
   characterScale: {x: 0, y: 0, z: 0}
+  canChainAttack: 1
   increaseHealthParticles: {fileID: 1388865763545139969}
   healParticles: {fileID: 8440279286575314698}
   deathParticles: {fileID: 4527682790098464069}
@@ -790,6 +791,7 @@ GameObject:
   - component: {fileID: 1804407297337991890}
   - component: {fileID: 5361552488867130159}
   - component: {fileID: 4186556226490463639}
+  - component: {fileID: 4566908282076847300}
   m_Layer: 2
   m_Name: Floating Text
   m_TagString: Untagged
@@ -846,8 +848,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d24ab7cceaac5194db50db441a2e7f57, type: 2}
-  m_sharedMaterial: {fileID: 5544512901268271433, guid: d24ab7cceaac5194db50db441a2e7f57, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 54882ceacfbe77d41938fd21d6b6f623, type: 2}
+  m_sharedMaterial: {fileID: -4944980054626853128, guid: 54882ceacfbe77d41938fd21d6b6f623, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -913,6 +915,38 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4566908282076847300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2203656866206456151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8ace8ced0e81c847968cdca0aeda757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  typewriterStartsAutomatically: 0
+  animationLoop: 0
+  timeScale: 0
+  _text: test
+  useDynamicScaling: 1
+  referenceFontSize: 10
+  isResettingTimeOnNewText: 1
+  useDefaultDatabases: 1
+  databaseBehaviors: {fileID: 0}
+  databaseAppearances: {fileID: 0}
+  useDefaultStyleSheet: 1
+  styleSheet: {fileID: 0}
+  databaseActions: {fileID: 0}
+  defaultAppearancesTags:
+  - size
+  defaultDisappearancesTags:
+  - fade
+  defaultBehaviorsTags:
+  - rainb
+  defaultTagsMode: 0
 --- !u!1 &2402667016041990829
 GameObject:
   m_ObjectHideFlags: 0

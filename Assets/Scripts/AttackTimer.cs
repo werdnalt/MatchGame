@@ -37,13 +37,13 @@ public class AttackTimer : MonoBehaviour
         if (_currActionsUntilAttack <= 1) StartPulsing();
     }
 
-    public IEnumerator CountDownTimer()
+    public IEnumerator CountDownTimer(int actions)
     {
         if (_currActionsUntilAttack < 0) yield break;
  
         var animationFinished = false;
 
-        _currActionsUntilAttack--;
+        _currActionsUntilAttack = Mathf.Clamp(_currActionsUntilAttack - actions, 0, 100);
         
         var originalScale = attackTimerObject.transform.localScale;
         _attackTimerTimeText.text = _currActionsUntilAttack.ToString();

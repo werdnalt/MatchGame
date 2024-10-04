@@ -56,18 +56,20 @@ public class GamePlayDirector : MonoBehaviour
         PlayerActionAllowed = true;
     }
 
-    private void OnPlayerAction()
+    private void OnPlayerAction(int actionCost)
     {
         PlayerActionAllowed = false;
-        StartCoroutine(HandlePlayerAction());
+        StartCoroutine(HandlePlayerAction(actionCost));
     }
 
-    private IEnumerator HandlePlayerAction()
+    private IEnumerator HandlePlayerAction(int actions)
     {
-        // check for any enemies that should attack
-        yield return StartCoroutine(_unitManager.HandlePlayerActionTaken());
         
         yield return StartCoroutine(_boardManager.WaitToApplyGravity(.5f));
+        // check for any enemies that should attack
+        yield return StartCoroutine(_unitManager.HandlePlayerActionTaken(actions));
+        
+        
 
         PlayerActionAllowed = true;
     }
