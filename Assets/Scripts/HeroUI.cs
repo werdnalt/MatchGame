@@ -21,7 +21,7 @@ public class HeroUI : MonoBehaviour
     private bool _heartSizeSet;
     public Vector3 currentHeartSize;
 
-    private List<TreasureUI> _treasureUIs;
+    private List<TreasureUI> _treasureUIs = new List<TreasureUI>();
     
     public void Setup(UnitBehaviour unitBehaviour)
     {
@@ -73,6 +73,7 @@ public class HeroUI : MonoBehaviour
     {
         var treasureUIInstance = Instantiate(treasureUIPrefab, treasureUIParent.transform);
         treasureUIInstance.GetComponent<TreasureUI>().Setup(treasure);
+        _treasureUIs.Add(treasureUIInstance.GetComponent<TreasureUI>());
     }
 
     public void DestroyTreasureUI()

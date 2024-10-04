@@ -16,7 +16,10 @@ public abstract class Effect : ScriptableObject
     }
     
     // This function gets called when a block dies.
-    public virtual void OnKill(UnitBehaviour killedBy, UnitBehaviour killed) { }
+    public virtual bool OnKill(UnitBehaviour killedBy, UnitBehaviour killed)
+    {
+        return false;
+    }
     
     // This function gets called when a block dies.
     public virtual bool OnDeath(UnitBehaviour killedBy, UnitBehaviour killed)
@@ -39,6 +42,11 @@ public abstract class Effect : ScriptableObject
         return false; }
 
     public virtual void OnObtained(UnitBehaviour unitObtained)
+    {
+        
+    }
+
+    public virtual void RemoveEffect(UnitBehaviour unitBehaviour)
     {
         
     }

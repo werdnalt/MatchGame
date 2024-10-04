@@ -32,12 +32,6 @@ public class HeroUnitBehaviour : UnitBehaviour
             }
         }
         
-        // Remove effects after the iteration is complete
-        foreach (var effectState in effectsToRemove)
-        {
-            RemoveEffect(effectState);
-        }
-        
         var slightBackwardPos =
             originalPos -
             (attackingTarget.transform.position - originalPos).normalized *
@@ -55,6 +49,13 @@ public class HeroUnitBehaviour : UnitBehaviour
             transform.DOMove(attackingTarget.transform.position, .1f).OnComplete(() =>
             {
                 var targets = BoardManager.Instance.GetChainedUnits(attackingTarget);
+                    
+                if (!canChainAttack)
+                {
+                    targets.Clear();
+                    targets.Add(attackingTarget);
+                }
+                
                 Debug.Log($"Number of combat targets: {targets.Count}");
                 Mat.SetFloat("_MotionBlurDist", 0);
                 foreach (var target in targets)
@@ -75,6 +76,13 @@ public class HeroUnitBehaviour : UnitBehaviour
                 });
             });
         });
+        
+        // Remove effects after the iteration is complete
+        foreach (var effectState in effectsToRemove)
+        {
+            effectState.effect.RemoveEffect(this);
+            RemoveEffect(effectState);
+        }
 
         // Wait until combatFinished becomes true to exit the coroutine
         yield return new WaitUntil(() => combatFinished);

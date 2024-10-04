@@ -1,18 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class HealOnKillEffect : MonoBehaviour
+[CreateAssetMenu(fileName = "HealOnKillEffect", menuName = "ScriptableObjects/Effects/HealOnKillEffect", order = 5)]
+public class HealOnKillEffect : Effect
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public int amountToHeal;
 
-    // Update is called once per frame
-    void Update()
+    public override bool OnKill(UnitBehaviour killedBy, UnitBehaviour killed)
     {
-        
+        killedBy.Heal(amountToHeal);
+        return true;
     }
 }

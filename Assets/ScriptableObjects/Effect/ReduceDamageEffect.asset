@@ -15,4 +15,4 @@ MonoBehaviour:
   effectDescription: 'WHEN ATTACKED: Reduce damage taken to 1'
   effectSprite: {fileID: 21300000, guid: 35f842f72cd8cb64a83027e3999d7b65, type: 3}
   numUses: 3
-  fromTreasure: {fileID: 0}
+  fromTreasure: {fileID: 11400000, guid: c52a87911eb1f474085d176cd6163ced, type: 2}

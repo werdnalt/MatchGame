@@ -6,8 +6,8 @@
       "source": "registry",
       "dependencies": {
         "com.unity.2d.common": "5.0.0",
-        "com.unity.mathematics": "1.1.0",
         "com.unity.2d.sprite": "1.0.0",
+        "com.unity.mathematics": "1.1.0",
         "com.unity.modules.animation": "1.0.0",
         "com.unity.modules.uielements": "1.0.0"
       },
@@ -43,8 +43,8 @@
       "source": "registry",
       "dependencies": {
         "com.unity.2d.common": "5.0.0",
-        "com.unity.2d.animation": "6.0.4",
-        "com.unity.2d.sprite": "1.0.0"
+        "com.unity.2d.sprite": "1.0.0",
+        "com.unity.2d.animation": "6.0.4"
       },
       "url": "https://packages.unity.com"
     },
@@ -59,9 +59,9 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.mathematics": "1.1.0",
-        "com.unity.2d.common": "5.0.0",
         "com.unity.2d.path": "5.0.0",
+        "com.unity.2d.common": "5.0.0",
+        "com.unity.mathematics": "1.1.0",
         "com.unity.modules.physics2d": "1.0.0"
       },
       "url": "https://packages.unity.com"
@@ -143,6 +143,16 @@
         "com.unity.modules.physics": "1.0.0"
       }
     },
+    "com.unity.render-pipelines.universal": {
+      "version": "11.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.mathematics": "1.1.0",
+        "com.unity.render-pipelines.core": "11.0.0",
+        "com.unity.shadergraph": "11.0.0"
+      }
+    },
     "com.unity.searcher": {
       "version": "4.3.2",
       "depth": 1,
@@ -184,9 +194,9 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {
+        "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.director": "1.0.0",
         "com.unity.modules.animation": "1.0.0",
-        "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.particlesystem": "1.0.0"
       },
       "url": "https://packages.unity.com"

@@ -86,6 +86,43 @@ public class PopupTooltip : MonoBehaviour
         }
     }
     
+    public void ShowUnitPanel(Unit unit)
+    {
+        for (var i = _instantiatedEffectPrefabs.Count - 1; i >= 0; i--)
+        {
+            Destroy(_instantiatedEffectPrefabs[i].gameObject);
+        }
+        
+        _popEffect.EnableAndPop();
+
+
+        switch (unit.tribe)
+        {
+            case Unit.Tribe.Beasts:
+                nameplateImage.color = new Color32(249, 194, 43, 255);
+                break;
+            case Unit.Tribe.Void:
+                nameplateImage.color = new Color32(107,62,117, 255);
+                break;
+            case Unit.Tribe.Plants:
+                nameplateImage.color = new Color32(213,224,75, 255);
+                break;
+        }
+        
+        attackAmountText.text = unit.attack.ToString();
+        healthAmountText.text = ($"{unit.hp}");
+        rangeAmountText.text = $"{unit.attackRange}";
+        unitNameText.text = unit.displayName;
+        
+        foreach (var effect in unit.effects)
+        {
+            var effectTextInstance = Instantiate(effectTextPrefab, effectTextParent.transform);
+            var effectText = HighlightKeywords(effect.effectDescription);
+            effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text = effectText;
+            _instantiatedEffectPrefabs.Add(effectTextInstance);
+        }
+    }
+    
     private string HighlightKeywords(string text)
     {
         // Check if text is null and return an empty string if so
@@ -118,6 +155,11 @@ public class PopupTooltip : MonoBehaviour
             text = Regex.Replace(text, pattern, replacement);
         }
         return text;
+    }
+
+    public void Hide()
+    {
+        //effectTextParent.SetActive(false);
     }
 
 }

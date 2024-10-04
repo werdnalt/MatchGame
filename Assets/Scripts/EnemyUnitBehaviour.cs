@@ -83,6 +83,7 @@ public class EnemyUnitBehaviour : UnitBehaviour
 
         AudioManager.Instance.PlayWithRandomPitch("whoosh");
 
+        
         transform.DOKill();
         // First, move slightly backward
         transform.DOMove(slightBackwardPos, 0.05f).OnComplete(() =>

@@ -23,6 +23,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     public GameObject defaultAnimatedCharacter;
     public bool isChained = false;
     public Vector3 characterScale;
+    public bool canChainAttack = true;
 
     // Serialized fields
     [SerializeField] private ParticleSystem increaseHealthParticles;
@@ -38,6 +39,8 @@ public abstract class UnitBehaviour : MonoBehaviour
     [SerializeField] private GameObject floatingTextEndingPoint;
     [SerializeField] private TextMeshProUGUI floatingText;
     [SerializeField] private GameObject bonePile;
+
+    [SerializeField] private ParticleSystem circleStarParticles;
 
     public GameObject animatedCharacter;
 
@@ -343,6 +346,29 @@ public abstract class UnitBehaviour : MonoBehaviour
         {
             RemoveEffect(effectState);
         }
+        
+        effectsToRemove.Clear();
+        
+        foreach(var effectState in killedBy.effects)
+        {
+            var isImplemented = effectState.effect.OnKill(killedBy, this);
+            if (isImplemented)
+            {
+                Debug.Log($"{effectState.effect.name} implements On Kill");
+                var isDepleted = effectState.isDepleted();
+                if (effectState.effect.fromTreasure)
+                {
+                    EventPipe.UseTreasure(new HeroAndTreasure(this, effectState.effect.fromTreasure));
+                }
+                if (isDepleted) effectsToRemove.Add(effectState);
+            }
+        }
+        
+        // Remove effects after the iteration is complete
+        foreach (var effectState in effectsToRemove)
+        {
+            RemoveEffect(effectState);
+        }
 
         if (unitData.tribe != Unit.Tribe.Hero)
         {
@@ -369,7 +395,20 @@ public abstract class UnitBehaviour : MonoBehaviour
         currentHp += amountToHeal;
         
         ShowAndUpdateHealth();
+
+        StartCoroutine(PlayHealAnimation());
+    }
+
+    private IEnumerator PlayHealAnimation()
+    {
+        // circle heart particles
+        circleStarParticles.Play();
+        yield return new WaitForSeconds(.35f);
         
+        // hit effect
+        yield return StartCoroutine(HitEffect());
+
+        // upward heart particles
         healParticles.Play();
     }
 
