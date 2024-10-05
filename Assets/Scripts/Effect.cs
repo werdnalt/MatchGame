@@ -42,9 +42,9 @@ public abstract class Effect : ScriptableObject
     {
         return false; }
 
-    public virtual void OnObtained(UnitBehaviour unitObtained)
+    public virtual bool OnObtained(UnitBehaviour unitObtained)
     {
-        
+        return false;
     }
 
     public virtual void RemoveEffect(UnitBehaviour unitBehaviour)

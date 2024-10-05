@@ -174,7 +174,7 @@ public class BoardManager : MonoBehaviour
 
         if (unitBehaviour is EnemyUnitBehaviour)
         {
-            if (unitBehaviour.currentCoordinates.row - unitBehaviour.unitData.attackRange <= 0)
+            if (unitBehaviour.currentCoordinates.row - unitBehaviour.attackRange <= 0)
             {
                 unitBehaviour.ShowAndUpdateHealth();
                 var enemyUnitBehaviour = unitBehaviour as EnemyUnitBehaviour;
@@ -323,6 +323,7 @@ public class BoardManager : MonoBehaviour
             var leftEffectsCopy = new List<EffectState>(leftUnit.effects);  // Create a copy
             foreach (var effectState in leftEffectsCopy)
             {
+                if (effectState.isSilenced) continue;
                 var isImplemented = effectState.effect.OnSwap(leftBlockCoords, rightBlockCoords);
                 if (isImplemented)
                 {

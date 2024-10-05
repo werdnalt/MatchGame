@@ -9,12 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49ee1ecb3ee3fee4dbbf4d43ad5a1436, type: 3}
-  m_Name: TridentAttackEffect
+  m_Script: {fileID: 11500000, guid: 475ff1249ec5eca43a0034d8bb3877eb, type: 3}
+  m_Name: SnufferEffect
   m_EditorClassIdentifier: 
-  effectDescription: 'ON ATTACK: Hit Goons left and right along with target. Attacks
-    don''t chain'
+  effectDescription: 'ON ATTACK: Silence Target''s effects'
   effectSprite: {fileID: 0}
-  numUses: 2
-  fromTreasure: {fileID: 11400000, guid: 53322627d338ce740948371409af586b, type: 2}
+  numUses: 3
+  fromTreasure: {fileID: 11400000, guid: 1aa7d04b88ce2b24f965f58043605cf0, type: 2}
   actionCost: 1

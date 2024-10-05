@@ -20,6 +20,7 @@ public class Unit : ScriptableObject
     public bool shouldAnimateLoop;
     public Tribe tribe;
     public int hp;
+    public int armor;
     public int attack;
     public List<Effect> effects;
     public int attackRange;

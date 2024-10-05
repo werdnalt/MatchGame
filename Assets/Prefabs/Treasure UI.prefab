@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8338558585871503561}
   - component: {fileID: 8338558585871503563}
   - component: {fileID: 8338558585871503562}
+  - component: {fileID: 9170059727706184200}
   m_Layer: 5
   m_Name: Treasure Sprite
   m_TagString: Untagged
@@ -77,6 +78,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &9170059727706184200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8338558585871503560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee158225ee1e59f4791627785501d950, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shaderTypes: 0
+  normalStrength: 5
+  normalSmoothing: 1
+  computingNormal: 0
 --- !u!1 &8338558585928702264
 GameObject:
   m_ObjectHideFlags: 0

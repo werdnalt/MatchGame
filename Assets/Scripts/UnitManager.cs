@@ -33,7 +33,7 @@ public class UnitManager : MonoBehaviour
             if (!cell.UnitBehaviour || cell.UnitBehaviour is HeroUnitBehaviour) continue;
             
             // Check if the UnitBehaviour's attack range would put them in range of the Hero Row
-            if (cell.UnitBehaviour.unitData.attackRange >= cell.Coordinates.row)
+            if (cell.UnitBehaviour.attackRange >= cell.Coordinates.row)
             {
                 // Show their attack timer UI and count it down
                 var enemyUnitBehaviour = cell.UnitBehaviour as EnemyUnitBehaviour;
@@ -83,7 +83,7 @@ public class UnitManager : MonoBehaviour
         
         
         if ((attackingUnitCoordinates.Value.column == attackedUnitCoordinates.Value.column) && 
-            Mathf.Abs(attackingUnitCoordinates.Value.row - attackedUnitCoordinates.Value.row) <= attackingUnit.unitData.attackRange)
+            Mathf.Abs(attackingUnitCoordinates.Value.row - attackedUnitCoordinates.Value.row) <= attackingUnit.attackRange)
         {
             return true;
         }

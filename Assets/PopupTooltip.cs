@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class PopupTooltip : MonoBehaviour
@@ -14,7 +15,7 @@ public class PopupTooltip : MonoBehaviour
     public TextMeshProUGUI attackAmountText;
     public TextMeshProUGUI rangeAmountText;
     public TextMeshProUGUI timerText;
-    public Image timerImage;
+    public GameObject timerObject;
     public List<Keyword> keywords = new List<Keyword>();
     
     [SerializeField] private GameObject effectTextPrefab;
@@ -44,7 +45,7 @@ public class PopupTooltip : MonoBehaviour
         switch (unitBehaviour.unitData.tribe)
         {
             case Unit.Tribe.Beasts:
-                nameplateImage.color = new Color32(249, 194, 43, 255);
+                nameplateImage.color = new Color32(64, 34, 92, 255);
                 break;
             case Unit.Tribe.Void:
                 nameplateImage.color = new Color32(107,62,117, 255);
@@ -56,16 +57,16 @@ public class PopupTooltip : MonoBehaviour
         
         attackAmountText.text = unitBehaviour.attack.ToString();
         healthAmountText.text = ($"{unitBehaviour.currentHp}");
-        rangeAmountText.text = $"{unitBehaviour.unitData.attackRange}";
+        rangeAmountText.text = $"{unitBehaviour.attackRange}";
         if (unitBehaviour is EnemyUnitBehaviour)
         {
-            timerImage.gameObject.SetActive(true);
+            timerObject.gameObject.SetActive(true);
             var enemyUnitBehaviour = unitBehaviour as EnemyUnitBehaviour;
             timerText.text = $"{enemyUnitBehaviour.GetAttackTimerAmount()}";
         }
         else
         {
-            timerImage.gameObject.SetActive(false);
+            timerObject.gameObject.SetActive(false);
             timerText.text = $"";
         }
         unitNameText.text = unitBehaviour.unitData.displayName;

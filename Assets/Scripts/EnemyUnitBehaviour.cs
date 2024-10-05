@@ -21,15 +21,15 @@ public class EnemyUnitBehaviour : UnitBehaviour
 
     public bool ShouldAttack()
     {
-        Debug.Log($"Should {unitData.displayName} attack? Range = {unitData.attackRange}, row = {currentCoordinates.row}. Ready to attack?: {_attackTimer.IsReadyToAttack()}");
+        Debug.Log($"Should {unitData.displayName} attack? Range = {attackRange}, row = {currentCoordinates.row}. Ready to attack?: {_attackTimer.IsReadyToAttack()}");
         
         
-        return _attackTimer.IsReadyToAttack() && unitData.attackRange >= currentCoordinates.row;
+        return _attackTimer.IsReadyToAttack() && attackRange >= currentCoordinates.row;
     }
 
     public void TryToShowCountdownTimer()
     {
-        if (unitData.attackRange >= currentCoordinates.row) ShowCountdownTimer();
+        if (attackRange >= currentCoordinates.row) ShowCountdownTimer();
     }
 
     public void ShowCountdownTimer()
@@ -39,7 +39,7 @@ public class EnemyUnitBehaviour : UnitBehaviour
     
     public IEnumerator HandleActionTaken(int actions)
     {
-        if (isDead || unitData.attackRange < currentCoordinates.row) yield break;
+        if (isDead || attackRange < currentCoordinates.row) yield break;
         _attackTimer.EnableCountdownTimer();
         yield return StartCoroutine(_attackTimer.CountDownTimer(actions));
     }
@@ -53,6 +53,7 @@ public class EnemyUnitBehaviour : UnitBehaviour
         List<EffectState> effectsToRemove = new List<EffectState>();
         foreach (var effectState in effects)
         {
+            if (effectState.isSilenced) continue;
             var isImplemented = effectState.effect.OnAttack(this, attackingTarget, ref attack);
             if (isImplemented)
             {

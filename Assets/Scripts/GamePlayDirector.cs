@@ -64,8 +64,9 @@ public class GamePlayDirector : MonoBehaviour
 
     private IEnumerator HandlePlayerAction(int actions)
     {
+        yield return new WaitUntil(() => !UIManager.Instance.chestDestroyed);
         
-        yield return StartCoroutine(_boardManager.WaitToApplyGravity(.5f));
+        yield return StartCoroutine(_boardManager.WaitToApplyGravity(.25f));
         // check for any enemies that should attack
         yield return StartCoroutine(_unitManager.HandlePlayerActionTaken(actions));
         

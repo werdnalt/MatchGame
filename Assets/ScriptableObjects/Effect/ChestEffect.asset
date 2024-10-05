@@ -16,7 +16,10 @@ MonoBehaviour:
   effectSprite: {fileID: 0}
   numUses: 0
   fromTreasure: {fileID: 0}
+  actionCost: 1
   treasures:
   - {fileID: 11400000, guid: 1a6681d836057e2489809ecab808c3ed, type: 2}
   - {fileID: 11400000, guid: c52a87911eb1f474085d176cd6163ced, type: 2}
   - {fileID: 11400000, guid: 35ebbbbaaea579e4a85c5e66a3cd235c, type: 2}
+  - {fileID: 11400000, guid: 53322627d338ce740948371409af586b, type: 2}
+  - {fileID: 11400000, guid: 1aa7d04b88ce2b24f965f58043605cf0, type: 2}

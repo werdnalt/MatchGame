@@ -17,6 +17,8 @@ public abstract class UnitBehaviour : MonoBehaviour
     public bool cantChain = false;
     public int currentHp;
     public int attack;
+    public int armor;
+    public int attackRange;
     public TextMeshProUGUI combatOrderText;
     public UnitBehaviour combatTarget;
     public UnitBehaviour attackedBy;
@@ -124,7 +126,9 @@ public abstract class UnitBehaviour : MonoBehaviour
     public virtual UnitBehaviour Initialize(Unit unit)
     {
         unitData = unit;
-        
+
+        armor = unit.armor;
+        attackRange = unitData.attackRange;
         attack = unitData.attack;
         _maxHp = unitData.hp;
         currentHp = _maxHp;
@@ -176,6 +180,7 @@ public abstract class UnitBehaviour : MonoBehaviour
 
         foreach (var effectState in effects)
         {
+            if (effectState.isSilenced) continue;
             var isImplemented = effectState.effect.OnHit(attackingUnit, this, ref amount);
             if (isImplemented)
             {
@@ -202,7 +207,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         AudioManager.Instance.PlayWithRandomPitch("hit");
         FXManager.Instance.PlayParticles(FXManager.ParticleType.Hit, transform.position);
 
-        currentHp -= amount;
+        currentHp -= Mathf.Max(amount + armor, 0);
 
         yield return StartCoroutine(HitEffect());
 
@@ -331,6 +336,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         
         foreach(var effectState in effects)
         {
+            if (effectState.isSilenced) continue;
             var isImplemented = effectState.effect.OnDeath(killedBy, this);
             if (isImplemented)
             {
@@ -354,6 +360,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         
         foreach(var effectState in killedBy.effects)
         {
+            if (effectState.isSilenced) continue;
             var isImplemented = effectState.effect.OnKill(killedBy, this);
             if (isImplemented)
             {
@@ -426,8 +433,10 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     public void AddEffect(Effect effect)
     {
-        effects.Add(new EffectState(effect));
-
+        var effectState = new EffectState(effect);
+        effects.Add(effectState);
+        effectState.effect.OnObtained(this);
+        
         if (effect.fromTreasure)
         {
             DisplayFloatingText($"Got {effect.fromTreasure.name}!", 1);
@@ -538,5 +547,13 @@ public abstract class UnitBehaviour : MonoBehaviour
     public void ResetSortingOrder()
     {
         _sortingGroup.sortingOrder = 10 - currentCoordinates.row;
+    }
+
+    public void SilenceEffects()
+    {
+        foreach (var effect in effects)
+        {
+            effect.isSilenced = true;
+        }
     }
 }

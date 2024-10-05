@@ -9,7 +9,6 @@ public class EffectState
     public int currUses;
     public bool isSilenced;
     
-
     public EffectState(Effect effect)
     {
         this.effect = effect;
