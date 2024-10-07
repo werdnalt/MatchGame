@@ -80,32 +80,40 @@ public class UIManager : MonoBehaviour
 
     private void GetMouseWorldPosWithOffset()
     {
+        // Get the mouse position in screen space
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
-        Vector3 worldPos = Camera.main.ScreenToWorldPoint(new Vector3(mouseScreenPos.x, mouseScreenPos.y, -Camera.main.transform.position.z));
 
-        // Adjust the offset value here
+        // Adjust the offset in pixels directly
         float offsetInPixels = 100f;  // Change this value as needed
 
-        float yOffset = offsetInPixels / Camera.main.pixelHeight * (Camera.main.orthographicSize * 2);
+        // Get a reference to the Canvas (assuming the tooltip is part of a canvas)
+        Canvas canvas = toolTip.GetComponentInParent<Canvas>();
+
+        if (canvas == null)
+        {
+            Debug.LogError("Tooltip is not under a Canvas!");
+            return;
+        }
 
         // Check if the cursor is in the top or bottom half of the screen
-        if (mouseScreenPos.y > Camera.main.pixelHeight / 2)
+        if (mouseScreenPos.y > Screen.height / 2)
         {
             // Cursor is in the top half, so offset below
-            worldPos.y -= yOffset;
-            tooltipRectTransform.pivot = new Vector2(.5f, 1);
+            mouseScreenPos.y -= offsetInPixels;
+            tooltipRectTransform.pivot = new Vector2(0.5f, 1);  // Pivot for positioning below
         }
         else
         {
-            offsetInPixels = 150f;
-            yOffset = offsetInPixels / Camera.main.pixelHeight * (Camera.main.orthographicSize * 2);
-            // Cursor is in the bottom half, so offset above
-            worldPos.y += yOffset;
-            tooltipRectTransform.pivot = new Vector2(.5f, 0);
+            offsetInPixels = 150f; // Adjust offset when in the bottom half
+            mouseScreenPos.y += offsetInPixels;
+            tooltipRectTransform.pivot = new Vector2(0.5f, 0);  // Pivot for positioning above
         }
-        
-        toolTip.transform.position = worldPos;
+
+        // Set the tooltip's position to the mouse screen position adjusted with the offset
+        // Note: We're using screen space, so no need for world conversion.
+        tooltipRectTransform.position = mouseScreenPos;
     }
+
 
     private void Start()
     {

@@ -15,7 +15,8 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
     public TextMeshProUGUI treasureName;
     public Image treasureBG;
 
-    private Vector3 _startingScale;
+    private Vector3 _objectInitialScale;
+    private Vector3 _spriteInitialScale;
 
     [SerializeField] private Vector3 chosenTreasurePosition;
     [SerializeField] private ScaleAndShake scaleAndShake;
@@ -27,13 +28,15 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
     {
         EventManager.Instance.onTreasureChosen += HideSelf;
         EventManager.Instance.onTreasureChosen += DisableDescription;
-        _startingScale = transform.localScale;
+        _spriteInitialScale = treasureSprite.transform.localScale;
+        _objectInitialScale = transform.localScale;
     }
 
     private void OnEnable()
     {
         canShowDescription = true;
-        transform.localScale = _startingScale;
+        transform.localScale = _objectInitialScale;
+        treasureSprite.transform.localScale = _spriteInitialScale;
         treasureBG.gameObject.SetActive(true);
     }
 
@@ -51,11 +54,11 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        treasureObject.transform.DOKill();
-        treasureObject.transform.localScale = _startingScale;
+        treasureSprite.transform.DOKill();
+        treasureSprite.transform.localScale = _spriteInitialScale;
         var scaleFactor = 1.3f;
-        var newScale = new Vector3(_startingScale.x * scaleFactor, _startingScale.y * scaleFactor, 1);
-        treasureObject.transform.DOScale(newScale, .25f).SetEase(Ease.OutQuad);
+        var newScale = new Vector3(_spriteInitialScale.x * scaleFactor, _spriteInitialScale.y * scaleFactor, 1);
+        treasureSprite.transform.DOScale(newScale, .25f).SetEase(Ease.OutQuad);
 
         if (canShowDescription)
         {
@@ -67,7 +70,7 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
     public void OnPointerExit(PointerEventData eventData)
     {
         treasureName.gameObject.SetActive(false);
-        treasureObject.transform.DOScale(_startingScale, .25f).SetEase(Ease.OutQuad);
+        treasureSprite.transform.DOScale(_spriteInitialScale, .25f).SetEase(Ease.OutQuad);
         treasureDescriptionText.text = "";
     }
 

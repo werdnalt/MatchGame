@@ -57,6 +57,12 @@ public class ActionHandler : MonoBehaviour
         // Exit if we couldn't find a draggedUnit
         if (draggedUnit == null) return;
 
+        if (draggedUnit.IsStuck)
+        {
+            Debug.Log("Stuck unit");
+            return;
+        }
+
         // Business logic
         if (clickedUnit is HeroUnitBehaviour)
         {

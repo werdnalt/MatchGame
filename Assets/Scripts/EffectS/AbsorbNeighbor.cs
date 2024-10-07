@@ -18,7 +18,7 @@ public class AbsorbNeighbor : Effect
         swappedUnit.currentHp += swappedWith.currentHp;
         swappedUnit.ShowAndUpdateHealth();
         //UIManager.Instance.ShowUnitPanel(swappedUnit);
-        BoardManager.Instance.RemoveUnitBehaviour(swappedWith);
+        BoardManager.Instance.RemoveUnitBehaviour(swappedWith, true);
         return true;
     }
 }

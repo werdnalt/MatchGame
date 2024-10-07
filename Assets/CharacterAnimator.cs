@@ -25,9 +25,9 @@ public class CharacterAnimator : MonoBehaviour
         }
     }
 
-    public void Grow()
+    public void Grow(float amount = 1.3f)
     {
-        var newScale = new Vector3(initialScale.x * 1.3f, initialScale.y * 1.3f, initialScale.z * 1.3f);
+        var newScale = new Vector3(initialScale.x * amount, initialScale.y * amount, initialScale.z * amount);
         if (_transformSpringComponent)
         {
             _transformSpringComponent.SetTargetScale(newScale);

@@ -68,7 +68,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!_unitBehaviour || _unitBehaviour.isDragging || !GamePlayDirector.Instance.PlayerActionAllowed || _unitBehaviour.isDead) return;
+        if (!_unitBehaviour || _unitBehaviour.isDragging || !GamePlayDirector.Instance.PlayerActionAllowed || _unitBehaviour.isDead || _unitBehaviour.IsStuck) return;
 
         ActionHandler.Instance.SetClickedCell(this);
         AudioManager.Instance.Play("wood");

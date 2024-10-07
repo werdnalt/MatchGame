@@ -179,12 +179,15 @@ MonoBehaviour:
   cantChain: 0
   currentHp: 0
   attack: 0
+  armor: 0
+  attackRange: 0
   combatOrderText: {fileID: 0}
   combatTarget: {fileID: 0}
   attackedBy: {fileID: 0}
   defaultAnimatedCharacter: {fileID: 0}
   isChained: 0
   characterScale: {x: 0, y: 0, z: 0}
+  canChainAttack: 1
   increaseHealthParticles: {fileID: 1388865763545139969}
   healParticles: {fileID: 8440279286575314698}
   deathParticles: {fileID: 4527682790098464069}
@@ -626,6 +629,10 @@ PrefabInstance:
     - target: {fileID: 4223877005074994173, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
       propertyPath: m_Layer
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4223877005074994174, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
+      propertyPath: m_SortingOrder
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4223877005074994175, guid: 85501aae01811d341a95d5f82d2dd68f, type: 3}
       propertyPath: playOnAwake

@@ -26,6 +26,24 @@ public abstract class UnitBehaviour : MonoBehaviour
     public bool isChained = false;
     public Vector3 characterScale;
     public bool canChainAttack = true;
+    public bool shouldBeSentToBack = false;
+
+    public bool IsStuck
+    {
+        get
+        {
+            var stuck = false;
+            foreach (var status in _ongoingStatuses)
+            {
+                if (status.statusEffect == StatusEffect.Stuck)
+                {
+                    stuck = true;
+                }
+            }
+
+            return stuck;
+        }
+    }
 
     // Serialized fields
     [SerializeField] private ParticleSystem increaseHealthParticles;
@@ -71,6 +89,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     private AnimationEffects _animationEffects;
     private AnimationEffects _timerAnimationEffects;
     private TransformSpringComponent _transformSpringComponent;
+    private List<Status> _ongoingStatuses = new List<Status>();
 
     // Public Lists
     public List<EffectState> effects = new List<EffectState>();
@@ -89,12 +108,33 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     private float _cachedZIndex;
 
+    public enum StatusEffect
+    {
+        Stuck,
+        Poisoned,
+        Vulnerable
+    }
+
     public enum Stats
     {
         Health,
         Attack,
         Range,
         Shield
+    }
+
+    public class Status
+    {
+        public StatusEffect statusEffect;
+        public UnitBehaviour appliedBy;
+        public int actionsLeft;
+
+        public Status(StatusEffect statusEffect, UnitBehaviour appliedBy, int actionsLeft)
+        {
+            this.statusEffect = statusEffect;
+            this.appliedBy = appliedBy;
+            this.actionsLeft = actionsLeft;
+        }
     }
 
     private void Awake()
@@ -207,13 +247,22 @@ public abstract class UnitBehaviour : MonoBehaviour
         AudioManager.Instance.PlayWithRandomPitch("hit");
         FXManager.Instance.PlayParticles(FXManager.ParticleType.Hit, transform.position);
 
-        currentHp -= Mathf.Max(amount + armor, 0);
+        var damageAmount = Mathf.Max(amount - armor, 0);
+        currentHp -= damageAmount;
 
         yield return StartCoroutine(HitEffect());
 
         if (currentHp <= 0)
         {
             Die(attackingUnit);
+        }
+        else
+        {
+            if (shouldBeSentToBack)
+            {
+                yield return StartCoroutine(BoardManager.Instance.SendUnitToBack(this));
+                shouldBeSentToBack = false;
+            }
         }
     }
 
@@ -529,7 +578,17 @@ public abstract class UnitBehaviour : MonoBehaviour
         }
     }
 
-    public void Grow()
+    public void GrowOverTime(float target, float duration)
+    {
+        transform.DOScale(target, duration).SetEase(Ease.OutQuad);
+    }
+    
+    public void ShrinkOverTime(float duration)
+    {
+        transform.DOScale(_characterAnimator.initialScale, duration).SetEase(Ease.InQuad);
+    }
+
+    public void Grow(float amount = 1.3f)
     {
         if (_characterAnimator) _characterAnimator.Grow();
     }
@@ -554,6 +613,31 @@ public abstract class UnitBehaviour : MonoBehaviour
         foreach (var effect in effects)
         {
             effect.isSilenced = true;
+        }
+    }
+
+    public void AddStatus(Status status)
+    {
+        _ongoingStatuses.Add(status);
+    }
+
+    public void CountdownStatuses(int actions)
+    {
+        var statusesToRemove = new List<Status>();
+        foreach (var status in _ongoingStatuses)
+        {
+            if (status.statusEffect == StatusEffect.Poisoned)
+            {
+                var poisonAmount = 1 * actions;
+                StartCoroutine(ProcessDamage(poisonAmount, status.appliedBy));
+            }
+            status.actionsLeft -= actions;
+            if (status.actionsLeft <= 0) statusesToRemove.Add(status);
+        }
+
+        foreach (var status in statusesToRemove)
+        {
+            if (_ongoingStatuses.Contains(status)) _ongoingStatuses.Remove(status);
         }
     }
 }

@@ -13,8 +13,10 @@ public class PopupTooltip : MonoBehaviour
     public TextMeshProUGUI unitNameText;
     public TextMeshProUGUI healthAmountText;
     public TextMeshProUGUI attackAmountText;
+    public TextMeshProUGUI armorAmountText;
     public TextMeshProUGUI rangeAmountText;
     public TextMeshProUGUI timerText;
+    public GameObject armorObject;
     public GameObject timerObject;
     public List<Keyword> keywords = new List<Keyword>();
     
@@ -69,6 +71,17 @@ public class PopupTooltip : MonoBehaviour
             timerObject.gameObject.SetActive(false);
             timerText.text = $"";
         }
+
+        if (unitBehaviour.armor > 0)
+        {
+            armorObject.SetActive(true);
+            armorAmountText.text = unitBehaviour.armor.ToString();
+        }
+        else
+        {
+            armorObject.SetActive(false);
+        }
+        
         unitNameText.text = unitBehaviour.unitData.displayName;
         
         foreach (var effectState in unitBehaviour.effects)

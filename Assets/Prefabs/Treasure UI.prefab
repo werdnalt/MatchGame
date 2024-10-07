@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8338558585871503563}
   - component: {fileID: 8338558585871503562}
   - component: {fileID: 9170059727706184200}
+  - component: {fileID: 3389073992292078926}
   m_Layer: 5
   m_Name: Treasure Sprite
   m_TagString: Untagged
@@ -94,6 +95,21 @@ MonoBehaviour:
   normalStrength: 5
   normalSmoothing: 1
   computingNormal: 0
+--- !u!114 &3389073992292078926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8338558585871503560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: -5.55, y: -3.92}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8338558585928702264
 GameObject:
   m_ObjectHideFlags: 0
@@ -213,8 +229,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 3
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d24ab7cceaac5194db50db441a2e7f57, type: 2}
-  m_sharedMaterial: {fileID: 5544512901268271433, guid: d24ab7cceaac5194db50db441a2e7f57, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 54882ceacfbe77d41938fd21d6b6f623, type: 2}
+  m_sharedMaterial: {fileID: -4944980054626853128, guid: 54882ceacfbe77d41938fd21d6b6f623, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -291,6 +307,7 @@ GameObject:
   - component: {fileID: 8338558587076470557}
   - component: {fileID: 8338558587076470559}
   - component: {fileID: 8338558587076470558}
+  - component: {fileID: 2378722573567554195}
   m_Layer: 2
   m_Name: Durability
   m_TagString: Untagged
@@ -355,3 +372,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2378722573567554195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8338558587076470556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: -6.79, y: -5.63}
+  m_UseGraphicAlpha: 1

@@ -17,6 +17,7 @@ MonoBehaviour:
   shouldAnimateLoop: 0
   tribe: 0
   hp: 5
+  armor: 2
   attack: 4
   effects: []
   attackRange: 1

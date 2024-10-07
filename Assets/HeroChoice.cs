@@ -23,12 +23,13 @@ public class HeroChoice : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         _originalScale = transform.localScale;
         _heroMat = new Material(heroImage.material);
+        heroImage.material = _heroMat;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         // punch scale up
-        var newScale = new Vector3(_originalScale.x * 1.2f, _originalScale.y * 1.2f, _originalScale.z * 1.2f);
+        var newScale = new Vector3(_originalScale.x * 1.1f, _originalScale.y * 1.1f, _originalScale.z * 1.1f);
         heroSpringComponent.SetTargetScale(newScale);
     
         // show hero information
@@ -89,6 +90,7 @@ public class HeroChoice : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private IEnumerator GreyscaleFlash()
     {
+        Debug.Log("Greyscale flash");
         {
             var timeToTransition = 0.5f; // Time to transition from full color to greyscale or vice versa
             float elapsedTime = 0f;

@@ -303,6 +303,78 @@ public class BoardManager : MonoBehaviour
         return null;
     }
 
+    public void SendUnitBack(UnitBehaviour unitBehaviour)
+    {
+        unitBehaviour.shouldBeSentToBack = true;
+    }
+
+    public IEnumerator SendUnitToBack(UnitBehaviour unitBehaviour)
+    {
+        // free the cell currently storing the unitbehaviour
+        RemoveUnitBehaviour(unitBehaviour, false);
+
+        // move all units in column downward
+        var column = unitBehaviour.currentCoordinates.column;
+        for (var rowIndex = 1; rowIndex < numRows; rowIndex++)
+        {
+            var unitCoords = new Coordinates(column, rowIndex);
+            var unit = GetUnitBehaviour(unitCoords);
+            if (unit) TryToAssignToLowerRow(unit);
+        }
+
+        // find lowest row for unit to be placed
+        Coordinates newCoordinates = new Coordinates(-1, -1);
+        for (int row = 1; row < numRows; row++)
+        {
+            if (GetUnitBehaviour(new Coordinates(column, row)) == null)
+            {
+                newCoordinates = new Coordinates(column, row);
+                break;
+            }
+        }
+        
+        // assign unit to new cell
+        if (newCoordinates.row != -1 && newCoordinates.column != -1)
+        {
+            StartCoroutine(AssignUnitBehaviourToCell(unitBehaviour, newCoordinates));
+        }
+        
+        // animate unit "jumping" back
+        StartCoroutine(MoveUnitToBack(unitBehaviour));
+        
+        yield return null;
+    }
+
+    private IEnumerator MoveUnitToBack(UnitBehaviour unitBehaviour)
+    {
+        unitBehaviour.BringSortingToFront();
+        var timeToMove = 1f;
+        var halfTime = timeToMove / 2f;
+    
+        // Start growing the unit over the first half of the move time
+        unitBehaviour.GrowOverTime(2f, halfTime);
+
+        // Move the unit to the back over the total time
+        StartCoroutine(MoveUnitBehaviour(unitBehaviour, GetPositionFromCoordinates(unitBehaviour.currentCoordinates).Value, timeToMove));
+
+        // Wait for the first half of the time, when the unit reaches max size
+        yield return new WaitForSeconds(halfTime);
+
+        // Start shrinking the unit over the second half of the move time
+        unitBehaviour.ShrinkOverTime(halfTime);
+
+        // Wait for the remaining time
+        yield return new WaitForSeconds(halfTime);
+    
+        unitBehaviour.ResetSortingOrder();
+    }
+
+
+    public IEnumerator BuffEnemies()
+    {
+        yield break;
+    }
+
     public IEnumerator SwapUnits(Coordinates leftBlockCoords, Coordinates rightBlockCoords)
     {
         if (!GamePlayDirector.Instance.PlayerActionAllowed) yield break;
@@ -311,7 +383,7 @@ public class BoardManager : MonoBehaviour
         var rightUnit = GetUnitBehaviour(rightBlockCoords);
         if (leftUnit == null && rightUnit == null) yield break;
         
-        SwapUnitData(leftBlockCoords, rightBlockCoords);
+        yield return StartCoroutine(SwapUnitData(leftBlockCoords, rightBlockCoords));
         
         EventPipe.TakeAction(1);
         AudioManager.Instance.PlayWithRandomPitch("whoosh");
@@ -410,15 +482,15 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    
 
-
-    private void SwapUnitData(Coordinates cell1, Coordinates cell2)
+    private IEnumerator SwapUnitData(Coordinates cell1, Coordinates cell2)
     {
         var unitBehaviour1 = GetUnitBehaviour(cell1);
         var unitBehaviour2 = GetUnitBehaviour(cell2);
 
         StartCoroutine(UpdateUnitPosition(unitBehaviour2, cell1));
-        StartCoroutine(UpdateUnitPosition(unitBehaviour1, cell2));
+        yield return StartCoroutine(UpdateUnitPosition(unitBehaviour1, cell2));
     }
     
     public IEnumerator WaitToApplyGravity(float blockSwapTime)
@@ -634,21 +706,18 @@ public class BoardManager : MonoBehaviour
         return neighbors;
     }
 
-    private void MoveUnitBehaviour(UnitBehaviour unitBehaviour,Vector3 newPos)
+    private IEnumerator MoveUnitBehaviour(UnitBehaviour unitBehaviour,Vector3 newPos, float timeToMove = Timings.SwapTime)
     {
-        if (!unitBehaviour) return;
+        var isDone = false;
+        if (!unitBehaviour) yield break;
+            unitBehaviour.transform.DOMove(newPos, timeToMove).SetEase(Ease.InQuad).OnComplete(() =>
+            {
+                unitBehaviour.transform.DOScale(new Vector3(1.5f, 0.6f, unitBehaviour.originalScale.z), 0.1f);
+                unitBehaviour.transform.DOScale(unitBehaviour.originalScale, 0.1f);
+                isDone = true;
+            });
 
-            // Create a sequence for DOTween animations
-            Sequence mySequence = DOTween.Sequence();
-
-            // Add move tween to the sequence
-            mySequence.Append(unitBehaviour.transform.DOMove(newPos, Timings.SwapTime).SetEase(Ease.InQuad));
-
-            // Add squash effect once the movement is completed
-            mySequence.Append(unitBehaviour.transform.DOScale(new Vector3(1.5f, 0.6f, unitBehaviour.originalScale.z), 0.1f));
-
-            // After squashing, spring back to original size
-            mySequence.Append(unitBehaviour.transform.DOScale(unitBehaviour.originalScale, 0.1f));
+            yield return new WaitUntil(() => isDone);
     }
     
 
@@ -718,16 +787,19 @@ public class BoardManager : MonoBehaviour
     private IEnumerator UpdateUnitPosition(UnitBehaviour unit, Coordinates newCoordinates)
     {
         yield return AssignUnitBehaviourToCell(unit, newCoordinates);
-        MoveUnitBehaviour(unit, GetPositionFromCoordinates(newCoordinates).Value);
+        yield return MoveUnitBehaviour(unit, GetPositionFromCoordinates(newCoordinates).Value);
     }
     
-    public void RemoveUnitBehaviour(UnitBehaviour unitBehaviour)
+    public void RemoveUnitBehaviour(UnitBehaviour unitBehaviour, bool isDead)
     {
         var unitCoordinates = GetCoordinatesForUnitBehaviour(unitBehaviour);
         if (unitCoordinates == null) return;
 
         _cells[(Coordinates) unitCoordinates].UnitBehaviour = null;
-        unitBehaviour.RemoveSelf();
+        if (isDead)
+        {
+            unitBehaviour.RemoveSelf();
+        }
     }
     
     /// <summary>
@@ -755,9 +827,7 @@ public class BoardManager : MonoBehaviour
         {
             if (unitBehaviour.isDead)
             {
-                var coordinates = GetCoordinatesForUnitBehaviour(unitBehaviour).Value;
-                if (_cells.ContainsKey(coordinates)) _cells[coordinates].UnitBehaviour = null;
-                unitBehaviour.RemoveSelf();
+                RemoveUnitBehaviour(unitBehaviour, true);
             }
         }
 
