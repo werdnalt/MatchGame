@@ -50,9 +50,12 @@ public class GamePlayDirector : MonoBehaviour
         // Spawn Heroes and Enemies
         yield return StartCoroutine(_unitManager.CreateHeroes());
 
-        var waveToSpawn = WaveManager.Instance.GetUnitsToSpawn();
-        yield return StartCoroutine(_boardManager.SpawnEnemyUnits(waveToSpawn));
-
+        if (WaveManager.Instance.shouldSpawnWave)
+        {
+            var waveToSpawn = WaveManager.Instance.GetUnitsToSpawn();
+            yield return StartCoroutine(_boardManager.SpawnEnemyUnits(waveToSpawn));
+        }
+        
         PlayerActionAllowed = true;
     }
 
@@ -70,7 +73,11 @@ public class GamePlayDirector : MonoBehaviour
         // check for any enemies that should attack
         yield return StartCoroutine(_unitManager.HandlePlayerActionTaken(actions));
         
-        
+        if (WaveManager.Instance.shouldSpawnWave)
+        {
+            var waveToSpawn = WaveManager.Instance.GetUnitsToSpawn();
+            yield return StartCoroutine(_boardManager.SpawnEnemyUnits(waveToSpawn));
+        }
 
         PlayerActionAllowed = true;
     }

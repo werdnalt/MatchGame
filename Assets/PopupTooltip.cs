@@ -19,9 +19,17 @@ public class PopupTooltip : MonoBehaviour
     public GameObject armorObject;
     public GameObject timerObject;
     public List<Keyword> keywords = new List<Keyword>();
-    
+
+    [FormerlySerializedAs("badImage")] [SerializeField] private Image badgeImage;
     [SerializeField] private GameObject effectTextPrefab;
     [SerializeField] private GameObject effectTextParent;
+
+    [SerializeField] private Sprite beastBadge;
+    [SerializeField] private Sprite goblinBadge;
+    [SerializeField] private Sprite skeletonBadge;
+    [SerializeField] private Sprite slimeBadge;
+    [SerializeField] private Sprite heroBadge;
+
     
     [Serializable]
     public struct Keyword
@@ -47,13 +55,24 @@ public class PopupTooltip : MonoBehaviour
         switch (unitBehaviour.unitData.tribe)
         {
             case Unit.Tribe.Beasts:
-                nameplateImage.color = new Color32(64, 34, 92, 255);
+                nameplateImage.color = new Color32(147, 66, 141, 255);
+                badgeImage.sprite = beastBadge;
                 break;
-            case Unit.Tribe.Void:
-                nameplateImage.color = new Color32(107,62,117, 255);
+            case Unit.Tribe.Goblin:
+                nameplateImage.color = new Color32(175,94,98, 255);
+                badgeImage.sprite = goblinBadge;
                 break;
-            case Unit.Tribe.Plants:
-                nameplateImage.color = new Color32(213,224,75, 255);
+            case Unit.Tribe.Slime:
+                nameplateImage.color = new Color32(189,216,128, 255);
+                badgeImage.sprite = slimeBadge;
+                break;
+            case Unit.Tribe.Skeleton:
+                nameplateImage.color = new Color32(155,221,206, 255);
+                badgeImage.sprite = skeletonBadge;
+                break;
+            case Unit.Tribe.Hero:
+                nameplateImage.color = new Color32(230,244,241, 255);
+                badgeImage.sprite = heroBadge;
                 break;
         }
         
@@ -114,12 +133,6 @@ public class PopupTooltip : MonoBehaviour
         {
             case Unit.Tribe.Beasts:
                 nameplateImage.color = new Color32(249, 194, 43, 255);
-                break;
-            case Unit.Tribe.Void:
-                nameplateImage.color = new Color32(107,62,117, 255);
-                break;
-            case Unit.Tribe.Plants:
-                nameplateImage.color = new Color32(213,224,75, 255);
                 break;
         }
         

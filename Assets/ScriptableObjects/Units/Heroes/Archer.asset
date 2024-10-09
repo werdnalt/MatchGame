@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: Archer
   m_EditorClassIdentifier: 
-  animatedCharacterPrefab: {fileID: 7255530061341473968, guid: 54a658e67e1514f4fad875d3aadc04de, type: 3}
-  attackTimer: 3
-  shouldAnimateLoop: 0
+  animatedCharacterPrefab: {fileID: 3710274101829224566, guid: 74b708e4e5dc62349a294ff5a35485ba, type: 3}
+  attackTimer: -1
   tribe: 0
-  hp: 2
-  attack: 2
+  hp: 5
+  armor: 1
+  attack: 3
   effects:
-  - {fileID: 11400000, guid: 04c816c9f5ac9534d871a8263c6608cb, type: 2}
-  attackRange: 3
+  - {fileID: 11400000, guid: 126943d9f6d6cd241a244e2d83e9e883, type: 2}
+  attackRange: 1
   unitSprite: {fileID: 21300000, guid: fb17d4f69ac3045439e12f256928cfc9, type: 3}
-  displayName: Archer
+  displayName: Barbarian

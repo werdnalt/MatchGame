@@ -1,0 +1,617 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8280343735786221950
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8280343735786221949}
+  - component: {fileID: 8280343735786221945}
+  - component: {fileID: 8280343735786221946}
+  - component: {fileID: 8280343735786221947}
+  - component: {fileID: 8280343735786221948}
+  m_Layer: 5
+  m_Name: BG
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8280343735786221949
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343735786221950}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.4727889, y: 1.4727889, z: 1.4727887}
+  m_Children: []
+  m_Father: {fileID: 8280343736775191181}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 297.1123, y: 297.1123}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8280343735786221945
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343735786221950}
+  m_CullTransparentMesh: 1
+--- !u!114 &8280343735786221946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343735786221950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 2100000, guid: 531fe354b275a884794d0df167afee32, type: 2}
+  m_Color: {r: 0.3647059, g: 0.654902, b: 0.3647059, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: fab06e0be9375cc4d823efa71629885c, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8280343735786221947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343735786221950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee158225ee1e59f4791627785501d950, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shaderTypes: 0
+  normalStrength: 5
+  normalSmoothing: 1
+  computingNormal: 0
+--- !u!114 &8280343735786221948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343735786221950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: -25, y: -25}
+  m_UseGraphicAlpha: 1
+--- !u!1 &8280343735857432332
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8280343735857432331}
+  - component: {fileID: 8280343735857432329}
+  - component: {fileID: 8280343735857432330}
+  m_Layer: 5
+  m_Name: Frame
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8280343735857432331
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343735857432332}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.70968425, y: 0.70968425, z: 0.70968425}
+  m_Children: []
+  m_Father: {fileID: 8280343736775191181}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 677, y: 667}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8280343735857432329
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343735857432332}
+  m_CullTransparentMesh: 1
+--- !u!114 &8280343735857432330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343735857432332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.5807227, g: 0.8490566, b: 0.5807227, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 094adbde8e16f764aa202f92eb5b7018, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &8280343736568223426
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8280343736568223425}
+  - component: {fileID: 8280343736568223455}
+  - component: {fileID: 8280343736568223424}
+  - component: {fileID: 8280343736568223454}
+  m_Layer: 5
+  m_Name: Hero Portrait
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8280343736568223425
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343736568223426}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.2449191, y: 1.2449191, z: 1.2449188}
+  m_Children: []
+  m_Father: {fileID: 8280343736775191181}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 297.1123, y: 297.1123}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8280343736568223455
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343736568223426}
+  m_CullTransparentMesh: 1
+--- !u!114 &8280343736568223424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343736568223426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 2100000, guid: 531fe354b275a884794d0df167afee32, type: 2}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -5946553015062550979, guid: 2abcffc41ed4e7b4889efad9a8db3b45, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8280343736568223454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343736568223426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee158225ee1e59f4791627785501d950, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shaderTypes: 0
+  normalStrength: 5
+  normalSmoothing: 1
+  computingNormal: 0
+--- !u!1 &8280343736775191182
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8280343736775191181}
+  - component: {fileID: 8280343736775191180}
+  - component: {fileID: 8280343736775191179}
+  m_Layer: 5
+  m_Name: Hero Choice 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8280343736775191181
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343736775191182}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.73586, y: 0.73586, z: 0.73586}
+  m_Children:
+  - {fileID: 8280343735786221949}
+  - {fileID: 8280343736568223425}
+  - {fileID: 8280343735857432331}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8280343736775191180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343736775191182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35552657ec573114f9e0bf35a5c0c3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heroImage: {fileID: 8280343736568223424}
+  heroChoiceManager: {fileID: 0}
+  heroSpringComponent: {fileID: 8280343736775191179}
+  heroUnit: {fileID: 11400000, guid: fd4bb4cf6683e0f41b43646373311e46, type: 2}
+--- !u!114 &8280343736775191179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8280343736775191182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a9f3b58cc7b7e9408ac5f31edd2d8b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doesAutoInitialize: 1
+  useScaledTime: 1
+  hasCustomInitialValues: 0
+  hasCustomTarget: 0
+  generalPropertiesUnfolded: 1
+  initialValuesUnfolded: 0
+  spaceType: 0
+  positionSpring:
+    unifiedForceAndDrag: 1
+    unifiedForce: 150
+    unifiedDrag: 10
+    useInitialValues: 0
+    useCustomTarget: 0
+    springEnabled: 0
+    clampingEnabled: 0
+    springValues:
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    showDebugFields: 0
+    unfolded: 0
+    eventsEnabled: 0
+  scaleSpring:
+    unifiedForceAndDrag: 1
+    unifiedForce: 150
+    unifiedDrag: 10
+    useInitialValues: 0
+    useCustomTarget: 0
+    springEnabled: 1
+    clampingEnabled: 0
+    springValues:
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    showDebugFields: 0
+    unfolded: 0
+    eventsEnabled: 0
+  rotationSpring:
+    unifiedForceAndDrag: 1
+    unifiedForce: 150
+    unifiedDrag: 10
+    useInitialValues: 0
+    useCustomTarget: 0
+    springEnabled: 0
+    clampingEnabled: 0
+    springValues:
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    - initialValue: 0
+      clampTarget: 0
+      clampCurrentValue: 0
+      stopSpringOnCurrentValueClamp: 0
+      minValue: 0
+      maxValue: 100
+      update: 1
+      force: 150
+      drag: 10
+      target: 0
+      currentValue: 0
+      candidateValue: 0
+      velocity: 0
+      clamped: 0
+      operationValue: 0
+    showDebugFields: 0
+    unfolded: 0
+    eventsEnabled: 0
+    axisRestriction: 0
+  followerTransform: {fileID: 8280343736775191181}
+  useTransformAsTarget: 0
+  targetTransform: {fileID: 0}

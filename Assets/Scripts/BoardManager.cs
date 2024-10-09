@@ -454,7 +454,7 @@ public class BoardManager : MonoBehaviour
         var currentCell = GetCellFromUnitBehaviour(unitBehaviour);
         if (!currentCell) return;
 
-        for (var i = 0; i < currentCell.Coordinates.row; i++)
+        for (var i = Timings.EnemyRow; i < currentCell.Coordinates.row; i++)
         {
             var lowerCoordinates = new Coordinates(currentCell.Coordinates.column, i);
             var unit = GetUnitBehaviour(lowerCoordinates);
@@ -712,8 +712,7 @@ public class BoardManager : MonoBehaviour
         if (!unitBehaviour) yield break;
             unitBehaviour.transform.DOMove(newPos, timeToMove).SetEase(Ease.InQuad).OnComplete(() =>
             {
-                unitBehaviour.transform.DOScale(new Vector3(1.5f, 0.6f, unitBehaviour.originalScale.z), 0.1f);
-                unitBehaviour.transform.DOScale(unitBehaviour.originalScale, 0.1f);
+                unitBehaviour.transform.DOScale(new Vector3(1.5f, 0.6f, unitBehaviour.originalScale.z), 0.1f).OnComplete(()=>unitBehaviour.transform.DOScale(unitBehaviour.originalScale, 0.1f));
                 isDone = true;
             });
 

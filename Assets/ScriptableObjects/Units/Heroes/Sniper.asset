@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
+  m_Name: Sniper
+  m_EditorClassIdentifier: 
+  animatedCharacterPrefab: {fileID: 8725649503408091688, guid: 5fa122618f33a6b48aa3906fa613d746, type: 3}
+  attackTimer: -1
+  tribe: 0
+  hp: 4
+  armor: 0
+  attack: 5
+  effects:
+  - {fileID: 11400000, guid: 51120c9f7088c634d85695b613a4370c, type: 2}
+  attackRange: 4
+  unitSprite: {fileID: 21300000, guid: fb17d4f69ac3045439e12f256928cfc9, type: 3}
+  displayName: Sniper

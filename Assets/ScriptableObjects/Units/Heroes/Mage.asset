@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
+  m_Name: Mage
+  m_EditorClassIdentifier: 
+  animatedCharacterPrefab: {fileID: 1394688569729529245, guid: f20a45fa26ea28e45b9cfb32ab00a564, type: 3}
+  attackTimer: 2
+  shouldAnimateLoop: 0
+  tribe: 0
+  hp: 5
+  attack: 1
+  effects:
+  - {fileID: 11400000, guid: 8886da9f0b6cfd04aa744d0127704d51, type: 2}
+  attackRange: 1
+  unitSprite: {fileID: 21300000, guid: 62711eb6260c7774ea0eb1e70d9b21dc, type: 3}
+  displayName: Mage

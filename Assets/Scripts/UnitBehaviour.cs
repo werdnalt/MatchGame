@@ -27,6 +27,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     public Vector3 characterScale;
     public bool canChainAttack = true;
     public bool shouldBeSentToBack = false;
+    public int bonusAttack;
 
     public bool IsStuck
     {
@@ -55,6 +56,8 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     [SerializeField] private HealthUI healthUI;
 
+    [SerializeField] private GameObject damageAmountObject;
+    [SerializeField] private TextMeshProUGUI damageAmountText;
     [SerializeField] private GameObject floatingTextStartingPoint;
     [SerializeField] private GameObject floatingTextEndingPoint;
     [SerializeField] private TextMeshProUGUI floatingText;
@@ -82,6 +85,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     public bool isDragging;
     private SortingGroup _sortingGroup;
     private CharacterAnimator _characterAnimator;
+    private Vector3 _damageTextOriginalScale;
     
     private List<GameObject> animatedCharacterParts = new List<GameObject>();
     private Vector3 currentHeartSize;
@@ -147,6 +151,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         }
 
         originalScale = transform.localScale;
+        _damageTextOriginalScale = damageAmountObject.transform.localScale;
     }
 
     private void SetCharacterShader()
@@ -249,6 +254,7 @@ public abstract class UnitBehaviour : MonoBehaviour
 
         var damageAmount = Mathf.Max(amount - armor, 0);
         currentHp -= damageAmount;
+        ShowDamageText(damageAmount);
 
         yield return StartCoroutine(HitEffect());
 
@@ -516,6 +522,13 @@ public abstract class UnitBehaviour : MonoBehaviour
         
         floatingText.gameObject.SetActive(false);
     }
+
+    private void ShowDamageText(int amount)
+    {
+        damageAmountObject.SetActive(true);
+        damageAmountText.text = amount.ToString();
+        damageAmountObject.transform.DOPunchScale(new Vector3(.5f, .5f, .3f), .5f).SetEase(Ease.OutQuad).OnComplete(()=>damageAmountObject.SetActive(false));
+    }
     
     public virtual void ShowAndUpdateHealth()
     {
@@ -580,11 +593,13 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public void GrowOverTime(float target, float duration)
     {
+        if (!_characterAnimator) return;
         transform.DOScale(target, duration).SetEase(Ease.OutQuad);
     }
     
     public void ShrinkOverTime(float duration)
     {
+        if (!_characterAnimator) return;
         transform.DOScale(_characterAnimator.initialScale, duration).SetEase(Ease.InQuad);
     }
 
@@ -619,6 +634,12 @@ public abstract class UnitBehaviour : MonoBehaviour
     public void AddStatus(Status status)
     {
         _ongoingStatuses.Add(status);
+    }
+
+    public void IncreaseAttack(int amount)
+    {
+        attack += amount;
+        attackUpParticles.Play();
     }
 
     public void CountdownStatuses(int actions)

@@ -12,18 +12,22 @@ public class WaveManager : MonoBehaviour
 
     public List<Wave> waves;
 
-    private int _numAttacks;
+    private int _numActions;
 
     public int totalNumWaves;
     public int currentNumWave;
+
+    [SerializeField] private TextMeshProUGUI waveText;
+    [SerializeField] private TextMeshProUGUI actionsUntilWaveText;
 
     public bool shouldSpawnWave
     {
         get
         {
-            if (_numAttacks >= AttacksUntilWave)
+            Debug.Log($"Num Actions: {_numActions}, Actions Until Wave: {ActionsUntilWave}");
+            if (_numActions >= ActionsUntilWave)
             {
-                _numAttacks = 0;
+                _numActions = 0;
                 return true;
             }
             else
@@ -37,11 +41,11 @@ public class WaveManager : MonoBehaviour
     {
         get
         {
-            return AttacksUntilWave - _numAttacks;
+            return ActionsUntilWave - _numActions;
         }
     }
     
-    public int AttacksUntilWave
+    public int ActionsUntilWave
     {
         get
         {
@@ -50,7 +54,7 @@ public class WaveManager : MonoBehaviour
                 return -1;
             }
 
-            return _upcomingWave.attacksUntilSpawn;
+            return _upcomingWave.actionsUntilSpawn;
         }
     }
 
@@ -74,18 +78,21 @@ public class WaveManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null) Instance = this;
-        _numAttacks = 0;
+        _numActions = 0;
 
         currentNumWave = 0;
         totalNumWaves = waves.Count;
+
+        EventPipe.OnActionTaken += UpdateActions;
     }
     
     public List<Unit> GetUnitsToSpawn()
     {
-        if (waves.Count == 0) waves = new List<Wave>(GameManager.Instance.levelData.waves);
+        if (waves.Count == 0) return null;
         if (_upcomingWave == null) Debug.LogAssertion("Should not attempt to spawn a wave when there are no waves remaining");
 
         currentNumWave++;
+        waveText.text = $"WAVE {currentNumWave} / {waves.Count}";
         
         var toSpawn = new List<Unit>();
         for (var i = 0; i < _upcomingWave.waveSize; i++)
@@ -98,7 +105,14 @@ public class WaveManager : MonoBehaviour
         }
 
         waves.RemoveAt(0);
+        actionsUntilWaveText.text = $"{ActionsUntilWave - _numActions}";
         return toSpawn;
+    }
+    
+    private void UpdateActions(int actions)
+    {
+        _numActions += actions;
+        actionsUntilWaveText.text = $"{ActionsUntilWave - _numActions}";
     }
     
     private Unit SelectWeightedRandomUnit()

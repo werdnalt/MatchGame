@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1d96cdaf9ee17d478af41a8ef438270, type: 3}
+  m_Name: StoreDamageEffect
+  m_EditorClassIdentifier: 
+  effectDescription: 'ON HIT: Store damage received, ON ATTACK: Add Stored Damage
+    to ATK, reset Stored Damage'
+  effectSprite: {fileID: 0}
+  numUses: -1
+  fromTreasure: {fileID: 0}
+  actionCost: 1

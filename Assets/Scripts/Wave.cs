@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "Wave", menuName = "ScriptableObjects/Wave", order = 1)]
 public class Wave : ScriptableObject
 {
-    public int attacksUntilSpawn;
+    [FormerlySerializedAs("attacksUntilSpawn")] public int actionsUntilSpawn;
     public List<WaveEntry> units;
     public float timeBeforeSpawn;
     

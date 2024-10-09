@@ -212,7 +212,7 @@ GameObject:
   - component: {fileID: 5545461615535562245}
   - component: {fileID: 5101104623841021091}
   m_Layer: 0
-  m_Name: Warrior Hero
+  m_Name: Wizard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

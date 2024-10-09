@@ -11,7 +11,7 @@ public abstract class Effect : ScriptableObject
     public Treasure fromTreasure = null;
     public int actionCost = 1;
     
-    public void SetUnitBehaviour(UnitBehaviour unitBehaviour)
+    public virtual void SetUnitBehaviour(UnitBehaviour unitBehaviour)
     {
         _unitBehaviour = unitBehaviour;
     }

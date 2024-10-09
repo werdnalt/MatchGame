@@ -7,17 +7,15 @@ public class Unit : ScriptableObject
     public enum Tribe
     {
         Hero,
-        Red,
-        Blue,
-        Plants,
         Beasts,
-        Void,
-        NA
+        NA,
+        Goblin,
+        Slime,
+        Skeleton
     }
 
     public GameObject animatedCharacterPrefab;
     public int attackTimer;
-    public bool shouldAnimateLoop;
     public Tribe tribe;
     public int hp;
     public int armor;
