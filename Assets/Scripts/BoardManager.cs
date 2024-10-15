@@ -244,6 +244,8 @@ public class BoardManager : MonoBehaviour
 
     public IEnumerator SpawnEnemyUnits(List<Unit> unitsToSpawn)
     {
+        if (unitsToSpawn == null) yield break;
+        
         for (var unitsSpawned = 0; unitsSpawned < unitsToSpawn.Count; unitsSpawned++)
         {
             yield return SpawnUnit(unitsToSpawn[unitsSpawned], Timings.EnemyRow);

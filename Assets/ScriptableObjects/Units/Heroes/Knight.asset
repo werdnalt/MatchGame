@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: Knight
   m_EditorClassIdentifier: 
-  animatedCharacterPrefab: {fileID: 3710274101829224566, guid: 2a01f068c9bf9474b9103325df91010a, type: 3}
+  animatedCharacterPrefab: {fileID: 567958305605542953, guid: 29b6c44dbf397024398888a8f1ac8aed, type: 3}
   attackTimer: -1
   tribe: 0
   hp: 6

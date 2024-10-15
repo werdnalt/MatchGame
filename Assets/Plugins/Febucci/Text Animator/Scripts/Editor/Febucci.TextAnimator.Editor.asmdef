@@ -1,9 +1,10 @@
 {
     "name": "Febucci.TextAnimator.Editor",
-    "rootNamespace": "",
     "references": [
-        "GUID:1e113d3b5d77bc04eab508251483e8ff"
+        "Febucci.TextAnimator.Runtime",
+        "Unity.TextMeshPro"
     ],
+    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -12,7 +13,5 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+    "defineConstraints": []
 }

@@ -508,12 +508,17 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     public void DisplayFloatingText(string textToDisplay, float duration)
     {
-        floatingText.transform.position = floatingTextStartingPoint.transform.position;
+        StartCoroutine(ShowFloatingText(textToDisplay, duration));
+    }
+
+    private IEnumerator ShowFloatingText(string textToDisplay, float duration)
+    {
         floatingText.gameObject.SetActive(true);
+        floatingText.transform.position = floatingTextStartingPoint.transform.position;
         floatingText.text = textToDisplay;
 
         floatingText.transform.DOMove(floatingTextEndingPoint.transform.position, .75f, false).SetEase(Ease.OutExpo);
-        StartCoroutine(TurnOffFloatingText(duration));
+        yield return StartCoroutine(TurnOffFloatingText(duration));
     }
 
     private IEnumerator TurnOffFloatingText(float duration)

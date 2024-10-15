@@ -6,7 +6,7 @@ namespace Febucci.UI.Examples
     [AddComponentMenu("")]
     public class UsageExample : MonoBehaviour
     {
-        public TypewriterByCharacter textAnimatorPlayer;
+        public TextAnimatorPlayer textAnimatorPlayer;
 
         [TextArea(3, 50), SerializeField]
         string textToShow = " ";

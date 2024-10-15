@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Febucci.UI.Effects
+namespace Febucci.UI.Core
 {
     //TODO Docs
 
