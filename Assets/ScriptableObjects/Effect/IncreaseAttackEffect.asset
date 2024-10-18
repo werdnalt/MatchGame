@@ -15,5 +15,7 @@ MonoBehaviour:
   effectDescription: <color=#e83b3b>ON ATTACK:</color> <color=#1ebc73>INCREASE</color>
     <sprite="sword" index=0> by 1
   effectSprite: {fileID: 0}
-  numUses: 1
+  numUses: -1
+  fromTreasure: {fileID: 0}
+  actionCost: 1
   increaseAmount: 1

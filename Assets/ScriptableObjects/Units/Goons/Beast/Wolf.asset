@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animatedCharacterPrefab: {fileID: 4275909341513505633, guid: c720f221dc346f940bdad25db11122bd, type: 3}
   attackTimer: 3
-  shouldAnimateLoop: 0
-  tribe: 4
+  tribe: 1
   hp: 5
+  armor: 0
   attack: 2
   effects:
   - {fileID: 11400000, guid: 04c816c9f5ac9534d871a8263c6608cb, type: 2}

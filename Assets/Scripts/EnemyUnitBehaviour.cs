@@ -115,7 +115,7 @@ public class EnemyUnitBehaviour : UnitBehaviour
         });
 
         // Wait until combatFinished becomes true to exit the coroutine
-        yield return new WaitUntil(() => combatFinished);
+        yield return new WaitUntil(() => combatFinished && !_isShowingFloatingText);
     }
 
     public int GetAttackTimerAmount()

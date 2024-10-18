@@ -65,10 +65,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: 'ON ATTACK: Yada yada yada asopdiaposwjeawopija lkajsd alskjd asldoaoidjwoj'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0161d805a3764c089bef00bfe00793f5, type: 2}
-  m_sharedMaterial: {fileID: 2147374, guid: 0161d805a3764c089bef00bfe00793f5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b001a8372a60b9a4ba0a2e135599cda9, type: 2}
+  m_sharedMaterial: {fileID: -6405598086157980315, guid: b001a8372a60b9a4ba0a2e135599cda9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -236,8 +236,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.28502136, g: 0.3301887, b: 0.32938927, a: 1}
-  m_RaycastTarget: 1
+  m_Color: {r: 0.16634032, g: 0.2832417, b: 0.3962264, a: 1}
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

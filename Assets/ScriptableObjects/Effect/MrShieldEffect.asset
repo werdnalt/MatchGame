@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4ba2aa5cbae1f944a28f51ed46b755c, type: 3}
+  m_Name: MrShieldEffect
+  m_EditorClassIdentifier: 
+  effectDescription: Add 3 Armor. Lose 1 Armor per Hit
+  effectSprite: {fileID: 0}
+  numUses: 3
+  fromTreasure: {fileID: 11400000, guid: 855651458d152534abb75ef0600b6e8b, type: 2}
+  actionCost: 1
+  numArmor: 3

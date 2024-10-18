@@ -22,9 +22,23 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
 
     private UnitBehaviour _unitBehaviour;
     private float _cachedZIndex;
-    
+
+    private float _timeStartingHoveringCell;
+    private float _timeToShowChain = .5f;
+    private bool _isShowingChain;
+
+    private void Update()
+    {
+        if (Time.time - _timeStartingHoveringCell >= _timeToShowChain && !_isShowingChain)
+        {
+            CursorAnimation.Instance.HighlightChain(_unitBehaviour);
+            _isShowingChain = true;
+        }
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
+        _timeStartingHoveringCell = Time.time;
         AudioManager.Instance.PlayWithRandomPitch("wood2");
         _unitBehaviour = BoardManager.Instance.GetUnitBehaviour(Coordinates);
         
@@ -49,9 +63,16 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     
     public void OnPointerExit(PointerEventData eventData)
     {
+        Debug.Log($"Exiting Cell: {Coordinates.row}, {Coordinates.column}");
+        
+        
         ActionHandler.Instance.HideIndicators();
         UIManager.Instance.HideUnitPanel();
+        
         CursorAnimation.Instance.UnhighlightChain();
+        _isShowingChain = false;
+        _timeStartingHoveringCell = Mathf.Infinity;
+        
         ArrowLine.Instance.HideHoverIndicator();
 
         if (!_unitBehaviour) return;

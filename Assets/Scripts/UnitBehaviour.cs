@@ -97,8 +97,8 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     // Public Lists
     public List<EffectState> effects = new List<EffectState>();
-    
-    
+
+    protected bool _isShowingFloatingText;
     private bool _isHolding;
     private bool _hasAnimatedHolding;
 
@@ -508,6 +508,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     
     public void DisplayFloatingText(string textToDisplay, float duration)
     {
+        _isShowingFloatingText = true;
         StartCoroutine(ShowFloatingText(textToDisplay, duration));
     }
 
@@ -525,6 +526,8 @@ public abstract class UnitBehaviour : MonoBehaviour
     {
         yield return new WaitForSeconds(duration);
         
+        _isShowingFloatingText = false;
+
         floatingText.gameObject.SetActive(false);
     }
 
@@ -542,6 +545,7 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public void HideHealth()
     {
+        if (currentCoordinates.row == Timings.HeroRow || currentCoordinates.row == Timings.EnemyRow || currentHp < _maxHp) return;
         healthUI.HideHealth();
     }
 
@@ -608,7 +612,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         transform.DOScale(_characterAnimator.initialScale, duration).SetEase(Ease.InQuad);
     }
 
-    public void Grow(float amount = 1.3f)
+    public void Grow(float amount = 1.15f)
     {
         if (_characterAnimator) _characterAnimator.Grow();
     }
