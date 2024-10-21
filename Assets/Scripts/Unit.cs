@@ -24,4 +24,5 @@ public class Unit : ScriptableObject
     public int attackRange;
     public Sprite unitSprite;
     public string displayName;
+    public bool cantChain;
 }

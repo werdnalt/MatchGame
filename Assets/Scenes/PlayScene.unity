@@ -5020,6 +5020,9 @@ MonoBehaviour:
   attackUpParticles: {fileID: 0}
   hitParticles: {fileID: 0}
   smokeParticles: {fileID: 0}
+  poisonParticles: {fileID: 0}
+  attackUI: {fileID: 0}
+  attackAmountText: {fileID: 0}
   healthUI: {fileID: 0}
   damageAmountObject: {fileID: 0}
   damageAmountText: {fileID: 0}

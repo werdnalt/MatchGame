@@ -53,7 +53,10 @@ public abstract class UnitBehaviour : MonoBehaviour
     [SerializeField] private ParticleSystem attackUpParticles;
     [SerializeField] private ParticleSystem hitParticles;
     [SerializeField] private ParticleSystem smokeParticles;
-    
+    [SerializeField] private ParticleSystem poisonParticles;
+
+    [SerializeField] private GameObject attackUI;
+    [SerializeField] private TextMeshProUGUI attackAmountText;
     [SerializeField] private HealthUI healthUI;
 
     [SerializeField] private GameObject damageAmountObject;
@@ -177,6 +180,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         attack = unitData.attack;
         _maxHp = unitData.hp;
         currentHp = _maxHp;
+        cantChain = unit.cantChain;
         
         if (unitData.tribe == Unit.Tribe.NA)
         {
@@ -209,6 +213,7 @@ public abstract class UnitBehaviour : MonoBehaviour
             if (effect == null) continue;
             effects.Add(new EffectState(effect));
         }
+        
         return this;
     }
 
@@ -541,12 +546,15 @@ public abstract class UnitBehaviour : MonoBehaviour
     public virtual void ShowAndUpdateHealth()
     {
         healthUI.ShowAndUpdateHealth(currentHp, _maxHp);
+        attackUI.SetActive(true);
+        attackAmountText.text = attack.ToString();
     }
 
     public void HideHealth()
     {
         if (currentCoordinates.row == Timings.HeroRow || currentCoordinates.row == Timings.EnemyRow || currentHp < _maxHp) return;
         healthUI.HideHealth();
+        attackUI.SetActive(false);
     }
 
     private void KillTweens()
@@ -643,11 +651,22 @@ public abstract class UnitBehaviour : MonoBehaviour
     public void AddStatus(Status status)
     {
         _ongoingStatuses.Add(status);
+
+        if (status.statusEffect == StatusEffect.Poisoned)
+        {
+            poisonParticles.Play();
+            foreach (var part in animatedCharacterParts)
+            {
+                var mat = part.GetComponent<Renderer>().material;
+                if (mat) mat.SetFloat("_GradBlend", .6f);
+            }
+        }
     }
 
     public void IncreaseAttack(int amount)
     {
         attack += amount;
+        ShowAndUpdateHealth();
         attackUpParticles.Play();
     }
 

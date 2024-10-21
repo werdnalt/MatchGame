@@ -538,7 +538,7 @@ public class BoardManager : MonoBehaviour
 
             // If neighbor is of the same tribe and hasn't been visited, we recursively call DFS on it.
             if (neighbor == null || neighbor.unitData.tribe != current.unitData.tribe ||
-                visited.Contains(neighborCoordinates) || neighbor.cantChain) continue;
+                visited.Contains(neighborCoordinates) || neighbor.cantChain || neighbor.unitData.tribe == Unit.Tribe.Hero) continue;
 
             DFS(neighbor, visited, allUnits);
         }
@@ -789,6 +789,7 @@ public class BoardManager : MonoBehaviour
     {
         yield return AssignUnitBehaviourToCell(unit, newCoordinates);
         yield return MoveUnitBehaviour(unit, GetPositionFromCoordinates(newCoordinates).Value);
+        CheckToShowHealthUI(unit);
     }
     
     public void RemoveUnitBehaviour(UnitBehaviour unitBehaviour, bool isDead)

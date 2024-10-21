@@ -14,15 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animatedCharacterPrefab: {fileID: 4239603973085299526, guid: 209d5aff392dd6547b2059cab7d6ef7d, type: 3}
   attackTimer: -1
-  shouldAnimateLoop: 0
   tribe: 6
-  classification: 0
   hp: 1
+  armor: 0
   attack: 0
-  experienceAmount: 0
-  unitSprite: {fileID: 0}
   effects:
   - {fileID: 11400000, guid: 91af65193e1aecc4185e52e495822d65, type: 2}
-  passive: 0
-  displayName: Chest
   attackRange: 0
+  unitSprite: {fileID: 0}
+  displayName: Chest
+  cantChain: 1

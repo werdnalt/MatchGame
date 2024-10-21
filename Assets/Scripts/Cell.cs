@@ -31,6 +31,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     {
         if (Time.time - _timeStartingHoveringCell >= _timeToShowChain && !_isShowingChain)
         {
+            if (_unitBehaviour) UIManager.Instance.ShowUnitPanel(_unitBehaviour);
             CursorAnimation.Instance.HighlightChain(_unitBehaviour);
             _isShowingChain = true;
         }
@@ -53,7 +54,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         
         if (!_unitBehaviour) return;
         
-        UIManager.Instance.ShowUnitPanel(_unitBehaviour);
+        
         _unitBehaviour.Grow();
         _unitBehaviour.ShowAndUpdateHealth();
         _unitBehaviour.BringSortingToFront();

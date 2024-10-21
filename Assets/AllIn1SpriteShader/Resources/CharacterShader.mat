@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: CharacterShader
   m_Shader: {fileID: 4800000, guid: a36b7719ff0465b42ab1407d67672c5f, type: 3}
-  m_ShaderKeywords: HITEFFECT_ON HSV_ON MOTIONBLUR_ON
+  m_ShaderKeywords: GRADIENT_ON HITEFFECT_ON HSV_ON MOTIONBLUR_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _ColorRampTex:
-        m_Texture: {fileID: 2800000, guid: 279657edc397ece4b8029c727adf6ddc, type: 3}
+        m_Texture: {fileID: 2800000, guid: 0cdcb902971a8564a8c437fd044ab1bd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ColorRampTexGradient:
@@ -90,8 +90,8 @@ Material:
     - _ColorChangeTolerance: 0.25
     - _ColorChangeTolerance2: 0.25
     - _ColorChangeTolerance3: 0.25
-    - _ColorRampBlend: 1
-    - _ColorRampLuminosity: 0
+    - _ColorRampBlend: 0.709
+    - _ColorRampLuminosity: 0.49
     - _ColorRampOutline: 0
     - _ColorSwapBlend: 1
     - _ColorSwapBlueLuminosity: 0.5
@@ -118,8 +118,8 @@ Material:
     - _GlitchSize: 1.14
     - _Glow: 10
     - _GlowGlobal: 1
-    - _GradBlend: 1
-    - _GradBoostX: 1.2
+    - _GradBlend: 0
+    - _GradBoostX: 5
     - _GradBoostY: 1.2
     - _GradIsRadial: 0
     - _GrassManualAnim: 1
@@ -218,10 +218,10 @@ Material:
     - _ColorSwapRed: {r: 1, g: 1, b: 1, a: 1}
     - _FadeBurnColor: {r: 1, g: 1, b: 0, a: 1}
     - _GlowColor: {r: 1, g: 1, b: 1, a: 1}
-    - _GradBotLeftCol: {r: 0.08877714, g: 0.48398164, b: 0.8962264, a: 1}
-    - _GradBotRightCol: {r: 1, g: 0.68007255, b: 0, a: 1}
-    - _GradTopLeftCol: {r: 0.97843266, g: 0, b: 1, a: 1}
-    - _GradTopRightCol: {r: 1, g: 1, b: 1, a: 1}
+    - _GradBotLeftCol: {r: 0.09019609, g: 0.8980392, b: 0.37500295, a: 1}
+    - _GradBotRightCol: {r: 0.20317775, g: 0.3679245, b: 0.11974902, a: 1}
+    - _GradTopLeftCol: {r: 0, g: 1, b: 0.06715846, a: 1}
+    - _GradTopRightCol: {r: 0.17327818, g: 0.8867924, b: 0.037646834, a: 1}
     - _GreyscaleTintColor: {r: 1, g: 1, b: 1, a: 1}
     - _HitEffectColor: {r: 1, g: 1, b: 1, a: 1}
     - _HologramStripeColor: {r: 0, g: 1, b: 1, a: 1}
