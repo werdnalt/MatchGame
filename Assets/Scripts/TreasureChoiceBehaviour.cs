@@ -62,7 +62,7 @@ public class TreasureChoiceBehaviour : MonoBehaviour, IPointerEnterHandler, IPoi
 
         if (canShowDescription)
         {
-            treasureDescriptionText.text = treasure.treasureDescription;
+            treasureDescriptionText.text = TextHighlighter.Instance.HighlightKeywords(treasure.effect.effectDescription);
             treasureName.gameObject.SetActive(true);
         }
     }

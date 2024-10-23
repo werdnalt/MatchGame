@@ -24,14 +24,13 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     private float _cachedZIndex;
 
     private float _timeStartingHoveringCell;
-    private float _timeToShowChain = .5f;
+    private float _timeToShowChain = 1f;
     private bool _isShowingChain;
 
     private void Update()
     {
         if (Time.time - _timeStartingHoveringCell >= _timeToShowChain && !_isShowingChain)
         {
-            if (_unitBehaviour) UIManager.Instance.ShowUnitPanel(_unitBehaviour);
             CursorAnimation.Instance.HighlightChain(_unitBehaviour);
             _isShowingChain = true;
         }
@@ -42,6 +41,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         _timeStartingHoveringCell = Time.time;
         AudioManager.Instance.PlayWithRandomPitch("wood2");
         _unitBehaviour = BoardManager.Instance.GetUnitBehaviour(Coordinates);
+        if (_unitBehaviour) UIManager.Instance.ShowUnitPanel(_unitBehaviour);
         
         if (eventData.dragging)
         {

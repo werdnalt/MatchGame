@@ -30,9 +30,7 @@ public class UnitManager : MonoBehaviour
         foreach (var cell in allCells)
         {
             // Check if there is a UnitBehaviour at the cell
-            if (!cell.UnitBehaviour) continue;
-            
-            cell.UnitBehaviour.CountdownStatuses(actions);
+            if (!cell.UnitBehaviour || cell.UnitBehaviour.isDead) continue;
             
             // Check if the UnitBehaviour's attack range would put them in range of the Hero Row
             if (cell.UnitBehaviour is EnemyUnitBehaviour && cell.UnitBehaviour.attackRange >= cell.Coordinates.row)

@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animatedCharacterPrefab: {fileID: 3694943140195302114, guid: f26783feb5c8d5d479140aa501aba4f5, type: 3}
   attackTimer: 4
-  shouldAnimateLoop: 1
-  tribe: 0
+  tribe: 2
   hp: 1
+  armor: 0
   attack: 0
   effects:
   - {fileID: 11400000, guid: c3b9e75fa18b32d4694dff8dc71a629e, type: 2}
   attackRange: 0
   unitSprite: {fileID: 21300000, guid: 2c6df934642ba9a46a25f161af7f0fe8, type: 3}
   displayName: Heart Container
+  cantChain: 0

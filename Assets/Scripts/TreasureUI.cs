@@ -17,7 +17,7 @@ public class TreasureUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void Setup(Treasure treasure)
     {
         this.treasure = treasure;
-        treasureImage.sprite = treasure.treasureUISprite;
+        treasureImage.sprite = treasure.treasureSprite;
         durabilityText.text = treasure.effect.numUses.ToString();
         _numUses = treasure.effect.numUses;
     }

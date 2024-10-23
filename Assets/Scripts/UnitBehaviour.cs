@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using AllIn1SpringsToolkit;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 public abstract class UnitBehaviour : MonoBehaviour
 {
@@ -34,7 +31,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         get
         {
             var stuck = false;
-            foreach (var status in _ongoingStatuses)
+            foreach (var status in ongoingStatuses)
             {
                 if (status.statusEffect == StatusEffect.Stuck)
                 {
@@ -96,7 +93,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     private AnimationEffects _animationEffects;
     private AnimationEffects _timerAnimationEffects;
     private TransformSpringComponent _transformSpringComponent;
-    private List<Status> _ongoingStatuses = new List<Status>();
+    public List<Status> ongoingStatuses = new List<Status>();
 
     // Public Lists
     public List<EffectState> effects = new List<EffectState>();
@@ -198,6 +195,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         {
             animatedCharacter = Instantiate(unitData.animatedCharacterPrefab, transform);
             _characterAnimator = animatedCharacter.GetComponent<CharacterAnimator>();
+            if (!_characterAnimator) _characterAnimator = animatedCharacter.gameObject.AddComponent<CharacterAnimator>();
         }
         else
         {
@@ -226,6 +224,8 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     private IEnumerator ProcessDamage(int amount, UnitBehaviour attackingUnit)
     {
+        if (isDead) yield break; 
+        
         List<EffectState> effectsToRemove = new List<EffectState>();
 
         foreach (var effectState in effects)
@@ -519,11 +519,13 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     private IEnumerator ShowFloatingText(string textToDisplay, float duration)
     {
+        if (isDead) yield break;
+        
         floatingText.gameObject.SetActive(true);
         floatingText.transform.position = floatingTextStartingPoint.transform.position;
         floatingText.text = textToDisplay;
-
-        floatingText.transform.DOMove(floatingTextEndingPoint.transform.position, .75f, false).SetEase(Ease.OutExpo);
+        
+        //floatingText.transform.DOMove(floatingTextEndingPoint.transform.position, .75f, false).SetEase(Ease.OutExpo);
         yield return StartCoroutine(TurnOffFloatingText(duration));
     }
 
@@ -538,6 +540,8 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     private void ShowDamageText(int amount)
     {
+        if (isDead) return;
+        
         damageAmountObject.SetActive(true);
         damageAmountText.text = amount.ToString();
         damageAmountObject.transform.DOPunchScale(new Vector3(.5f, .5f, .3f), .5f).SetEase(Ease.OutQuad).OnComplete(()=>damageAmountObject.SetActive(false));
@@ -650,17 +654,28 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public void AddStatus(Status status)
     {
-        _ongoingStatuses.Add(status);
+        StartCoroutine(IAddStatus(status));
+    }
+
+    private IEnumerator IAddStatus(Status status)
+    {
+        if (isDead) yield break;
+        
+        ongoingStatuses.Add(status);
 
         if (status.statusEffect == StatusEffect.Poisoned)
         {
+            var duration = 2;
             poisonParticles.Play();
             foreach (var part in animatedCharacterParts)
             {
                 var mat = part.GetComponent<Renderer>().material;
                 if (mat) mat.SetFloat("_GradBlend", .6f);
             }
+            yield return new WaitForSeconds(duration);
         }
+
+        yield break;
     }
 
     public void IncreaseAttack(int amount)
@@ -670,15 +685,16 @@ public abstract class UnitBehaviour : MonoBehaviour
         attackUpParticles.Play();
     }
 
-    public void CountdownStatuses(int actions)
+    public IEnumerator CountdownStatuses(int actions)
     {
+        if (isDead) yield break;
         var statusesToRemove = new List<Status>();
-        foreach (var status in _ongoingStatuses)
+        foreach (var status in ongoingStatuses)
         {
             if (status.statusEffect == StatusEffect.Poisoned)
             {
                 var poisonAmount = 1 * actions;
-                StartCoroutine(ProcessDamage(poisonAmount, status.appliedBy));
+                yield return StartCoroutine(ProcessDamage(poisonAmount, status.appliedBy));
             }
             status.actionsLeft -= actions;
             if (status.actionsLeft <= 0) statusesToRemove.Add(status);
@@ -686,7 +702,19 @@ public abstract class UnitBehaviour : MonoBehaviour
 
         foreach (var status in statusesToRemove)
         {
-            if (_ongoingStatuses.Contains(status)) _ongoingStatuses.Remove(status);
+            if (status.statusEffect == StatusEffect.Poisoned)
+            {
+                foreach (var part in animatedCharacterParts)
+                {
+                    var mat = part.GetComponent<Renderer>().material;
+                    if (mat) mat.SetFloat("_GradBlend", 0f);
+                }
+                
+                poisonParticles.Stop();
+            }
+            if (ongoingStatuses.Contains(status)) ongoingStatuses.Remove(status);
         }
+
+        yield break;
     }
 }

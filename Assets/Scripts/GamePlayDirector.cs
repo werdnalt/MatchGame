@@ -69,7 +69,7 @@ public class GamePlayDirector : MonoBehaviour
     {
         yield return new WaitUntil(() => !UIManager.Instance.chestDestroyed);
         
-        _boardManager.CleanUpBoard();
+        StartCoroutine(_boardManager.CleanUpBoard());
         // check for any enemies that should attack
         yield return StartCoroutine(_unitManager.HandlePlayerActionTaken(actions));
         

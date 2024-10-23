@@ -130,12 +130,12 @@ public class UIManager : MonoBehaviour
 
     public void HideUnitPanel()
     {
-        unitPanel.SetActive(false);
-
         for (var i = _instantiatedEffectPrefabs.Count - 1; i >= 0; i--)
         {
             Destroy(_instantiatedEffectPrefabs[i].gameObject);
         }
+        
+        unitPanel.gameObject.SetActive(false);
     }
 
     public void UpdateEnergyText(int amountLeft)
@@ -164,18 +164,20 @@ public class UIManager : MonoBehaviour
         treasureReceivedText.text = "CHOOSE A TREASURE!";
         int maxAttempts = 25;  // Define a max number of attempts to get a different treasure.
 
+        // Move obtainedTreasures outside of the loop to track across all choices.
+        HashSet<Treasure> obtainedTreasures = new HashSet<Treasure>();
+
         for (var i = 0; i < treasureChoices.Count; i++)
         {
             treasureChoices[i].gameObject.SetActive(true);
-            HashSet<Treasure> obtainedTreasures = new HashSet<Treasure>();
-    
+
             Treasure randomTreasure = null;
             int attempt = 0;
             do
             {
                 randomTreasure = _currentTreasure[Random.Range(0, _currentTreasure.Count)];
                 attempt++;
-        
+            
                 if (attempt > maxAttempts)
                 {
                     // If we've tried too many times, just use the last treasure we picked.
@@ -183,14 +185,16 @@ public class UIManager : MonoBehaviour
                 }
             }
             while (obtainedTreasures.Contains(randomTreasure));
-    
+
+            // Add the selected treasure to the set to prevent duplicates.
             obtainedTreasures.Add(randomTreasure);
             treasureChoices[i].SetTreasure(randomTreasure);
         }
-        
+    
         treasureUIManager.EnableUI();
         chestOverlay.GetComponent<PopEffect>().EnableAndPop();
     }
+
 
     public void ShowToolTip(string textToDisplay)
     {

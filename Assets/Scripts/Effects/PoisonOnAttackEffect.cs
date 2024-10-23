@@ -11,7 +11,6 @@ public class PoisonOnAttackEffect : Effect
         foreach (var unit in chain)
         {
             unit.AddStatus(new UnitBehaviour.Status(UnitBehaviour.StatusEffect.Poisoned, attackingUnit, 2));
-            unit.DisplayFloatingText("POISONED", 1);
         }
         return true;
     }

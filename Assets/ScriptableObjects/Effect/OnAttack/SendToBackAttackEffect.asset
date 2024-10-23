@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 402263b9eafa093408b09e5e46517d19, type: 3}
   m_Name: SendToBackAttackEffect
   m_EditorClassIdentifier: 
-  effectDescription: 'ON ATTACK: Send Goon to back of line'
+  effectDescription: 'ON ATTACK: Send Goon to back'
   effectSprite: {fileID: 0}
   numUses: -1
-  fromTreasure: {fileID: 0}
+  fromTreasure: {fileID: 11400000, guid: f21a102cd1254db47adee06e7768b54c, type: 2}
   actionCost: 1

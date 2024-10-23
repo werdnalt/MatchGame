@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: Wizard
   m_EditorClassIdentifier: 
-  animatedCharacterPrefab: {fileID: 474997310656255387, guid: 6f067872471981048a040048cc5d7ad8, type: 3}
+  animatedCharacterPrefab: {fileID: 8460500227408657774, guid: b69d3d7ba9ba4d94b9f7d80384ad27b3, type: 3}
   attackTimer: -1
   tribe: 0
   hp: 5

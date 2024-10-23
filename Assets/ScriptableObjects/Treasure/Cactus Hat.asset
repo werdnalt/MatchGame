@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0eb26beacc8e44bd477fa145c7c1d, type: 3}
+  m_Name: Cactus Hat
+  m_EditorClassIdentifier: 
+  effect: {fileID: 11400000, guid: 5f427ea638e511645b440d4af9e60725, type: 2}
+  treasureSprite: {fileID: 21300000, guid: d3da8f9fb615c904d89c67ea70cdf5be, type: 3}

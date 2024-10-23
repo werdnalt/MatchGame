@@ -16,5 +16,6 @@ MonoBehaviour:
   units:
   - {fileID: 11400000, guid: 5a9de20f551cf424aa52916dd497a06a, type: 2}
   - {fileID: 11400000, guid: 54ebc72230e13b0458ae87b091e45749, type: 2}
+  - {fileID: 11400000, guid: 0254062fa41018c4e9a0359f18507cf1, type: 2}
   timeBeforeSpawn: 5
   waveSize: 16

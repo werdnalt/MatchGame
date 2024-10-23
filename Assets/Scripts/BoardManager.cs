@@ -410,6 +410,7 @@ public class BoardManager : MonoBehaviour
                     if (isDepleted) effectsToRemove.Add(effectState);
                 }
             }
+            leftUnit.Shrink();
         }
         
         foreach (var effectState in effectsToRemove)
@@ -440,6 +441,7 @@ public class BoardManager : MonoBehaviour
             {
                 rightUnit.RemoveEffect(effectState);
             }
+            rightUnit.Shrink();
         }
 
         yield return new WaitForSeconds(Timings.SwapTime);
@@ -499,12 +501,12 @@ public class BoardManager : MonoBehaviour
     {
         yield return new WaitForSeconds(blockSwapTime);
         
-        CleanUpBoard();
+        StartCoroutine(CleanUpBoard());
     }
 
-    public void CleanUpBoard()
+    public IEnumerator CleanUpBoard()
     {
-        RemoveDeadUnits();
+        yield return StartCoroutine(RemoveDeadUnits());
         //ApplyGravity();
     }
 
@@ -822,11 +824,13 @@ public class BoardManager : MonoBehaviour
         return unitBehaviourInstance.Initialize(unit);
     }
     
-    private void RemoveDeadUnits()
+    private IEnumerator RemoveDeadUnits()
     {
         var allUnitBehaviours = GetAllUnitBehaviours();
         foreach (var unitBehaviour in allUnitBehaviours)
         {
+            yield return StartCoroutine(unitBehaviour.CountdownStatuses(1));
+            
             if (unitBehaviour.isDead)
             {
                 RemoveUnitBehaviour(unitBehaviour, true);
@@ -842,6 +846,8 @@ public class BoardManager : MonoBehaviour
                 if (unitBehaviour) TryToAssignToLowerRow(unitBehaviour);
             }
         }
+
+        yield break;
     }
     
     public List<UnitBehaviour> GetAllUnitBehaviours()
