@@ -18,9 +18,10 @@ public class CharacterAnimator : MonoBehaviour
 
     public void PunchScale()
     {
-        var newScale = new Vector3(initialScale.x * 1.5f, initialScale.y * 1.5f, initialScale.z * 1.5f);
+        var newScale = new Vector3(initialScale.x * 1.4f, initialScale.y * .8f, initialScale.z * 1.5f);
         if (_transformSpringComponent)
         {
+            Debug.Log("Punching scale");
             _transformSpringComponent.SetCurrentValueScale(newScale);
         }
     }

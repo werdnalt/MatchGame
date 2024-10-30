@@ -100,7 +100,7 @@ public class PopupTooltip : MonoBehaviour
         
         unitNameText.text = unitBehaviour.unitData.displayName;
         
-        foreach (var effectState in unitBehaviour.effects)
+        foreach (var effectState in unitBehaviour.effectStates)
         {
             var effectTextInstance = Instantiate(effectTextPrefab, effectTextParent.transform);
             var effectText = _textHighlighter.HighlightKeywords(effectState.effect.effectDescription);
@@ -150,7 +150,7 @@ public class PopupTooltip : MonoBehaviour
         foreach (var effect in unit.effects)
         {
             var effectTextInstance = Instantiate(effectTextPrefab, effectTextParent.transform);
-            var effectText = _textHighlighter.HighlightKeywords(effect.effectDescription);
+            var effectText = TextHighlighter.Instance.HighlightKeywords(effect.effectDescription);
             effectTextInstance.GetComponentInChildren<TextMeshProUGUI>().text = effectText;
             _instantiatedEffectPrefabs.Add(effectTextInstance);
         }

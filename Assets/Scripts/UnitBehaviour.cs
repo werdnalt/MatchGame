@@ -96,7 +96,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     public List<Status> ongoingStatuses = new List<Status>();
 
     // Public Lists
-    public List<EffectState> effects = new List<EffectState>();
+    public List<EffectState> effectStates = new List<EffectState>();
 
     protected bool _isShowingFloatingText;
     private bool _isHolding;
@@ -209,7 +209,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         foreach (var effect in unitData.effects)
         {
             if (effect == null) continue;
-            effects.Add(new EffectState(effect));
+            effectStates.Add(new EffectState(effect));
         }
         
         return this;
@@ -228,7 +228,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         
         List<EffectState> effectsToRemove = new List<EffectState>();
 
-        foreach (var effectState in effects)
+        foreach (var effectState in effectStates)
         {
             if (effectState.isSilenced) continue;
             var isImplemented = effectState.effect.OnHit(attackingUnit, this, ref amount);
@@ -394,7 +394,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         }
         FXManager.Instance.PlayParticles(FXManager.ParticleType.Death, transform.position);
         
-        foreach(var effectState in effects)
+        foreach(var effectState in effectStates)
         {
             if (effectState.isSilenced) continue;
             var isImplemented = effectState.effect.OnDeath(killedBy, this);
@@ -418,7 +418,7 @@ public abstract class UnitBehaviour : MonoBehaviour
         
         effectsToRemove.Clear();
         
-        foreach(var effectState in killedBy.effects)
+        foreach(var effectState in killedBy.effectStates)
         {
             if (effectState.isSilenced) continue;
             var isImplemented = effectState.effect.OnKill(killedBy, this);
@@ -461,6 +461,8 @@ public abstract class UnitBehaviour : MonoBehaviour
     {
         var maxHeal = _maxHp - currentHp;
         var amountToHeal = Mathf.Min(amount, maxHeal);
+        
+        DisplayFloatingText($"+{amountToHeal.ToString()}", 1);
 
         currentHp += amountToHeal;
         
@@ -494,7 +496,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     public void AddEffect(Effect effect)
     {
         var effectState = new EffectState(effect);
-        effects.Add(effectState);
+        effectStates.Add(effectState);
         effectState.effect.OnObtained(this);
         
         if (effect.fromTreasure)
@@ -508,7 +510,7 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public void RemoveEffect(EffectState effectState)
     {
-        effects.Remove(effectState);
+        effectStates.Remove(effectState);
     }
     
     public void DisplayFloatingText(string textToDisplay, float duration)
@@ -550,6 +552,7 @@ public abstract class UnitBehaviour : MonoBehaviour
     public virtual void ShowAndUpdateHealth()
     {
         healthUI.ShowAndUpdateHealth(currentHp, _maxHp);
+        if (attack <= 0) return;
         attackUI.SetActive(true);
         attackAmountText.text = attack.ToString();
     }
@@ -563,22 +566,11 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     private void KillTweens()
     {
+        transform.DOKill();
+        healthUI.transform.DOKill();
+        damageAmountObject.transform.DOKill();
         if (!animatedCharacter) return;
-        
-        // if (_animationEffects)
-        // {
-        //     _animationEffects.KillTweens();
-        // }
-        //
-        // if (_timerAnimationEffects)
-        // {
-        //     _timerAnimationEffects.KillTweens();
-        // }
-        //
-        // animatedCharacter.transform.DOKill();
-        // transform.DOKill();
-        // attackTimerObject.transform.DOKill();
-        // healthUI.transform.DOKill();
+        animatedCharacter.transform.DOKill();
     }
 
     public void RemoveSelf()
@@ -626,7 +618,7 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public void Grow(float amount = 1.15f)
     {
-        if (_characterAnimator) _characterAnimator.Grow();
+        if (_characterAnimator) _characterAnimator.PunchScale();
     }
 
     public void Shrink()
@@ -646,7 +638,7 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public void SilenceEffects()
     {
-        foreach (var effect in effects)
+        foreach (var effect in effectStates)
         {
             effect.isSilenced = true;
         }
@@ -687,8 +679,12 @@ public abstract class UnitBehaviour : MonoBehaviour
 
     public IEnumerator CountdownStatuses(int actions)
     {
+        var allDone = false;
         if (isDead) yield break;
         var statusesToRemove = new List<Status>();
+
+        if (ongoingStatuses.Count <= 0) allDone = true;
+        
         foreach (var status in ongoingStatuses)
         {
             if (status.statusEffect == StatusEffect.Poisoned)
@@ -699,6 +695,8 @@ public abstract class UnitBehaviour : MonoBehaviour
             status.actionsLeft -= actions;
             if (status.actionsLeft <= 0) statusesToRemove.Add(status);
         }
+        
+        if (statusesToRemove.Count <= 0) allDone = true;
 
         foreach (var status in statusesToRemove)
         {
@@ -713,8 +711,9 @@ public abstract class UnitBehaviour : MonoBehaviour
                 poisonParticles.Stop();
             }
             if (ongoingStatuses.Contains(status)) ongoingStatuses.Remove(status);
+            allDone = true;
         }
-
-        yield break;
+        
+        yield return new WaitUntil(() => allDone);
     }
 }

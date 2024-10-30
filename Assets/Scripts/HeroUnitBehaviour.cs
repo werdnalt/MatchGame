@@ -16,9 +16,10 @@ public class HeroUnitBehaviour : UnitBehaviour
 
         EventPipe.PlayerAttack();
         var combatFinished = false;
+        var totalAttack = bonusAttack + attack;
 
         List<EffectState> effectsToRemove = new List<EffectState>();
-        foreach (var effectState in effects)
+        foreach (var effectState in effectStates)
         {
             var isImplemented = effectState.effect.OnAttack(this, attackingTarget, ref attack);
             if (isImplemented)
@@ -63,12 +64,12 @@ public class HeroUnitBehaviour : UnitBehaviour
                 foreach (var target in targets)
                 {
                     if (!target) continue;
-                    if (attack >= target.currentHp)
+                    if (totalAttack >= target.currentHp)
                     {
                         // TODO: execute any OnKill effects
                     }
 
-                    target.TakeDamage(attack, this);
+                    target.TakeDamage(totalAttack, this);
                 }
 
                 transform.DOMove(originalPos, .5f).SetEase(Ease.OutQuad).OnComplete(() =>

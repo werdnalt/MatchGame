@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using AllIn1SpringsToolkit;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ public class HeroChoiceManager : MonoBehaviour
 
     [SerializeField] private Button _startGameButton;
     [SerializeField] private PopupTooltip _popupTooltip;
+    [SerializeField] private List<GameObject> _heroChoicePlaceholders;
     
     private List<Unit> _chosenHeroes = new List<Unit>();
 
@@ -19,11 +21,13 @@ public class HeroChoiceManager : MonoBehaviour
         return _chosenHeroes.Count < numHeroes;
     }
     
-    public bool TryToAddHero(Unit hero)
+    public bool TryToAddHero(Unit hero, TransformSpringComponent heroChoiceObjectSpring)
     {
         if (_chosenHeroes.Count < numHeroes)
         {
             _chosenHeroes.Add(hero);
+            var numHeroesChosen = _chosenHeroes.Count;
+            heroChoiceObjectSpring.targetTransform = _heroChoicePlaceholders[numHeroesChosen - 1].transform;
             UpdateButtonState();
             return true;
         }
@@ -56,16 +60,7 @@ public class HeroChoiceManager : MonoBehaviour
     public void RemoveHero(Unit hero)
     {
         if (_chosenHeroes.Contains(hero)) _chosenHeroes.Remove(hero);
+        
         UpdateButtonState();
-    }
-
-    public void ShowTooltip(Unit unit)
-    {
-        _popupTooltip.ShowUnitPanel(unit);
-    }
-
-    public void HideTooltip()
-    {
-        _popupTooltip.Hide();
     }
 }

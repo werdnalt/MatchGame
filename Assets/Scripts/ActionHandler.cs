@@ -22,18 +22,58 @@ public class ActionHandler : MonoBehaviour
        // if (cell.unitBehaviour != null) cell.unitBehaviour.Grow();
     }
 
-    public void SetDraggedCell(Cell cell)
+public void SetDraggedCell(Cell cell)
+{
+    if (clickedCell == null) return;
+
+    Debug.Log("Set dragged cell");
+    draggedCell = cell;
+
+    // If draggedCell is null, remove any active indicators and exit
+    if (draggedCell == null)
     {
-        if (cell == null || clickedCell == null) return;
+        ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.None, cell);
+        return;
+    }
 
-        Debug.Log("Set dragged cell");
-        draggedCell = cell;
+    // Check if clickedCell.UnitBehaviour and unitData are null before accessing them
+    if (clickedCell.UnitBehaviour?.unitData == null) return;
 
-        // Check if clickedCell.unitBehaviour and unitData are null before accessing them
-        if (clickedCell.UnitBehaviour?.unitData == null) return;
-        
-        // Check if draggedCell.unitBehaviour and unitData are null before accessing them
-        if (draggedCell != null && draggedCell.UnitBehaviour?.unitData == null)
+    // Check if draggedCell.UnitBehaviour and unitData are null before accessing them
+    if (draggedCell.UnitBehaviour?.unitData == null)
+    {
+        if (BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
+        {
+            ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Swap, draggedCell);
+        }
+        else
+        {
+            ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoSwap, draggedCell);
+        }
+
+        return;
+    }
+
+    var clickedUnit = clickedCell.UnitBehaviour;
+
+    // Exit if we couldn't find a clickedUnit
+    if (clickedUnit == null) return;
+
+    var draggedUnit = draggedCell.UnitBehaviour;
+
+    // Exit if we couldn't find a draggedUnit
+    if (draggedUnit == null) return;
+
+    if (draggedUnit.IsStuck)
+    {
+        Debug.Log("Stuck unit");
+        return;
+    }
+
+    // Business logic
+    if (clickedUnit is HeroUnitBehaviour)
+    {
+        if (draggedUnit is HeroUnitBehaviour)
         {
             if (BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
             {
@@ -47,63 +87,30 @@ public class ActionHandler : MonoBehaviour
             return;
         }
 
-        var clickedUnit = clickedCell.UnitBehaviour;
-
-        // Exit if we couldn't find a clickedUnit
-        if (clickedUnit == null) return;
-
-        var draggedUnit = draggedCell.UnitBehaviour;
-
-        // Exit if we couldn't find a draggedUnit
-        if (draggedUnit == null) return;
-
-        if (draggedUnit.IsStuck)
+        // Dragged unit is an enemy
+        if (UnitManager.CanAttack(clickedUnit, draggedUnit))
         {
-            Debug.Log("Stuck unit");
-            return;
+            ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Combat, draggedCell);
+            // if (clickedUnit.attack > draggedUnit.currentHp) draggedUnit.skull.SetActive(true);
         }
-
-        // Business logic
-        if (clickedUnit is HeroUnitBehaviour)
-        {
-            if (draggedUnit is HeroUnitBehaviour)
-            {
-                if (BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
-                {
-                    ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Swap, draggedCell);
-                }
-                else
-                {
-                    ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoSwap, draggedCell);
-                }
-
-                return;
-            }
-
-            // Dragged unit is an enemy
-            if (UnitManager.CanAttack(clickedUnit, draggedUnit))
-            {
-                ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Combat, draggedCell);
-                // if (clickedUnit.attack > draggedUnit.currentHp) draggedUnit.skull.SetActive(true);
-            }
-            else
-            {
-                ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoCombat, draggedCell);
-            }
-        }
-
         else
         {
-            if (draggedUnit is HeroUnitBehaviour || !BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
-            {
-                ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoSwap, draggedCell);
-            }
-            else
-            {
-                ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Swap, draggedCell);
-            }
+            ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoCombat, draggedCell);
         }
     }
+    else
+    {
+        if (draggedUnit is HeroUnitBehaviour || !BoardManager.Instance.IsNeighbor(clickedCell, draggedCell))
+        {
+            ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.NoSwap, draggedCell);
+        }
+        else
+        {
+            ArrowLine.Instance.SetIndicator(ArrowLine.IndicatorType.Swap, draggedCell);
+        }
+    }
+}
+
     
     public void HideIndicators()
     {
@@ -138,7 +145,7 @@ public class ActionHandler : MonoBehaviour
         // clicked a hero
         if (clickedCell.UnitBehaviour is HeroUnitBehaviour)
         {
-            if (draggedCell.UnitBehaviour == null) yield break;
+            if (draggedCell.UnitBehaviour == null || draggedCell.UnitBehaviour == clickedCell.UnitBehaviour) yield break;
             
             if (draggedCell.UnitBehaviour is HeroUnitBehaviour)
             {

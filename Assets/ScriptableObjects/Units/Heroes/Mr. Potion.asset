@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
+  m_Name: Mr. Potion
+  m_EditorClassIdentifier: 
+  animatedCharacterPrefab: {fileID: 2602270358292915711, guid: 3c443df6ec52bc2408b90a29a70ac5f8, type: 3}
+  attackTimer: -1
+  tribe: 0
+  hp: 6
+  armor: 0
+  attack: 2
+  effects:
+  - {fileID: 11400000, guid: d3bb355dde66ee64782ffd113acd5263, type: 2}
+  attackRange: 1
+  unitSprite: {fileID: 21300000, guid: 10debcae818e1ef449a7e059ed80ef34, type: 3}
+  displayName: Mr. Potion
+  cantChain: 1

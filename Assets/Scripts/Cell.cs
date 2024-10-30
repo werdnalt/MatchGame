@@ -65,8 +65,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
     public void OnPointerExit(PointerEventData eventData)
     {
         Debug.Log($"Exiting Cell: {Coordinates.row}, {Coordinates.column}");
-        
-        
+        ActionHandler.Instance.SetDraggedCell(null);
         ActionHandler.Instance.HideIndicators();
         UIManager.Instance.HideUnitPanel();
         
@@ -82,6 +81,7 @@ public class Cell : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ID
         _unitBehaviour.ResetSortingOrder();
         var cachedPos = _unitBehaviour.transform.position;
         _unitBehaviour.transform.position = new Vector3(cachedPos.x, cachedPos.y, _cachedZIndex);
+
         
         // Don't hide health and attack if unit is sitting in enemy front row
         if (Coordinates.row == Timings.EnemyRow) return;

@@ -20,6 +20,9 @@ MonoBehaviour:
   attack: 2
   effects:
   - {fileID: 11400000, guid: e5119f437fce7c94faf61edb820f5cb4, type: 2}
+  - {fileID: 11400000, guid: 1285b50334a399844b8efdf35f184afc, type: 2}
   attackRange: 1
-  unitSprite: {fileID: 21300000, guid: 8d894eccaafad6f42b22ca93cd6c3e07, type: 3}
+  unitSprite: {fileID: 21300000, guid: 5af7bce15234a2946b36943aa694eced, type: 3}
   displayName: Knight
+  cantChain: 0
+  flavorText: A stalwart soldier that uses received damage for revenge

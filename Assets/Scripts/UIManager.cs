@@ -127,6 +127,11 @@ public class UIManager : MonoBehaviour
     {
         popupTooltip.ShowUnitPanel(unitBehaviour);
     }
+    
+    public void ShowUnitPanel(Unit unit)
+    {
+        popupTooltip.ShowUnitPanel(unit);
+    }
 
     public void HideUnitPanel()
     {

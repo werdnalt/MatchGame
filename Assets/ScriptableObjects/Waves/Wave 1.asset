@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionsUntilSpawn: 0
   units:
+  - {fileID: 11400000, guid: fc0acde2fd9744b48805cd59ea66e22e, type: 2}
+  - {fileID: 11400000, guid: 6d30bea8dab9ea3488bfed658340d8f6, type: 2}
+  - {fileID: 11400000, guid: a967251d516f9fe4ab782196c474f7ea, type: 2}
+  - {fileID: 11400000, guid: 2630ae73db752e64c924ae97ae289f3b, type: 2}
   - {fileID: 11400000, guid: 5a9de20f551cf424aa52916dd497a06a, type: 2}
-  - {fileID: 11400000, guid: 54ebc72230e13b0458ae87b091e45749, type: 2}
-  - {fileID: 11400000, guid: 0254062fa41018c4e9a0359f18507cf1, type: 2}
-  timeBeforeSpawn: 5
-  waveSize: 16
+  timeBeforeSpawn: 0
+  waveSize: 12

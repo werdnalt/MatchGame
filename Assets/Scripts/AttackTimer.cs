@@ -54,7 +54,15 @@ public class AttackTimer : MonoBehaviour
             animationFinished = true;
         });
         
-        if (_currActionsUntilAttack <= 1) StartPulsing();
+        if (_currActionsUntilAttack <= 1)
+        {
+            _attackTimerTimeText.color = Color.red;
+            StartPulsing();
+        }
+        else
+        {
+            _attackTimerTimeText.color = Color.white;
+        }
 
         animationFinished = true;
         yield return new WaitUntil(() => animationFinished);
@@ -77,8 +85,16 @@ public class AttackTimer : MonoBehaviour
         {
             animationFinished = true;
         });
-        
-        if (_currActionsUntilAttack <= 1) StartPulsing();
+
+        if (_currActionsUntilAttack <= 1)
+        {
+            _attackTimerTimeText.color = Color.red;
+            StartPulsing();
+        }
+        else
+        {
+            _attackTimerTimeText.color = Color.white;
+        }
         
         yield return new WaitUntil(() => animationFinished);
     }

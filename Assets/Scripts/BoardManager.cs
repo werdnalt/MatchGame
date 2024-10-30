@@ -8,7 +8,6 @@ using TMPro;
 using Random = UnityEngine.Random;
 using System.Linq;
 using JetBrains.Annotations;
-using UnityEditor.PackageManager;
 using UnityEngine.SceneManagement;
 
 public struct Coordinates 
@@ -381,8 +380,30 @@ public class BoardManager : MonoBehaviour
     {
         if (!GamePlayDirector.Instance.PlayerActionAllowed) yield break;
 
+        var allUnits = GetAllUnitBehaviours();
+        foreach (var unit in allUnits)
+        {
+            foreach (var effectState in unit.effectStates)
+            {
+                var onChainIsImplemented = effectState.effect.hasChainEffect;
+                if (onChainIsImplemented)
+                {
+                    effectState.effect.RemoveEffect(unit);
+                }
+            }
+        }
+        
         var leftUnit = GetUnitBehaviour(leftBlockCoords);
         var rightUnit = GetUnitBehaviour(rightBlockCoords);
+        
+        foreach (var unit in allUnits)
+        {
+            foreach (var effectState in unit.effectStates)
+            {
+                effectState.effect.OnChain(unit);
+            }
+        }
+        
         if (leftUnit == null && rightUnit == null) yield break;
         
         yield return StartCoroutine(SwapUnitData(leftBlockCoords, rightBlockCoords));
@@ -392,9 +413,9 @@ public class BoardManager : MonoBehaviour
 
         List<EffectState> effectsToRemove = new List<EffectState>();
         // Execute On Swap effects
-        if (leftUnit && leftUnit.effects.Count > 0)
+        if (leftUnit && leftUnit.effectStates.Count > 0)
         {
-            var leftEffectsCopy = new List<EffectState>(leftUnit.effects);  // Create a copy
+            var leftEffectsCopy = new List<EffectState>(leftUnit.effectStates);  // Create a copy
             foreach (var effectState in leftEffectsCopy)
             {
                 if (effectState.isSilenced) continue;
@@ -419,9 +440,9 @@ public class BoardManager : MonoBehaviour
         }
         effectsToRemove.Clear();
 
-        if (rightUnit && rightUnit.effects.Count > 0)
+        if (rightUnit && rightUnit.effectStates.Count > 0)
         {
-            var rightEffectsCopy = new List<EffectState>(rightUnit.effects);  // Create a copy
+            var rightEffectsCopy = new List<EffectState>(rightUnit.effectStates);  // Create a copy
             foreach (var effectState in rightEffectsCopy)
             {
                 var isImplemented = effectState.effect.OnSwap(rightBlockCoords, leftBlockCoords);
@@ -477,7 +498,14 @@ public class BoardManager : MonoBehaviour
                         oldCell.UnitBehaviour = null; // Only unassign after reserving the new cell
                     }
                 }
-
+                
+                foreach (var effectState in unitBehaviour.effectStates)
+                {
+                    if (effectState.isSilenced) continue;
+                    var distanceFallen = oldCell.Coordinates.row - GetCell(lowerCoordinates).Coordinates.row;
+                    effectState.effect.OnFall(unitBehaviour, distanceFallen);
+                }
+                
                 if (lowerCoordinates.Equals(new Coordinates(0, 0))) return;
                 // Start the coroutine to move the unit visually
                 StartCoroutine(UpdateUnitPosition(unitBehaviour, lowerCoordinates));
@@ -802,6 +830,13 @@ public class BoardManager : MonoBehaviour
         _cells[(Coordinates) unitCoordinates].UnitBehaviour = null;
         if (isDead)
         {
+            foreach (var effectState in unitBehaviour.effectStates)
+            {
+                if (effectState.effect.hasChainEffect)
+                {
+                    effectState.effect.RemoveEffect(unitBehaviour);
+                }
+            }
             unitBehaviour.RemoveSelf();
         }
     }
@@ -826,14 +861,19 @@ public class BoardManager : MonoBehaviour
     
     private IEnumerator RemoveDeadUnits()
     {
+        var foundDeadUnit = false;
         var allUnitBehaviours = GetAllUnitBehaviours();
         foreach (var unitBehaviour in allUnitBehaviours)
         {
             yield return StartCoroutine(unitBehaviour.CountdownStatuses(1));
-            
+        }
+
+        foreach (var unitBehaviour in allUnitBehaviours)
+        {
             if (unitBehaviour.isDead)
             {
                 RemoveUnitBehaviour(unitBehaviour, true);
+                foundDeadUnit = true;
             }
         }
 
@@ -847,6 +887,8 @@ public class BoardManager : MonoBehaviour
             }
         }
 
+        if (foundDeadUnit) AudioManager.Instance.Play("plop");
+        
         yield break;
     }
     

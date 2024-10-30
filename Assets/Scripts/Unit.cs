@@ -25,4 +25,5 @@ public class Unit : ScriptableObject
     public Sprite unitSprite;
     public string displayName;
     public bool cantChain;
+    public string flavorText;
 }

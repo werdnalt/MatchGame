@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a3700e93d9d6f548a8ed11827834e9c, type: 3}
   m_Name: Warrior
   m_EditorClassIdentifier: 
-  animatedCharacterPrefab: {fileID: 3710274101829224566, guid: afa8b35efa2fad044ba2ca207544e8e8, type: 3}
+  animatedCharacterPrefab: {fileID: 6616000546532442742, guid: 619342e9743e4b04eaa6a8f813e02d7f, type: 3}
   attackTimer: 4
-  shouldAnimateLoop: 0
   tribe: 0
   hp: 5
-  armor: 2
+  armor: 1
   attack: 4
   effects: []
   attackRange: 1
-  unitSprite: {fileID: 21300000, guid: a6fb9149f81a81d4f8d7fbe71077cc0e, type: 3}
+  unitSprite: {fileID: 21300000, guid: dd38f8059659e3340a84eff3896c6676, type: 3}
   displayName: Warrior
+  cantChain: 0

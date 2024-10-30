@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45bc3253e13f87344b75c0a9a351776b, type: 3}
   m_Name: Heal 1
   m_EditorClassIdentifier: 
-  effectDescription: 'ON DEATH: Heal Homie for 1'
+  effectDescription: 'ON DEATH: Heal Homie for 2'
   effectSprite: {fileID: 21300000, guid: 902dc9f6d4272cf43bb6372ce54d7ba5, type: 3}
-  numUses: 2
+  numUses: -1
   fromTreasure: {fileID: 0}
-  healAmount: 1
+  actionCost: 1
+  hasChainEffect: 0
+  healAmount: 2

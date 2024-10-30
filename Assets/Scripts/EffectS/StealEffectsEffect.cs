@@ -10,13 +10,13 @@ public class StealEffectsEffect : Effect
         var swappedUnit = BoardManager.Instance.GetUnitBehaviour(swappedUnitCoordinates);
         var swappedWith = BoardManager.Instance.GetUnitBehaviour(swappedWithCoordinates);
         
-        if (!swappedWith || !swappedUnit || swappedWith.effects.Count == 0) return false;
+        if (!swappedWith || !swappedUnit || swappedWith.effectStates.Count == 0) return false;
         
-        for (var i = swappedWith.effects.Count - 1; i >= 0; i--)
+        for (var i = swappedWith.effectStates.Count - 1; i >= 0; i--)
         {
-            var effectState = swappedWith.effects[i];
-            swappedUnit.effects.Add(effectState);
-            swappedWith.effects.Remove(effectState);
+            var effectState = swappedWith.effectStates[i];
+            swappedUnit.effectStates.Add(effectState);
+            swappedWith.effectStates.Remove(effectState);
         }
 
         return true;

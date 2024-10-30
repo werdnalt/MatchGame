@@ -10,6 +10,7 @@ public abstract class Effect : ScriptableObject
     public int numUses;
     public Treasure fromTreasure = null;
     public int actionCost = 1;
+    public bool hasChainEffect;
     
     public virtual void SetUnitBehaviour(UnitBehaviour unitBehaviour)
     {
@@ -33,7 +34,11 @@ public abstract class Effect : ScriptableObject
         return false;}
     
     // This function gets called when a block falls.
-    public virtual void OnFall() { }
+    public virtual bool OnFall(UnitBehaviour fallenUnit, int distanceFallen)
+    {
+        return false;
+        
+    }
 
     public virtual bool OnHit(UnitBehaviour attackingUnit, UnitBehaviour attackedUnit, ref int damageAmount)
     { return false; }
@@ -50,5 +55,10 @@ public abstract class Effect : ScriptableObject
     public virtual void RemoveEffect(UnitBehaviour unitBehaviour)
     {
         
+    }
+    
+    public virtual bool OnChain(UnitBehaviour chainedUnit)
+    {
+        return false;
     }
 }

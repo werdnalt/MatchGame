@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: heart
   m_EditorClassIdentifier: 
   unit: {fileID: 11400000, guid: 19a68bf0b90e5e544939355ac5863839, type: 2}
-  weight: 2
+  weight: 4

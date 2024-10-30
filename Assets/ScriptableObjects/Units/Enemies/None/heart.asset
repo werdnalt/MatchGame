@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: heart
   m_EditorClassIdentifier: 
   animatedCharacterPrefab: {fileID: 3694943140195302114, guid: f26783feb5c8d5d479140aa501aba4f5, type: 3}
-  attackTimer: 4
+  attackTimer: 0
   tribe: 2
   hp: 1
   armor: 0

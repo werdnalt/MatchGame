@@ -58,7 +58,7 @@ public class TextHighlighter: MonoBehaviour
             }
 
             // Highlight the matches with the specified color and insert sprite
-            var replacement = $"<color=#{colorHex}>$&</color>{spriteInsertion}"; // $& represents the entire match
+            var replacement = $"{spriteInsertion} <color=#{colorHex}>$&</color>"; // $& represents the entire match
             text = Regex.Replace(text, pattern, replacement);
         }
         return text;

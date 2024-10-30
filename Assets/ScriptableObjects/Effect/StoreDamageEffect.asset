@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1d96cdaf9ee17d478af41a8ef438270, type: 3}
   m_Name: StoreDamageEffect
   m_EditorClassIdentifier: 
-  effectDescription: 'ON HIT: Store damage received, ON ATTACK: Add Stored Damage
-    to ATK, reset Stored Damage'
+  effectDescription: 'ON HIT: Store DMG as Bonus ATK'
   effectSprite: {fileID: 0}
   numUses: -1
   fromTreasure: {fileID: 0}
   actionCost: 1
+  hasChainEffect: 0

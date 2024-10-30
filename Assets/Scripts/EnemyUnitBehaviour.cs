@@ -27,6 +27,11 @@ public class EnemyUnitBehaviour : UnitBehaviour
         return _attackTimer.IsReadyToAttack() && attackRange >= currentCoordinates.row;
     }
 
+    public void ResetAttackTimer()
+    {
+        StartCoroutine(_attackTimer.ResetAttackTimer());
+    }
+
     public void TryToShowCountdownTimer()
     {
         if (attackRange >= currentCoordinates.row) ShowCountdownTimer();
@@ -51,7 +56,7 @@ public class EnemyUnitBehaviour : UnitBehaviour
         var combatFinished = false;
         
         List<EffectState> effectsToRemove = new List<EffectState>();
-        foreach (var effectState in effects)
+        foreach (var effectState in effectStates)
         {
             if (effectState.isSilenced) continue;
             var isImplemented = effectState.effect.OnAttack(this, attackingTarget, ref attack);
